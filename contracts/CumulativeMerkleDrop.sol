@@ -6,6 +6,7 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
+import "@threshold-network/solidity-contracts/contracts/staking/IStaking.sol";
 import "./interfaces/ICumulativeMerkleDrop.sol";
 
 
@@ -14,6 +15,7 @@ contract CumulativeMerkleDrop is Ownable, ICumulativeMerkleDrop {
     using MerkleProof for bytes32[];
 
     address public immutable override token;
+    address public immutable stakingContract;
     address public rewardsHolder;
 
     bytes32 public override merkleRoot;
@@ -25,11 +27,13 @@ contract CumulativeMerkleDrop is Ownable, ICumulativeMerkleDrop {
         bytes32[] proof;
     }
 
-    constructor(address token_, address rewardsHolder_, address newOwner) {
+    constructor(address token_, address stakingContract_, address rewardsHolder_, address newOwner) {
         require(IERC20(token_).totalSupply() > 0, "Token contract must be set");
+        require(stakingContract_ != address(0), "TokenStaking address must be an address");
         require(rewardsHolder_ != address(0), "Rewards Holder must be an address");
         transferOwnership(newOwner);
         token = token_;
+        stakingContract = stakingContract_;
         rewardsHolder = rewardsHolder_;
     }
 
@@ -44,13 +48,14 @@ contract CumulativeMerkleDrop is Ownable, ICumulativeMerkleDrop {
         rewardsHolder = rewardsHolder_;
     }
 
-    function claim(
+    function _claim(
         address stakingProvider,
         address beneficiary,
         uint256 cumulativeAmount,
         bytes32 expectedMerkleRoot,
-        bytes32[] calldata merkleProof
-    ) public override {
+        bytes32[] calldata merkleProof,
+        bool stake
+    ) internal {
         require(merkleRoot == expectedMerkleRoot, "Merkle root was updated");
 
         // Verify the merkle proof
@@ -63,11 +68,39 @@ contract CumulativeMerkleDrop is Ownable, ICumulativeMerkleDrop {
         cumulativeClaimed[stakingProvider] = cumulativeAmount;
 
         // Send the token
+        uint256 amount;
         unchecked {
-            uint256 amount = cumulativeAmount - preclaimed;
+            amount = cumulativeAmount - preclaimed;
+        }
+        if (stake) {
+            IERC20(token).safeTransferFrom(rewardsHolder, address(this), amount);
+            IERC20(token).approve(stakingContract, amount);
+            IStaking(stakingContract).topUp(stakingProvider, uint96(amount));
+            emit ClaimedAndStaked(stakingProvider, amount, expectedMerkleRoot);
+        } else {
             IERC20(token).safeTransferFrom(rewardsHolder, beneficiary, amount);
             emit Claimed(stakingProvider, amount, beneficiary, expectedMerkleRoot);
         }
+    }
+
+    function claim(
+        address stakingProvider,
+        address beneficiary,
+        uint256 cumulativeAmount,
+        bytes32 expectedMerkleRoot,
+        bytes32[] calldata merkleProof
+    ) public override {
+        _claim(stakingProvider, beneficiary, cumulativeAmount, expectedMerkleRoot, merkleProof, false);
+    }
+
+    function claimAndStake (
+        address stakingProvider,
+        address beneficiary,
+        uint256 cumulativeAmount,
+        bytes32 expectedMerkleRoot,
+        bytes32[] calldata merkleProof
+    ) public {
+        _claim(stakingProvider, beneficiary, cumulativeAmount, expectedMerkleRoot, merkleProof, true);
     }
 
     function batchClaim(
@@ -76,6 +109,21 @@ contract CumulativeMerkleDrop is Ownable, ICumulativeMerkleDrop {
     ) external {
         for (uint i; i < Claims.length; i++) {
             claim(
+                Claims[i].stakingProvider,
+                Claims[i].beneficiary,
+                Claims[i].amount,
+                expectedMerkleRoot,
+                Claims[i].proof
+            );
+        }
+    }
+
+    function batchClaimAndStake(
+        bytes32 expectedMerkleRoot,
+        Claim[] calldata Claims
+    ) external {
+        for (uint i; i < Claims.length; i++) {
+            claimAndStake(
                 Claims[i].stakingProvider,
                 Claims[i].beneficiary,
                 Claims[i].amount,

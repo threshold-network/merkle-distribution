@@ -28,6 +28,7 @@
   },
   "dependencies": {
     "@thesis/solidity-contracts": "github:thesis/solidity-contracts#4985bcf",
+    "@threshold-network/solidity-contracts": "^1.1.0",
     "ganache-cli": "^6.12.2",
     "solidity-coverage": "^0.7.21"
   }
