@@ -20,6 +20,7 @@ function onlyUnique(value, index, self) {
 
 describe('Cumulative Merkle Distribution', function () {
   let token
+  let tokenStaking
 
   before(function () {
     // numRuns must be less or equal to the number of accounts in `dist`
@@ -30,6 +31,8 @@ describe('Cumulative Merkle Distribution', function () {
   beforeEach(async function () {
     const Token = await ethers.getContractFactory('TokenMock')
     token = await Token.deploy()
+    const TokenStaking = await ethers.getContractFactory('TokenStakingMock')
+    tokenStaking = await TokenStaking.deploy(token.address)
   })
 
   context('when set Merkle Root for first time', async function () {
@@ -39,7 +42,7 @@ describe('Cumulative Merkle Distribution', function () {
       const MerkleDist = await ethers.getContractFactory('CumulativeMerkleDrop')
       const [owner, rewardsHolder] = await ethers.getSigners();
       await token.mint(rewardsHolder.address, 10)
-      merkleDist = await MerkleDist.deploy(token.address, rewardsHolder.address, owner.address)
+      merkleDist = await MerkleDist.deploy(token.address, tokenStaking.address, rewardsHolder.address, owner.address)
     })
 
     it('should be 0 before setting it up', async function () {
@@ -94,7 +97,7 @@ describe('Cumulative Merkle Distribution', function () {
       const MerkleDist = await ethers.getContractFactory('CumulativeMerkleDrop')
       const [_, rewardsHolder] = await ethers.getSigners();
       await token.mint(rewardsHolder.address, totalAmount)
-      merkleDist = await MerkleDist.deploy(token.address, rewardsHolder.address, rewardsHolder.address)
+      merkleDist = await MerkleDist.deploy(token.address, tokenStaking.address, rewardsHolder.address, rewardsHolder.address)
       await merkleDist.connect(rewardsHolder).setMerkleRoot(merkleRoot)
       await token.connect(rewardsHolder).approve(merkleDist.address, totalAmount)
     })
@@ -145,7 +148,7 @@ describe('Cumulative Merkle Distribution', function () {
       const MerkleDist = await ethers.getContractFactory('CumulativeMerkleDrop')
       const [owner, rewardsHolder] = await ethers.getSigners()
       await token.mint(rewardsHolder.address, totalAmount)
-      merkleDist = await MerkleDist.deploy(token.address, rewardsHolder.address, owner.address)
+      merkleDist = await MerkleDist.deploy(token.address, tokenStaking.address, rewardsHolder.address, owner.address)
       await merkleDist.setMerkleRoot(merkleRoot)
       await token.connect(rewardsHolder).approve(merkleDist.address, totalAmount)
     })
@@ -274,7 +277,7 @@ describe('Cumulative Merkle Distribution', function () {
       const MerkleDist = await ethers.getContractFactory('CumulativeMerkleDrop')
       const [owner, rewardsHolder] = await ethers.getSigners();
       await token.mint(rewardsHolder.address, totalAmount)
-      merkleDist = await MerkleDist.deploy(token.address, rewardsHolder.address, owner.address)
+      merkleDist = await MerkleDist.deploy(token.address, tokenStaking.address, rewardsHolder.address, owner.address)
       await merkleDist.setMerkleRoot(merkleRoot)
       await token.connect(rewardsHolder).approve(merkleDist.address, totalAmount)
     })
@@ -336,7 +339,7 @@ describe('Cumulative Merkle Distribution', function () {
               const claimAmount = ethers.BigNumber.from(cumDist.claims[claimAccount].amount)
               const claimProof = cumDist.claims[claimAccount].proof
               const claimBeneficiary = cumDist.claims[claimAccount].beneficiary
-              
+
               // add up all rewards from previous distribution
               let prevReward = {}
               proofAccounts.forEach((account, _) => {
@@ -377,7 +380,7 @@ describe('Cumulative Merkle Distribution', function () {
       const MerkleDist = await ethers.getContractFactory('CumulativeMerkleDrop')
       const [owner, rewardsHolder] = await ethers.getSigners();
       await token.mint(rewardsHolder.address, 10)
-      merkleDist = await MerkleDist.deploy(token.address, rewardsHolder.address, owner.address)
+      merkleDist = await MerkleDist.deploy(token.address, tokenStaking.address, rewardsHolder.address, owner.address)
       await merkleDist.setMerkleRoot(merkleRoot)
     })
 
