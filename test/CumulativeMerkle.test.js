@@ -129,6 +129,97 @@ describe('Cumulative Merkle Distribution', function () {
     })
   })
 
+  context('when batch claim & stake tokens', async function () {
+    let merkleDist
+    let merkleRoot
+    let totalAmount
+    let proofAccounts
+
+    before(function () {
+      // numRuns must be 2 since we are splitting the number of accounts by 2
+      const numRuns = 2
+      fc.configureGlobal({ numRuns: numRuns, skipEqualValues: true })
+      merkleRoot = dist.merkleRoot
+      totalAmount = ethers.BigNumber.from(dist.totalAmount)
+      proofAccounts = Object.keys(dist.claims)
+    })
+
+    beforeEach(async function () {
+      const MerkleDist = await ethers.getContractFactory('CumulativeMerkleDrop')
+      const [_, rewardsHolder] = await ethers.getSigners()
+      await token.mint(rewardsHolder.address, totalAmount)
+      merkleDist = await MerkleDist.deploy(token.address, tokenStaking.address, rewardsHolder.address, rewardsHolder.address)
+      await merkleDist.connect(rewardsHolder).setMerkleRoot(merkleRoot)
+      await token.connect(rewardsHolder).approve(merkleDist.address, totalAmount)
+    })
+
+    it('should not beneficiaries receive tokens', async function () {
+      await fc.assert(
+        fc.asyncProperty(
+          fc.integer({ min: 0, max: 1 }),
+          async function (index) {
+            const claimAccounts = proofAccounts.slice((proofAccounts.length / 2) * index, (proofAccounts.length / 2) * (index + 1))
+            const claimAmounts = Array.from(claimAccounts).map((claimAccount, _) => ethers.BigNumber.from(dist.claims[claimAccount].amount))
+            const claimProofs = Array.from(claimAccounts).map((claimAccount, _) => dist.claims[claimAccount].proof)
+            const claimBeneficiaries = Array.from(claimAccounts).map((claimAccount, _) => dist.claims[claimAccount].beneficiary)
+            const claimStructs = Array.from(claimAccounts).map((claimAccount, index) => [claimAccount, claimBeneficiaries[index], claimAmounts[index], claimProofs[index]])
+            const prevBalances = await Promise.all(claimBeneficiaries.map(async (beneficiary, _) => await token.balanceOf(beneficiary)))
+            await merkleDist.batchClaimAndStake(merkleRoot, claimStructs)
+
+            const afterBalances = await Promise.all(claimBeneficiaries.map(async (beneficiary, _) => await token.balanceOf(beneficiary)))
+            afterBalances.forEach((afterBalance, index) => expect(afterBalance).to.equal(prevBalances[index]))
+          }
+        )
+      )
+    })
+
+    it('should rewards holder to reduce its balance', async function () {
+      await fc.assert(
+        fc.asyncProperty(
+          fc.integer({ min: 0, max: 1 }),
+          async function (index) {
+            const [_, rewardsHolder] = await ethers.getSigners()
+            const claimAccounts = proofAccounts.slice((proofAccounts.length / 2) * index, (proofAccounts.length / 2) * (index + 1))
+            const claimAmounts = Array.from(claimAccounts).map((claimAccount, _) => ethers.BigNumber.from(dist.claims[claimAccount].amount))
+            const claimProofs = Array.from(claimAccounts).map((claimAccount, _) => dist.claims[claimAccount].proof)
+            const claimBeneficiaries = Array.from(claimAccounts).map((claimAccount, _) => dist.claims[claimAccount].beneficiary)
+            const claimStructs = Array.from(claimAccounts).map((claimAccount, index) => [claimAccount, claimBeneficiaries[index], claimAmounts[index], claimProofs[index]])
+
+            const prevBalance = await token.balanceOf(rewardsHolder.address)
+            const amountsSum = claimAmounts.reduce((total, amount) => total.add(amount), ethers.BigNumber.from(0))
+            const expBalance = prevBalance.sub(amountsSum)
+            await merkleDist.batchClaimAndStake(merkleRoot, claimStructs)
+            const afterBalance = await token.balanceOf(rewardsHolder.address)
+            expect(expBalance).to.equal(afterBalance)
+          }
+        )
+      )
+    })
+
+    it('should TokenStaking contract receive tokens', async function () {
+      await fc.assert(
+        fc.asyncProperty(
+          fc.integer({ min: 0, max: 1 }),
+          async function (index) {
+            const [_, rewardsHolder] = await ethers.getSigners()
+            const claimAccounts = proofAccounts.slice((proofAccounts.length / 2) * index, (proofAccounts.length / 2) * (index + 1))
+            const claimAmounts = Array.from(claimAccounts).map((claimAccount, _) => ethers.BigNumber.from(dist.claims[claimAccount].amount))
+            const claimProofs = Array.from(claimAccounts).map((claimAccount, _) => dist.claims[claimAccount].proof)
+            const claimBeneficiaries = Array.from(claimAccounts).map((claimAccount, _) => dist.claims[claimAccount].beneficiary)
+            const claimStructs = Array.from(claimAccounts).map((claimAccount, index) => [claimAccount, claimBeneficiaries[index], claimAmounts[index], claimProofs[index]])
+
+            const prevBalance = await token.balanceOf(tokenStaking.address)
+            const amountsSum = claimAmounts.reduce((total, amount) => total.add(amount), ethers.BigNumber.from(0))
+            const expBalance = prevBalance.add(amountsSum)
+            await merkleDist.batchClaimAndStake(merkleRoot, claimStructs)
+            const afterBalance = await token.balanceOf(tokenStaking.address)
+            expect(expBalance).to.equal(afterBalance)
+          }
+        )
+      )
+    })
+  })
+
   context('when claim tokens', async function () {
     let merkleDist
     let merkleRoot
