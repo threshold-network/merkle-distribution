@@ -252,6 +252,150 @@ describe('Cumulative Merkle Distribution', function () {
     })
   })
 
+  context('when claim and stake tokens', async function () {
+    let merkleDist
+    let merkleRoot
+    let totalAmount
+    let proofAccounts
+
+    before(function () {
+      // numRuns must be less or equal to the number of accounts in `dist`
+      const numRuns = Object.keys(dist.claims).length
+      fc.configureGlobal({ numRuns: numRuns, skipEqualValues: true })
+      merkleRoot = dist.merkleRoot
+      totalAmount = ethers.BigNumber.from(dist.totalAmount)
+      proofAccounts = Object.keys(dist.claims)
+    })
+
+    beforeEach(async function () {
+      const MerkleDist = await ethers.getContractFactory('CumulativeMerkleDrop')
+      const [owner, rewardsHolder] = await ethers.getSigners()
+      await token.mint(rewardsHolder.address, totalAmount)
+      merkleDist = await MerkleDist.deploy(token.address, tokenStaking.address, rewardsHolder.address, owner.address)
+      await merkleDist.setMerkleRoot(merkleRoot)
+      await token.connect(rewardsHolder).approve(merkleDist.address, totalAmount)
+    })
+
+    it('should be emitted events', async function () {
+      await fc.assert(
+        fc.asyncProperty(
+          fc.integer({ min: 0, max: proofAccounts.length - 1 }),
+          async function (index) {
+            const claimAccount = proofAccounts[index]
+            const claimAmount = ethers.BigNumber.from(dist.claims[claimAccount].amount)
+            const claimProof = dist.claims[claimAccount].proof
+            const claimBeneficiary = dist.claims[claimAccount].beneficiary
+            const tx = merkleDist.claimAndStake(claimAccount, claimBeneficiary, claimAmount, merkleRoot, claimProof)
+            await expect(tx).to.emit(merkleDist, 'ClaimedAndStaked').withArgs(claimAccount, claimAmount, merkleRoot)
+            await expect(tx).to.emit(tokenStaking, 'ToppedUp').withArgs(claimAccount, claimAmount)
+          }
+        )
+      )
+    })
+
+    it('should TokenStaking contract receive tokens', async function () {
+      await fc.assert(
+        fc.asyncProperty(
+          fc.integer({ min: 0, max: proofAccounts.length - 1 }),
+          async function (index) {
+            const claimAccount = proofAccounts[index]
+            const claimAmount = ethers.BigNumber.from(dist.claims[claimAccount].amount)
+            const claimProof = dist.claims[claimAccount].proof
+            const claimBeneficiary = dist.claims[claimAccount].beneficiary
+
+            const prevBalance = await token.balanceOf(tokenStaking.address)
+            const expBalance = prevBalance.add(claimAmount)
+            await merkleDist.claimAndStake(claimAccount, claimBeneficiary, claimAmount, merkleRoot, claimProof)
+            const afterBalance = await token.balanceOf(tokenStaking.address)
+            expect(afterBalance).to.equal(expBalance)
+          }
+        )
+      )
+    })
+
+    it('should not beneficiary account receive tokens', async function () {
+      await fc.assert(
+        fc.asyncProperty(
+          fc.integer({ min: 0, max: proofAccounts.length - 1 }),
+          async function (index) {
+            const claimAccount = proofAccounts[index]
+            const claimAmount = ethers.BigNumber.from(dist.claims[claimAccount].amount)
+            const claimProof = dist.claims[claimAccount].proof
+            const claimBeneficiary = dist.claims[claimAccount].beneficiary
+
+            const prevBalance = await token.balanceOf(claimBeneficiary)
+            await merkleDist.claimAndStake(claimAccount, claimBeneficiary, claimAmount, merkleRoot, claimProof)
+            const afterBalance = await token.balanceOf(claimBeneficiary)
+            expect(prevBalance).to.equal(afterBalance)
+          }
+        )
+      )
+    })
+
+    it('should rewards holder to reduce its balance', async function () {
+      await fc.assert(
+        fc.asyncProperty(
+          fc.integer({ min: 0, max: proofAccounts.length - 1 }),
+          async function (index) {
+            const [owner, rewardsHolder] = await ethers.getSigners()
+            const claimAccount = proofAccounts[index]
+            const claimAmount = ethers.BigNumber.from(dist.claims[claimAccount].amount)
+            const claimProof = dist.claims[claimAccount].proof
+            const claimBeneficiary = dist.claims[claimAccount].beneficiary
+
+            preBalance = await token.balanceOf(rewardsHolder.address)
+            expBalance = preBalance.sub(claimAmount)
+            await merkleDist.claimAndStake(claimAccount, claimBeneficiary, claimAmount, merkleRoot, claimProof)
+            const afterBalance = await token.balanceOf(rewardsHolder.address)
+            expect(expBalance).to.equal(afterBalance)
+          }
+        )
+      )
+    })
+
+    it('should not be possible to claim&stake for fake accounts', async function () {
+      claimAccount = ethers.Wallet.createRandom().address
+      claimAmount = 100000
+      claimProof = [
+        '0xf558bba7dd8aef6fdfb36ea106d965fd7ef483aa217cc02e2c33b78cdfb74cab',
+        '0x7a8326f3dfbbddc4a0bc1e3e5005d4cecf6a7c89d386692a27dc5235b55e92cd'
+      ]
+      claimBeneficiary = ethers.Wallet.createRandom().address
+      await expect(merkleDist.claimAndStake(claimAccount, claimBeneficiary, claimAmount, merkleRoot, claimProof)).to.be.revertedWith('Invalid proof')
+    })
+
+    it('should not be possible to claim&stake a different amount of tokens', async function () {
+      await fc.assert(
+        fc.asyncProperty(
+          fc.integer({ min: 0, max: proofAccounts.length - 1 }),
+          fc.integer({ min: 0, max: 10000000 }),
+          async function (index, claimAmount) {
+            const claimAccount = proofAccounts[index]
+            const claimProof = dist.claims[claimAccount].proof
+            const claimBeneficiary = dist.claims[claimAccount].beneficiary
+            await expect(merkleDist.claim(claimAccount, claimBeneficiary, claimAmount, merkleRoot, claimProof)).to.be.revertedWith('Invalid proof')
+          }
+        )
+      )
+    })
+
+    it('should not be possible to claim&stake twice', async function () {
+      await fc.assert(
+        fc.asyncProperty(
+          fc.integer({ min: 0, max: proofAccounts.length - 1 }),
+          async function (index) {
+            const claimAccount = proofAccounts[index]
+            const claimAmount = ethers.BigNumber.from(dist.claims[claimAccount].amount)
+            const claimProof = dist.claims[claimAccount].proof
+            const claimBeneficiary = dist.claims[claimAccount].beneficiary
+            await merkleDist.claimAndStake(claimAccount, claimBeneficiary, claimAmount, merkleRoot, claimProof)
+            await expect(merkleDist.claimAndStake(claimAccount, claimBeneficiary, claimAmount, merkleRoot, claimProof)).to.be.revertedWith('Nothing to claim')
+          }
+        )
+      )
+    })
+  })
+
   context('when set a new Merkle Distribution (cumulative)', async function () {
     let merkleDist
     let merkleRoot
