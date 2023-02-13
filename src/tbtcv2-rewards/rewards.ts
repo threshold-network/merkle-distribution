@@ -19,9 +19,6 @@ import axios from "axios"
 import {
   BEACON_AUTHORIZATION,
   TBTC_AUTHORIZATION,
-  UP_TIME_PERCENT,
-  AVG_PRE_PARAMS,
-  VERSION,
   IS_BEACON_AUTHORIZED,
   IS_TBTC_AUTHORIZED,
   IS_UP_TIME_SATISFIED,
@@ -99,6 +96,12 @@ const prometheusAPIQuery = `${prometheusAPI}/query`
 // Go back in time relevant to the current date to get data for the exact
 // rewards interval dates.
 const offset = Math.floor(Date.now() / 1000) - endRewardsTimestamp
+
+type InstanceParams = {
+  upTimePercent: number
+  avgPreParams: number
+  version: any
+}
 
 export async function calculateRewards() {
   if (Date.now() / 1000 < endRewardsTimestamp) {
@@ -190,7 +193,7 @@ export async function calculateRewards() {
     const operatorAddress = bootstrapData[i].metric.chain_address
     let authorizations = new Map<string, BigNumber>() // application: value
     let requirements = new Map<string, boolean>() // factor: true | false
-    let instancesData = new Map<string, Map<string, string | number>>()
+    let instancesData = new Map<string, InstanceParams>()
     let operatorData: any = {}
 
     // Staking provider should be the same for Beacon and TBTC apps
@@ -328,7 +331,7 @@ export async function calculateRewards() {
     const secondToLatestClient = clientReleases[1].split("_")
     const secondToLatestClientTag = secondToLatestClient[0]
 
-    const instances = await processInstances(
+    const instances = await processBuildVersions(
       operatorAddress,
       rewardsInterval,
       instancesData
@@ -592,7 +595,7 @@ async function authorizationPostRewardsInterval(
 async function instancesForOperator(
   operatorAddress: any,
   rewardsInterval: number,
-  instancesData: Map<string, Map<string, string | number>>
+  instancesData: Map<string, InstanceParams>
 ) {
   // Resolution is defaulted to Prometheus settings.
   const instancesDataByOperatorParams = {
@@ -605,8 +608,8 @@ async function instancesForOperator(
 
   instancesDataByOperator.forEach(
     (element: { metric: { instance: string } }) => {
-      const instanceData = new Map<string, string | number>()
-      instancesData.set(element.metric.instance, instanceData)
+      const instanceData = {}
+      instancesData.set(element.metric.instance, instanceData as InstanceParams)
     }
   )
 }
@@ -616,7 +619,7 @@ async function instancesForOperator(
 async function checkUptime(
   operatorAddress: string,
   rewardsInterval: number,
-  instancesData: Map<string, Map<string, string | number>>
+  instancesData: Map<string, InstanceParams>
 ) {
   const paramsOperatorUptime = {
     query: `up{chain_address="${operatorAddress}", job="${prometheusJob}"}
@@ -653,7 +656,7 @@ async function checkUptime(
     const uptime = instance.value[1] * HUNDRED
     const dataInstance = instancesData.get(instance.metric.instance)
     if (dataInstance !== undefined) {
-      dataInstance.set(UP_TIME_PERCENT, uptime)
+      dataInstance.upTimePercent = uptime
     } else {
       // Should not happen
       console.error("Instance must be present for a given rewards interval.")
@@ -679,7 +682,7 @@ async function checkUptime(
 async function checkPreParams(
   operatorAddress: string,
   rewardsInterval: number,
-  dataInstances: Map<string, Map<string, string | number>>
+  dataInstances: Map<string, InstanceParams>
 ) {
   // Avg of pre-params across all the instances for a given operator in the rewards
   // interval dates. Resolution is defaulted to Prometheus settings.
@@ -698,7 +701,7 @@ async function checkPreParams(
     const preParams = parseInt(instance.value[1]) // [timestamp, value]
     const dataInstance = dataInstances.get(instance.metric.instance)
     if (dataInstance !== undefined) {
-      dataInstance.set(AVG_PRE_PARAMS, preParams)
+      dataInstance.avgPreParams = preParams
     } else {
       // Should not happen
       console.error("Instance must be present for a given rewards interval.")
@@ -713,10 +716,10 @@ async function checkPreParams(
 
 // Query Prometheus and fetch instances that run on either of two latest client
 // versions and mark their first and last registered timestamp.
-async function processInstances(
+async function processBuildVersions(
   operatorAddress: string,
   rewardsInterval: number,
-  instancesData: Map<string, Map<string, string | number>>
+  instancesData: Map<string, InstanceParams>
 ) {
   const buildVersionInstancesParams = {
     query: `client_info{chain_address="${operatorAddress}", job="${prometheusJob}"}[${rewardsInterval}s:${QUERY_RESOLUTION}s] offset ${offset}s`,
@@ -727,6 +730,7 @@ async function processInstances(
   ).data.result
 
   let instances = []
+  const lastRegisteredVersion = new Map<string, string>() // version -> last registered timestamp
 
   // Determine client's build version for it all it's instances
   for (let i = 0; i < queryBuildVersionInstances.length; i++) {
@@ -743,8 +747,12 @@ async function processInstances(
     instances.push(instanceTimestampsVersionInfo)
 
     const dataInstance = instancesData.get(instance.metric.instance)
+    lastRegisteredVersion.set(
+      instanceTimestampsVersionInfo.buildVersion,
+      instanceTimestampsVersionInfo.lastRegisteredTimestamp
+    )
     if (dataInstance !== undefined) {
-      dataInstance.set(VERSION, instance.metric.version)
+      dataInstance.version = Object.fromEntries(lastRegisteredVersion)
     } else {
       // Should not happen
       console.error("Instance must be present for a given rewards interval.")
@@ -759,11 +767,10 @@ async function processInstances(
   return instances
 }
 
-function convertToObject(map: Map<string, Map<string, any>>) {
+function convertToObject(map: Map<string, InstanceParams>) {
   let obj: { [k: string]: any } = {}
-  map.forEach((value: Map<string, any>, key: string) => {
-    const result = Object.fromEntries(value)
-    obj[key] = result
+  map.forEach((value: InstanceParams, key: string) => {
+    obj[key] = value
   })
 
   return obj
