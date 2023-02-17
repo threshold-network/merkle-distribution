@@ -152,9 +152,10 @@ printf "${LOG_START}Installing yarn dependencies...${LOG_END}"
 yarn install
 
 printf "${LOG_START}Retrieving client release tags...${LOG_END}"
-merkleDistributionRepo=$(git remote get-url origin)
-git remote set-url origin ${KEEP_CORE_REPO}
-git fetch --all --tags --prune
+# Create a new git remote to fetch the release tags
+git remote remove keep-core-repo 2>/dev/null || true
+git remote add keep-core-repo ${KEEP_CORE_REPO}
+git fetch --tags --prune --quiet keep-core-repo
 allTags=($(git tag --sort=-version:refname --list 'v[0-9]*.*-m[0-9]*'))
 latestTag=${allTags[0]}
 latestTimestamp=($(git tag --sort=-version:refname --list 'v[0-9]*.*-m[0-9]*' --format '%(creatordate:unix)' | head -n 1))
@@ -172,8 +173,8 @@ tagsInRewardInterval+=($secondToLatestTagTimestamp)
 printf -v tags '%s|' "${tagsInRewardInterval[@]}"
 tagsTrimmed="${tags%?}" # remove "|" at the end
 
-# Setting remote back to merkle distribution repo
-git remote set-url origin $merkleDistributionRepo
+# Removing created remote
+git remote remove keep-core-repo
 
 # Run script
 printf "${LOG_START}Fetching peers data...${LOG_END}"
