@@ -31,7 +31,7 @@ register(
   process.env.MAINNET_RPC_URL,
   process.env.MAINNET_PRIVATE_KEY,
   "mainnet",
-  process.env.MAINNET_ETHERSCAN_KEY
+  process.env.ETHERSCAN_TOKEN
 )
 register(
   "mainnet_test",
@@ -40,7 +40,7 @@ register(
   process.env.MAINNET_RPC_URL,
   process.env.MAINNET_PRIVATE_KEY,
   "mainnet",
-  process.env.MAINNET_ETHERSCAN_KEY
+  process.env.ETHERSCAN_TOKEN
 )
 register(
   "goerli",
@@ -49,7 +49,7 @@ register(
   process.env.GOERLI_RPC_URL,
   process.env.GOERLI_PRIVATE_KEY,
   "goerli",
-  process.env.MAINNET_ETHERSCAN_KEY
+  process.env.ETHERSCAN_TOKEN
 )
 
 module.exports = {
