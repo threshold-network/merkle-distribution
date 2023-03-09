@@ -5,6 +5,7 @@ require("hardhat-deploy")
 require("solidity-coverage")
 require("hardhat-gas-reporter")
 require("dotenv").config()
+require("./src/tasks/claim_rewards")
 
 const { networks, etherscan } = require("./hardhat.networks")
 
@@ -38,6 +39,9 @@ module.exports = {
       goerli: 0,
       mainnet: "0x9F6e831c8F8939DC0C830C6e492e7cEf4f9C2F5f",
       mainnet_test: 0,
+    },
+    claimer: {
+      mainnet: 0,
     },
   },
   networks,
