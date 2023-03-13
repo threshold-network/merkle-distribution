@@ -10,8 +10,12 @@ task(
     let { stakingProvider } = taskArguments
     const { claimer } = await getNamedAccounts()
 
-    //TODO: catch invalid address error
-    stakingProvider = utils.getAddress(stakingProvider)
+    try {
+      stakingProvider = utils.getAddress(stakingProvider)
+    } catch (error) {
+      console.error(`Error with staking provider address: ${error.reason}`)
+      return
+    }
 
     // Take the JSON of last distribution
     const distsJson = JSON.parse(
