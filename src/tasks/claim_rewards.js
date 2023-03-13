@@ -10,6 +10,9 @@ task(
     let { stakingProvider } = taskArguments
     const { claimer } = await getNamedAccounts()
 
+    let merkleRoot
+    let distStake
+
     try {
       stakingProvider = utils.getAddress(stakingProvider)
     } catch (error) {
@@ -18,18 +21,23 @@ task(
     }
 
     // Take the JSON of last distribution
-    const distsJson = JSON.parse(
-      fs.readFileSync("distributions/distributions.json")
-    )
-    const dists = Object.keys(
-      distsJson["CumulativeAmountByDistribution"]
-    ).sort()
-    const lastDist = dists[dists.length - 1]
-    const dist = JSON.parse(
-      fs.readFileSync(`distributions/${lastDist}/MerkleDist.json`)
-    )
-    const merkleRoot = dist.merkleRoot
-    const distStake = dist.claims[stakingProvider]
+    try {
+      const distsJson = JSON.parse(
+        fs.readFileSync("distributions/distributions.json")
+      )
+      const dists = Object.keys(
+        distsJson["CumulativeAmountByDistribution"]
+      ).sort()
+      const lastDist = dists[dists.length - 1]
+      const dist = JSON.parse(
+        fs.readFileSync(`distributions/${lastDist}/MerkleDist.json`)
+      )
+      merkleRoot = dist.merkleRoot
+      distStake = dist.claims[stakingProvider]
+    } catch (error) {
+      console.error(error)
+      return
+    }
 
     console.log(merkleRoot)
     console.log(distStake)
