@@ -1,20 +1,22 @@
 const { task } = require("hardhat/config")
 const fs = require("fs")
-const { utils } = require("ethers")
 
 task(
   "claim-rewards",
   "Claim the accumulated staking rewards",
   async function (taskArguments, hre) {
     const { getNamedAccounts } = hre
+    const { ethers } = hre
     let { stakingProvider } = taskArguments
     const { claimer } = await getNamedAccounts()
+
+    const merkleDistAddress = "0xeA7CA290c7811d1cC2e79f8d706bD05d8280BD37"
 
     let merkleRoot
     let distStake
 
     try {
-      stakingProvider = utils.getAddress(stakingProvider)
+      stakingProvider = ethers.utils.getAddress(stakingProvider)
     } catch (error) {
       console.error(`Error with staking provider address: ${error.reason}`)
       return
@@ -38,6 +40,14 @@ task(
       console.error(error)
       return
     }
+
+    // Call the claim method in Merkle Distribution contract
+    const merkleDistContract = await ethers.getContractAt(
+      "CumulativeMerkleDrop",
+      merkleDistAddress
+    )
+
+    console.log(merkleDistContract)
 
     console.log(merkleRoot)
     console.log(distStake)
