@@ -41,6 +41,7 @@ module.exports = {
       mainnet_test: 0,
     },
     claimer: {
+      default: 1, // any wallet can be a claimer
       mainnet: 0,
     },
   },
