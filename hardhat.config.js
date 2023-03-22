@@ -40,10 +40,6 @@ module.exports = {
       mainnet: "0x9F6e831c8F8939DC0C830C6e492e7cEf4f9C2F5f",
       mainnet_test: 0,
     },
-    claimer: {
-      default: 1, // any wallet can be a claimer
-      mainnet: 0,
-    },
   },
   networks,
 }

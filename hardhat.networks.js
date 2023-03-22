@@ -56,9 +56,6 @@ networks["hardhat"] = {
   forking: {
     enabled: !!process.env.FORKING_URL,
     url: process.env.FORKING_URL || "",
-    blockNumber: process.env.FORKING_BLOCK
-      ? parseInt(process.env.FORKING_BLOCK)
-      : undefined,
   },
 }
 

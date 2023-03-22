@@ -1,18 +1,18 @@
 const { task } = require("hardhat/config")
 const fs = require("fs")
 
+const MERKLE_ADDRESS = "0xeA7CA290c7811d1cC2e79f8d706bD05d8280BD37"
+
 task(
   "claim-rewards",
   "Claim the accumulated staking rewards",
   async function (taskArguments, hre) {
-    const { getNamedAccounts } = hre
     const { ethers } = hre
     let { stakingProvider } = taskArguments
-    const { claimer } = await getNamedAccounts()
 
-    const merkleDistAddress = "0xeA7CA290c7811d1cC2e79f8d706bD05d8280BD37"
+    const [claimer] = await ethers.getSigners()
 
-    let merkleRoot
+    let merkleRootDist
     let distStake
 
     try {
@@ -34,23 +34,54 @@ task(
       const dist = JSON.parse(
         fs.readFileSync(`distributions/${lastDist}/MerkleDist.json`)
       )
-      merkleRoot = dist.merkleRoot
+      merkleRootDist = dist.merkleRoot
       distStake = dist.claims[stakingProvider]
     } catch (error) {
       console.error(error)
       return
     }
 
-    // Call the claim method in Merkle Distribution contract
+    // Get the Merkle distribution contract
     const merkleDistContract = await ethers.getContractAt(
       "CumulativeMerkleDrop",
-      merkleDistAddress
+      MERKLE_ADDRESS
     )
 
-    console.log(merkleDistContract)
+    try {
+      const merkleRootContract = await merkleDistContract.merkleRoot()
+      if (merkleRootContract !== merkleRootDist) {
+        console.error(
+          "Contract Merkle root and last distribution doesn't match"
+        )
+        return
+      }
+    } catch (error) {
+      console.error(`${error}`)
+    }
 
-    console.log(merkleRoot)
-    console.log(distStake)
-    console.log(claimer)
+    console.log("--------------")
+    console.log("Claiming rewards:")
+    console.log(`Staking provider address ${stakingProvider}`)
+    console.log(`Claimer address ${claimer.address}`)
+    console.log("--------------")
+
+    try {
+      // Call the claim method in Merkle Distribution contract
+      const tx = await merkleDistContract
+        .connect(claimer)
+        .claim(
+          stakingProvider,
+          distStake.beneficiary,
+          distStake.amount,
+          merkleRootDist,
+          distStake.proof
+        )
+
+      console.log("Claiming success!")
+      console.log(`https://etherscan.io/tx/${tx.hash}/`)
+    } catch (error) {
+      console.error("Error claiming the rewards")
+      console.error(error)
+    }
   }
 ).addParam("stakingProvider", "The staking provider address")
