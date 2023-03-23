@@ -1,5 +1,6 @@
 const { task } = require("hardhat/config")
 const fs = require("fs")
+const ora = require("ora")
 
 const MERKLE_ADDRESS = "0xeA7CA290c7811d1cC2e79f8d706bD05d8280BD37"
 
@@ -8,12 +9,13 @@ task(
   "Claim the accumulated staking rewards",
   async function (taskArguments, hre) {
     const { ethers } = hre
-    let { stakingProvider } = taskArguments
-
-    const [claimer] = await ethers.getSigners()
 
     let merkleRootDist
     let distStake
+
+    let { stakingProvider } = taskArguments
+
+    const [claimer] = await ethers.getSigners()
 
     try {
       stakingProvider = ethers.utils.getAddress(stakingProvider)
@@ -59,11 +61,10 @@ task(
       console.error(`${error}`)
     }
 
-    console.log("--------------")
     console.log("Claiming rewards:")
     console.log(`Staking provider address ${stakingProvider}`)
     console.log(`Claimer address ${claimer.address}`)
-    console.log("--------------")
+    const spinner = ora("Sending transaction...").start()
 
     try {
       // Call the claim method in Merkle Distribution contract
@@ -77,7 +78,7 @@ task(
           distStake.proof
         )
 
-      console.log("Claiming success!")
+      spinner.stopAndPersist({ symbol: "✔" })
       console.log(`https://etherscan.io/tx/${tx.hash}/`)
     } catch (error) {
       console.error("Error claiming the rewards")
