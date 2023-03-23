@@ -38,6 +38,10 @@ task(
       )
       merkleRootDist = dist.merkleRoot
       distStake = dist.claims[stakingProvider]
+      if (!distStake) {
+        console.error(`No staking provider ${stakingProvider} found`)
+        return
+      }
     } catch (error) {
       console.error(error)
       return
@@ -81,8 +85,9 @@ task(
       spinner.stopAndPersist({ symbol: "✔" })
       console.log(`https://etherscan.io/tx/${tx.hash}/`)
     } catch (error) {
-      console.error("Error claiming the rewards")
-      console.error(error)
+      spinner.stopAndPersist({ symbol: "✖️" })
+      console.error("Error claiming the rewards:")
+      console.error(error.reason || error)
     }
   }
 ).addParam("stakingProvider", "The staking provider address")
