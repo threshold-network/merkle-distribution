@@ -16,7 +16,7 @@ task(
 
     if (!stakingProvider && !beneficiary) {
       console.error("Staking provider or beneficiary address must be provided")
-      console.log("For usange information, run")
+      console.log("For usage information, run")
       console.log("  $ npx hardhat help claim-rewards")
       return
     }
@@ -58,6 +58,10 @@ task(
       const filteredStakes = Object.entries(dist.claims).filter(
         ([, claimData]) => claimData.beneficiary === beneficiary
       )
+      if (filteredStakes.length === 0) {
+        console.error(`No stakes with beneficiary ${stakingProvider} found`)
+        return
+      }
       distStakes = Object.fromEntries(filteredStakes)
     }
 
