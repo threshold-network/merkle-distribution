@@ -39,6 +39,79 @@ In order to run the scripts, it's needed to have a `.env` file that includes:
 ETHERSCAN_TOKEN=<your Etherscan API token>
 ```
 
+## Claiming rewards
+
+We encourage you to use the [Threshold Network dashboard](https://dashboard.threshold.network/staking)
+to claim staking rewards.
+
+Alternatively, you can use the HardHat task `claim-rewards`:
+
+### Configuration
+
+A `.env` file must be set with the following parameters:
+
+```
+MAINNET_PRIVATE_KEY=<CLAIMER_ACCOUNT_PRIVATE_KEY>
+MAINNET_RPC_URL=https://eth-mainnet.g.alchemy.com/v2/<API_KEY>
+FORKING_URL=https://eth-mainnet.g.alchemy.com/v2/<API_KEY>
+```
+
+- `MAINNET_PRIVATE_KEY`: the private key of the claimer account. Any Ethereum account can claim the
+  rewards, regardless of whether this account belongs to the Threshold Network or not. Note that
+  staking rewards will be sent to its beneficiary address, and not to the claimer account. Claiming
+  will spend some gas to make the transactions, so the claimer account must have some ether.
+- `MAINNET_RPC_URL`: Alchemy or Infura are recommended.
+- `FORKING_URL` is optional since it is used only for testing the claiming in HardHat local network.
+  It is necessary to use an archive node, so Alchemy is recommended.
+
+### Run claim-rewards
+
+To get help:
+
+```bash
+npx hardhat claim-rewards --help
+```
+
+#### Usage:
+
+```bash
+npx hardhat [--network <network>] claim-rewards \
+  [--beneficiary <address>] [--staking-provider <address>]
+```
+
+#### Examples:
+
+- Claim rewards by _staking provider_ address:
+
+```bash
+npx hardhat --network mainnet claim-rewards \
+  --staking-provider 0xc2d9433D3dC58881a6F8e0A0448Ce191B838f7DA
+```
+
+- Claim rewards by _beneficiary_ address. All the staking rewards with this address as beneficiary
+  will be claimed:
+
+```bash
+npx hardhat --network mainnet claim-rewards \
+  --beneficiary 0xB63853FaD9533AB4518dD1a5FA21bE2988D66508
+```
+
+- Combine _staking provider_ and _beneficiary_:
+
+```bash
+npx hardhat --network mainnet claim-rewards \
+  --staking-provider 0xc2d9433D3dC58881a6F8e0A0448Ce191B838f7DA \
+  --beneficiary 0xB63853FaD9533AB4518dD1a5FA21bE2988D66508
+```
+
+- If no network is specified, the transaction will be executed in HardHat local network but using
+  mainnet current state. This can be useful for testing:
+
+```bash
+npx hardhat claim-rewards \
+  --staking-provider 0xc2d9433D3dC58881a6F8e0A0448Ce191B838f7DA
+```
+
 ## Run scripts
 
 > **NOTE:** Scripts must be run from the repo root, and not from the folder that contains them.
