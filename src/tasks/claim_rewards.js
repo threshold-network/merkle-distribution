@@ -10,21 +10,30 @@ task(
   async function (taskArguments, hre) {
     const { ethers } = hre
 
-    let merkleRootDist
-    let distStake
-
-    let { stakingProvider } = taskArguments
-
     const [claimer] = await ethers.getSigners()
 
-    try {
-      stakingProvider = ethers.utils.getAddress(stakingProvider)
-    } catch (error) {
-      console.error(`Error with staking provider address: ${error.reason}`)
+    let { stakingProvider, beneficiary } = taskArguments
+
+    if (!stakingProvider && !beneficiary) {
+      console.error("Staking provider or beneficiary address must be provided")
+      console.log("For usange information, run")
+      console.log("  $ npx hardhat help claim-rewards")
       return
     }
 
-    // Take the JSON of last distribution
+    try {
+      beneficiary = beneficiary ? ethers.utils.getAddress(beneficiary) : null
+      stakingProvider = stakingProvider
+        ? ethers.utils.getAddress(stakingProvider)
+        : null
+    } catch (error) {
+      console.error(`Error with address provided: ${error.reason}`)
+      return
+    }
+
+    let dist
+
+    // Take the last distribution JSON
     try {
       const distsJson = JSON.parse(
         fs.readFileSync("distributions/distributions.json")
@@ -33,26 +42,49 @@ task(
         distsJson["CumulativeAmountByDistribution"]
       ).sort()
       const lastDist = dists[dists.length - 1]
-      const dist = JSON.parse(
+      dist = JSON.parse(
         fs.readFileSync(`distributions/${lastDist}/MerkleDist.json`)
       )
-      merkleRootDist = dist.merkleRoot
-      distStake = dist.claims[stakingProvider]
-      if (!distStake) {
-        console.error(`No staking provider ${stakingProvider} found`)
-        return
-      }
     } catch (error) {
       console.error(error)
       return
     }
+
+    const merkleRootDist = dist.merkleRoot
+
+    let distStakes = {}
+
+    if (beneficiary) {
+      const filteredStakes = Object.entries(dist.claims).filter(
+        ([, claimData]) => claimData.beneficiary === beneficiary
+      )
+      distStakes = Object.fromEntries(filteredStakes)
+    }
+
+    if (stakingProvider) {
+      if (!dist.claims[stakingProvider]) {
+        console.error(`No staking provider ${stakingProvider} found`)
+        return
+      }
+      distStakes[stakingProvider] = dist.claims[stakingProvider]
+    }
+
+    // Transform the data to batchClaim input format
+    const batchClaim = []
+    Object.keys(distStakes).map((stake) => {
+      const claim = {}
+      claim["stakingProvider"] = stake
+      claim["beneficiary"] = distStakes[stake].beneficiary
+      claim["amount"] = distStakes[stake].amount
+      claim["proof"] = distStakes[stake].proof
+      batchClaim.push(claim)
+    })
 
     // Get the Merkle distribution contract
     const merkleDistContract = await ethers.getContractAt(
       "CumulativeMerkleDrop",
       MERKLE_ADDRESS
     )
-
     try {
       const merkleRootContract = await merkleDistContract.merkleRoot()
       if (merkleRootContract !== merkleRootDist) {
@@ -65,22 +97,18 @@ task(
       console.error(`${error}`)
     }
 
-    console.log("Claiming rewards:")
-    console.log(`Staking provider address ${stakingProvider}`)
+    console.log("Claiming rewards for stakes with staking provider:")
+    Object.keys(distStakes).forEach((stake) => {
+      console.log(`-- ${stake}`)
+    })
     console.log(`Claimer address ${claimer.address}`)
     const spinner = ora("Sending transaction...").start()
 
+    // Call the batchClaim method in Merkle Distribution contract
     try {
-      // Call the claim method in Merkle Distribution contract
       const tx = await merkleDistContract
         .connect(claimer)
-        .claim(
-          stakingProvider,
-          distStake.beneficiary,
-          distStake.amount,
-          merkleRootDist,
-          distStake.proof
-        )
+        .batchClaim(merkleRootDist, batchClaim)
 
       spinner.stopAndPersist({ symbol: "✔" })
       console.log(`https://etherscan.io/tx/${tx.hash}/`)
@@ -90,4 +118,6 @@ task(
       console.error(error.reason || error)
     }
   }
-).addParam("stakingProvider", "The staking provider address")
+)
+  .addOptionalParam("stakingProvider", "The staking provider address")
+  .addOptionalParam("beneficiary", "The staking beneficiary address")
