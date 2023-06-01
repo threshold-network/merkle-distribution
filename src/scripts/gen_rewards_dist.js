@@ -13,9 +13,9 @@ const MerkleDist = require("../merkle_dist/merkle_dist.js")
 const bonusWeight = 0.0
 const preWeight = 0.25
 const tbtcv2Weight = 0.75
-const startTime = new Date("2023-04-01T00:00:00+00:00").getTime() / 1000
-const endTime = new Date("2023-05-01T00:00:00+00:00").getTime() / 1000
-const lastDistribution = "2023-04-01"
+const startTime = new Date("2023-05-01T00:00:00+00:00").getTime() / 1000
+const endTime = new Date("2023-06-01T00:00:00+00:00").getTime() / 1000
+const lastDistribution = "2023-05-01"
 
 const tbtcv2ScriptPath = "src/tbtcv2-rewards/"
 const graphqlApi =
@@ -64,6 +64,7 @@ async function main() {
       endTime
     )
     earnedPreRewards = await Rewards.calculatePreRewards(preStakes, preWeight)
+    console.log(earnedPreRewards)
   }
 
   // tBTCv2 rewards calculation
@@ -77,6 +78,7 @@ async function main() {
       tbtcv2RewardsRaw,
       tbtcv2Weight
     )
+    console.log(earnedTbtcv2Rewards)
   }
 
   // Add rewards earned to cumulative totals
