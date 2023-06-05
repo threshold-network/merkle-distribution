@@ -66,6 +66,13 @@ FORKING_URL=https://eth-mainnet.g.alchemy.com/v2/<API_KEY>
 
 ### Run claim-rewards
 
+> **NOTE:** Before claiming the rewards, make sure you have an updated version
+> of the released distributions:
+> ```bash
+> git pull origin main
+> npx hardhat compile
+> ```
+
 To get help:
 
 ```bash
