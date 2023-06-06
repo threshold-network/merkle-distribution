@@ -64,7 +64,6 @@ async function main() {
       endTime
     )
     earnedPreRewards = await Rewards.calculatePreRewards(preStakes, preWeight)
-    console.log(earnedPreRewards)
   }
 
   // tBTCv2 rewards calculation
@@ -78,7 +77,6 @@ async function main() {
       tbtcv2RewardsRaw,
       tbtcv2Weight
     )
-    console.log(earnedTbtcv2Rewards)
   }
 
   // Add rewards earned to cumulative totals
