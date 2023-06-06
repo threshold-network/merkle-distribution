@@ -5,9 +5,9 @@
 require("dotenv").config()
 const fs = require("fs")
 const shell = require("shelljs")
-const Subgraph = require("../pre-rewards/subgraph.js")
-const Rewards = require("../pre-rewards/rewards.js")
-const MerkleDist = require("../merkle_dist/merkle_dist.js")
+const Subgraph = require("./pre-rewards/subgraph.js")
+const Rewards = require("./pre-rewards/rewards.js")
+const MerkleDist = require("./merkle_dist/merkle_dist.js")
 
 // The following parameters must be modified for each distribution
 const bonusWeight = 0.0
@@ -17,7 +17,7 @@ const startTime = new Date("2023-05-01T00:00:00+00:00").getTime() / 1000
 const endTime = new Date("2023-06-01T00:00:00+00:00").getTime() / 1000
 const lastDistribution = "2023-05-01"
 
-const tbtcv2ScriptPath = "src/tbtcv2-rewards/"
+const tbtcv2ScriptPath = "src/scripts/tbtcv2-rewards/"
 const graphqlApi =
   "https://api.studio.thegraph.com/query/24143/main-threshold-subgraph/0.0.7"
 
@@ -38,7 +38,7 @@ async function main() {
     `--rewards-start-date ${startTime} ` +
     `--rewards-end-date ${endTime} ` +
     `--etherscan-token ${process.env.ETHERSCAN_TOKEN} ` +
-    `--rewards-details-path ../../${tbtcv2RewardsDetailsPath}`
+    `--rewards-details-path ../../../${tbtcv2RewardsDetailsPath}`
 
   try {
     fs.mkdirSync(distPath)
@@ -72,7 +72,7 @@ async function main() {
     console.log("Calculating tBTCv2 rewards...")
     shell.exec(`cd ${tbtcv2ScriptPath} && ${tbtcv2Script}`)
     const tbtcv2RewardsRaw = JSON.parse(
-      fs.readFileSync("./src/tbtcv2-rewards/rewards.json")
+      fs.readFileSync("./src/scripts/tbtcv2-rewards/rewards.json")
     )
     earnedTbtcv2Rewards = Rewards.calculateTbtcv2Rewards(
       tbtcv2RewardsRaw,

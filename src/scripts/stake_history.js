@@ -1,7 +1,7 @@
 // Script that retrieves the information of a particular staker, including the staking history
 // Use: node src/scripts/stake_history.js <staking provider address>
 
-const Subgraph = require("../pre-rewards/subgraph.js")
+const Subgraph = require("./pre-rewards/subgraph.js")
 const { ethers } = require("ethers")
 
 const graphqlApi =
