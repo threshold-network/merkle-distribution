@@ -156,14 +156,14 @@ printf "${LOG_START}Retrieving client release tags...${LOG_END}"
 git remote remove keep-core-repo 2>/dev/null || true
 git remote add keep-core-repo ${KEEP_CORE_REPO}
 git fetch --tags --prune --quiet keep-core-repo
-allTags=($(git tag --sort=-version:refname --list 'v[0-9]*.*-m[0-9]*'))
+allTags=($(git tag --sort=-version:refname --list 'v[0-9]*.*-m[0-9]'))
 latestTag=${allTags[0]}
-latestTimestamp=($(git tag --sort=-version:refname --list 'v[0-9]*.*-m[0-9]*' --format '%(creatordate:unix)' | head -n 1))
+latestTimestamp=($(git tag --sort=-version:refname --list 'v[0-9]*.*-m[0-9]' --format '%(creatordate:unix)' | head -n 1))
 latestTagTimestamp="${latestTag}_$latestTimestamp"
 
 # There are at least 2 tags available at this point of time
 secondToLatestTag=${allTags[1]}
-secondToLatestTagTimestamp="${secondToLatestTag}_$(git tag --sort=-version:refname --list 'v[0-9]*.*-m[0-9]*' --format '%(creatordate:unix)' | head -n 2 | tail -1)"
+secondToLatestTagTimestamp="${secondToLatestTag}_$(git tag --sort=-version:refname --list 'v[0-9]*.*-m[0-9]' --format '%(creatordate:unix)' | head -n 2 | tail -1)"
 
 tagsInRewardInterval=()
 tagsInRewardInterval+=($latestTagTimestamp)
