@@ -1,5 +1,5 @@
 // Script that returns the amount of already claimed Threshold rewards
-// Use: node src/scripts/gen_merkle_dist.js
+// Use: node src/scripts/claimed_rewards.js
 
 require("dotenv").config()
 const axios = require("axios")
