@@ -18,8 +18,9 @@ const endTime = new Date("2023-07-01T00:00:00+00:00").getTime() / 1000
 const lastDistribution = "2023-06-01"
 
 const tbtcv2ScriptPath = "src/scripts/tbtcv2-rewards/"
-const graphqlApi =
-  "https://api.studio.thegraph.com/query/24143/main-threshold-subgraph/0.0.7"
+const subgraphApi = process.env.SUBGRAPH_API_KEY
+const subgraphId = "8iv4pFv7UL3vMjYeetmFCKD9Mg2V4d1S2rapQXo8fRq5"
+const graphqlApi = `https://gateway.thegraph.com/api/${subgraphApi}/subgraphs/id/${subgraphId}`
 
 async function main() {
   let earnedBonusRewards = {}

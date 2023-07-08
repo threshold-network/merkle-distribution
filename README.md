@@ -18,13 +18,13 @@ invalidation for every participant.
   - `claimed_rewards.js`: calculate the Threshold rewards that has been already claimed.
 - `distributions`:Threshold staking rewards' distributions. Here it is contained the Merkle Root of
   each distribution and the cumulative rewards earned by each stake.
-  - `YYYY-MM-DD/MerkleDist.json`: includes the Merkle distribution itself: every stake that earned
+  - `YYYY-MM-DD/MerkleDist.json`: include the Merkle distribution itself: every stake that earned
     rewards and its Merkle proofs. Also includes the Merkle Root. The amount shown here is the
     accumulation of rewards earned over time.
-  - `YYYY-MM-DD/MerkleInput[].json`: includes the rewards earned over time for each Threshold
+  - `YYYY-MM-DD/MerkleInput[].json`: include the rewards earned over time for each Threshold
     application plus [bonus
     rewards](https://forum.threshold.network/t/tip-020-interim-era-incentive-schemes-1-one-off-migration-stake-bonus-2-ongoing-stable-yield/297).
-  - `distributions.json`: includes the cumulative rewards earned by all stakes shown on a monthly
+  - `distributions.json`: include the cumulative rewards earned by all stakes shown on a monthly
     basis.
 
 ## Installation
@@ -68,6 +68,7 @@ FORKING_URL=https://eth-mainnet.g.alchemy.com/v2/<API_KEY>
 
 > **NOTE:** Before claiming the rewards, make sure you have an updated version
 > of the released distributions:
+>
 > ```bash
 > git pull origin main
 > npx hardhat compile
@@ -128,8 +129,15 @@ npx hardhat claim-rewards \
 This script calculates the Threshold Network rewards earned during a specific period, adds them to
 the previous distributions, and generates a new distribution that contains the cumulative rewards.
 
-Note that some parameters (rewards weights, start time, end time, last distribution path...) must be
-changed in the script before running it.
+A Subgraph API key is necessary to use this script. Nowadays The Graph protocol rewards with 1000
+free queries if they [create a new API key](https://thegraph.com/studio/apikeys/). The amount of
+queries made in each script's execution is under 40. The API key must be set in `.env` file:
+
+```
+SUBGRAPH_API_KEY=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+```
+
+Note that some script's parameters (rewards weights, start time, end time, last distribution path...) must be changed in the script before running it.
 
 ```bash
 node src/scripts/gen_rewards_dist.js
@@ -137,7 +145,7 @@ node src/scripts/gen_rewards_dist.js
 
 ### stake_history script
 
-This script fetch the information of a particular staker, including staking history.
+This script fetches the information of a particular staker, including staking history.
 
 ```bash
 node src/scripts/stake_history <0x-prefixed staking provider address>
