@@ -68,10 +68,7 @@ program
     "-x, --staker-address <address>",
     "Only report on staker address"
   )
-  .requiredOption(
-    "-d, --output-details-path <path>",
-    "output JSON details path"
-  )
+  .requiredOption("-d, --output-file <file>", "output JSON details path")
   .requiredOption("-q, --required-pre-params <number>", "required pre params")
   .requiredOption("-m, --required-uptime <percent>", "required uptime")
   .parse(process.argv)
@@ -88,7 +85,7 @@ const endRewardsBlock = parseInt(options.endBlock)
 const october17Block = parseInt(options.october17Block)
 const october17Timestamp = parseInt(options.october17Timestamp)
 const stakerAddress = options.stakerAddress
-const rewardsDetailsPath = options.outputDetailsPath
+const outputFile = options.outputFile
 const network = options.network
 const requiredPreParams = options.requiredPreParams
 const requiredUptime = options.requiredUptime // percent
@@ -423,11 +420,7 @@ export async function calculateRequirements() {
     operatorsData.push(operatorData)
   }
 
-  const detailsFileName = `${startRewardsTimestamp}-${endRewardsTimestamp}`
-  fs.writeFileSync(
-    rewardsDetailsPath + "/" + detailsFileName + ".json",
-    JSON.stringify(operatorsData, null, 4)
-  )
+  fs.writeFileSync(outputFile, JSON.stringify(operatorsData, null, 4))
 }
 
 async function getAuthorization(

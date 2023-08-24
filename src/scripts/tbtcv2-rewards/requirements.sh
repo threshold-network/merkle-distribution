@@ -27,20 +27,18 @@ help() {
     "--prometheus-job <prometheus-job-name>" \
     "--etherscan-api <etherscan-api-url>" \
     "--network <network-name>" \
-    "--rewards-json <rewards-json-output-path>" \
-    "--rewards-details-path <rewards-details-path" \
+    "--output <output file>" \
     "--required-pre-params <required-pre-params>" \
     "--required-uptime <required-uptime>"
   echo -e "\nRequired command line arguments:\n"
   echo -e "\t--etherscan-token: Etherscan API key token"
-  echo -e "\t--staker-address: If provided, only calculate requirements for that staker." 
+  echo -e "\t--staker-address: Staker address to report on." 
+  echo -e "\t--output: Output file for results"
   echo -e "\nOptional command line arguments:\n"
   echo -e "\t--prometheus-api: Prometheus API. Default: ${PROMETHEUS_API_DEFAULT}"
   echo -e "\t--prometheus-job: Prometheus service discovery job name. Default: ${PROMETHEUS_JOB_DEFAULT}"
   echo -e "\t--etherscan-api: Etherscan API url. Default: ${ETHERSCAN_API_DEFAULT}"
   echo -e "\t--network: Network name. Default: ${NETWORK_DEFAULT}"
-  echo -e "\t--rewards-json: Rewards JSON output path. Default: ${REWARDS_JSON_DEFAULT}"
-  echo -e "\t--rewards-details-path: Rewards details path. Default: ${REWARDS_DETAILS_PATH_DEFAULT}"
   echo -e "\t--required-pre-params: Required pre-params. Default: ${REQUIRED_PRE_PARAMS_DEFAULT}"
   echo -e "\t--required-uptime: Required client uptime. Default: ${REQUIRED_UPTIME_DEFAULT}"
   echo -e ""
@@ -56,8 +54,7 @@ for arg in "$@"; do
   "--prometheus-api") set -- "$@" "-a" ;;
   "--prometheus-job") set -- "$@" "-p" ;;
   "--network") set -- "$@" "-n" ;;
-  "--rewards-json") set -- "$@" "-o" ;;
-  "--rewards-details-path") set -- "$@" "-d" ;;
+  "--output") set -- "$@" "-d" ;;
   "--required-pre-params") set -- "$@" "-s" ;;
   "--required-uptime") set -- "$@" "-m" ;;
   "--staker-address") set -- "$@" "-x" ;;
@@ -68,15 +65,14 @@ done
 
 # Parse short options
 OPTIND=1
-while getopts "t:r:a:p:n:o:d:s:m:x:h" opt; do
+while getopts "t:r:a:p:n:d:s:m:x:h" opt; do
   case "$opt" in
   t) etherscan_token="$OPTARG" ;;
   r) etherscan_api="$OPTARG" ;;
   a) prometheus_api="$OPTARG" ;;
   p) prometheus_job="$OPTARG" ;;
   n) network="$OPTARG" ;;
-  o) rewards_json="$OPTARG" ;;
-  d) rewards_details_path="$OPTARG" ;;
+  d) output_file="$OPTARG" ;;
   s) required_pre_params="$OPTARG" ;;
   m) required_uptime="$OPTARG" ;;
   x) staker_address="$OPTARG" ;;
@@ -97,7 +93,6 @@ PROMETHEUS_JOB=${prometheus_job:-${PROMETHEUS_JOB_DEFAULT}}
 REWARDS_JSON=${rewards_json:-${REWARDS_JSON_DEFAULT}}
 ETHERSCAN_API=${etherscan_api:-${ETHERSCAN_API_DEFAULT}}
 NETWORK=${network:-${NETWORK_DEFAULT}}
-REWARDS_DETAILS_PATH=${rewards_details_path:-${REWARDS_DETAILS_PATH_DEFAULT}}
 REQUIRED_PRE_PARAMS=${required_pre_params:-${REQUIRED_PRE_PARAMS_DEFAULT}}
 REQUIRED_UPTIME=${required_uptime:-${REQUIRED_UPTIME_DEFAULT}}
 
@@ -190,7 +185,7 @@ ETHERSCAN_TOKEN=${ETHERSCAN_TOKEN} yarn requirements \
   --october17-timestamp $OCTOBER_17 \
   --releases $tagsTrimmed \
   --network ${NETWORK} \
-  --output-details-path ${REWARDS_DETAILS_PATH} \
+  --output-file ${output_file} \
   --required-pre-params ${REQUIRED_PRE_PARAMS} \
   --required-uptime ${REQUIRED_UPTIME} \
   --staker-address $staker_address
