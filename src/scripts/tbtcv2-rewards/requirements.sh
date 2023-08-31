@@ -23,6 +23,7 @@ REQUIRED_UPTIME_DEFAULT=96 # percent
 help() {
   echo -e "\nUsage: $0" \
     "--etherscan-token <etherscan-token>" \
+    "--operator-address <operator-address>" \
     "--prometheus-api <prometheus-api-address>" \
     "--prometheus-job <prometheus-job-name>" \
     "--etherscan-api <etherscan-api-url>" \
@@ -32,7 +33,7 @@ help() {
     "--required-uptime <required-uptime>"
   echo -e "\nRequired command line arguments:\n"
   echo -e "\t--etherscan-token: Etherscan API key token"
-  echo -e "\t--staker-address: Staker address to report on." 
+  echo -e "\t--operator-address: Operator address to report on." 
   echo -e "\t--output: Output file for results"
   echo -e "\nOptional command line arguments:\n"
   echo -e "\t--prometheus-api: Prometheus API. Default: ${PROMETHEUS_API_DEFAULT}"
@@ -57,7 +58,7 @@ for arg in "$@"; do
   "--output") set -- "$@" "-d" ;;
   "--required-pre-params") set -- "$@" "-s" ;;
   "--required-uptime") set -- "$@" "-m" ;;
-  "--staker-address") set -- "$@" "-x" ;;
+  "--operator-address") set -- "$@" "-x" ;;
   "--help") set -- "$@" "-h" ;;
   *) set -- "$@" "$arg" ;;
   esac
@@ -75,7 +76,7 @@ while getopts "t:r:a:p:n:d:s:m:x:h" opt; do
   d) output_file="$OPTARG" ;;
   s) required_pre_params="$OPTARG" ;;
   m) required_uptime="$OPTARG" ;;
-  x) staker_address="$OPTARG" ;;
+  x) operator_address="$OPTARG" ;;
   h) help ;;
   ?) help ;; # Print help in case parameter is non-existent
   esac
@@ -188,6 +189,6 @@ ETHERSCAN_TOKEN=${ETHERSCAN_TOKEN} yarn requirements \
   --output-file ${output_file} \
   --required-pre-params ${REQUIRED_PRE_PARAMS} \
   --required-uptime ${REQUIRED_UPTIME} \
-  --staker-address $staker_address
+  --operator-address $operator_address
 
 printf "${DONE_START}Complete!${DONE_END}"

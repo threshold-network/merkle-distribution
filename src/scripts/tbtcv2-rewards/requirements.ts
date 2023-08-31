@@ -65,7 +65,7 @@ program
   )
   .requiredOption("-n, --network <name>", "network name")
   .requiredOption(
-    "-x, --staker-address <address>",
+    "-x, --operator-address <address>",
     "Only report on staker address"
   )
   .requiredOption("-d, --output-file <file>", "output JSON details path")
@@ -84,7 +84,7 @@ const startRewardsBlock = parseInt(options.startBlock)
 const endRewardsBlock = parseInt(options.endBlock)
 const october17Block = parseInt(options.october17Block)
 const october17Timestamp = parseInt(options.october17Timestamp)
-const stakerAddress = options.stakerAddress
+const operatorAddress = options.operatorAddress
 const outputFile = options.outputFile
 const network = options.network
 const requiredPreParams = options.requiredPreParams
@@ -131,6 +131,8 @@ export async function calculateRequirements() {
   ).data.result
 
   const operatorsData = new Array()
+
+  operatorsData.push({ requiredUptimePercent: requiredUptime })
 
   const randomBeacon = new Contract(
     RandomBeaconAddress,
@@ -184,8 +186,15 @@ export async function calculateRequirements() {
       currentBlockNumber
     )
 
-  for (let i = 0; i < bootstrapData.length; i++) {
-    const operatorAddress = bootstrapData[i].metric.chain_address
+  /// filter out operators we don't care about
+  const operators = bootstrapData.filter(
+    (bootstrapEntry: any) =>
+      bootstrapEntry.metric.chain_address.toLowerCase() ===
+      operatorAddress.toLowerCase()
+  )
+
+  for (let i = 0; i < operators.length; i++) {
+    const operatorAddress = operators[i].metric.chain_address
     let authorizations = new Map<string, BigNumber>() // application: value
     let requirements = new Map<string, boolean>() // factor: true | false
     let instancesData = new Map<string, InstanceParams>()
@@ -197,9 +206,6 @@ export async function calculateRequirements() {
     )
     const stakingProviderAddressForTbtc =
       await walletRegistry.operatorToStakingProvider(operatorAddress)
-
-    //XX save time and just do shoegazer for dev purposes
-    if (stakingProvider !== stakerAddress) continue
 
     if (stakingProvider !== stakingProviderAddressForTbtc) {
       console.log(
