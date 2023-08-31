@@ -8,7 +8,8 @@
   ],
   "scripts": {
     "rewards": "ts-node rewards.ts",
-    "requirements": "ts-node requirements.ts"
+    "requirements": "ts-node requirements.ts",
+    "staker2operator": "ts-node staker2operator.ts"
   },
   "license": "MIT",
   "dependencies": {
