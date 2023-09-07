@@ -381,8 +381,6 @@ export async function calculateRewards() {
             // Instance run on the older version than 2 latest.
             requirements.set(IS_VERSION_SATISFIED, false)
           }
-          // No need to check other instances.
-          break
         }
       }
     } else {
