@@ -17,12 +17,22 @@ const startTime = new Date("2023-08-01T00:00:00+00:00").getTime() / 1000
 const endTime = new Date("2023-09-01T00:00:00+00:00").getTime() / 1000
 const lastDistribution = "2023-08-01"
 
+const etherscanApiKey = process.env.ETHERSCAN_TOKEN
+const subgraphApiKey = process.env.SUBGRAPH_API_KEY
 const tbtcv2ScriptPath = "src/scripts/tbtcv2-rewards/"
-const subgraphApi = process.env.SUBGRAPH_API_KEY
 const subgraphId = "8iv4pFv7UL3vMjYeetmFCKD9Mg2V4d1S2rapQXo8fRq5"
-const graphqlApi = `https://gateway.thegraph.com/api/${subgraphApi}/subgraphs/id/${subgraphId}`
+const graphqlApi = `https://gateway.thegraph.com/api/${subgraphApiKey}/subgraphs/id/${subgraphId}`
 
 async function main() {
+  if (!subgraphApiKey) {
+    console.error("Error: no SUBGRAPH_API_KEY in environment variables")
+    return
+  }
+  if (!etherscanApiKey) {
+    console.error("Error: no ETHERSCAN_TOKEN in environment variables")
+    return
+  }
+
   let earnedBonusRewards = {}
   let earnedPreRewards = {}
   let earnedTbtcv2Rewards = {}
@@ -38,7 +48,7 @@ async function main() {
     "./rewards.sh " +
     `--rewards-start-date ${startTime} ` +
     `--rewards-end-date ${endTime} ` +
-    `--etherscan-token ${process.env.ETHERSCAN_TOKEN} ` +
+    `--etherscan-token ${etherscanApiKey} ` +
     `--rewards-details-path ../../../${tbtcv2RewardsDetailsPath}`
 
   try {
