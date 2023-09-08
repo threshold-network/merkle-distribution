@@ -743,7 +743,7 @@
                 "isTbtcAuthorized": true,
                 "isUptimeSatisfied": true,
                 "isPreParamsSatisfied": true,
-                "isVersionSatisfied": true
+                "isVersionSatisfied": false
             }
         }
     },
@@ -1491,7 +1491,7 @@
                 "isTbtcAuthorized": true,
                 "isUptimeSatisfied": true,
                 "isPreParamsSatisfied": true,
-                "isVersionSatisfied": true
+                "isVersionSatisfied": false
             }
         }
     },
@@ -1517,7 +1517,7 @@
                 "isTbtcAuthorized": true,
                 "isUptimeSatisfied": true,
                 "isPreParamsSatisfied": true,
-                "isVersionSatisfied": true
+                "isVersionSatisfied": false
             }
         }
     },
@@ -1799,7 +1799,7 @@
                 "isTbtcAuthorized": true,
                 "isUptimeSatisfied": true,
                 "isPreParamsSatisfied": true,
-                "isVersionSatisfied": true
+                "isVersionSatisfied": false
             }
         }
     },
@@ -2542,7 +2542,7 @@
                 "isTbtcAuthorized": true,
                 "isUptimeSatisfied": true,
                 "isPreParamsSatisfied": true,
-                "isVersionSatisfied": true
+                "isVersionSatisfied": false
             }
         }
     },
@@ -3193,7 +3193,7 @@
                 "isTbtcAuthorized": true,
                 "isUptimeSatisfied": true,
                 "isPreParamsSatisfied": true,
-                "isVersionSatisfied": true
+                "isVersionSatisfied": false
             }
         }
     },
@@ -3394,7 +3394,7 @@
                 "isTbtcAuthorized": true,
                 "isUptimeSatisfied": true,
                 "isPreParamsSatisfied": true,
-                "isVersionSatisfied": true
+                "isVersionSatisfied": false
             }
         }
     },
