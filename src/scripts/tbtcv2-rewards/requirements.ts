@@ -132,7 +132,13 @@ export async function calculateRequirements() {
 
   const operatorsData = new Array()
 
-  operatorsData.push({ requiredUptimePercent: requiredUptime })
+  operatorsData.push({
+    requiredUptimePercent: requiredUptime,
+    startTimestamp: startRewardsTimestamp,
+    endTimestamp: endRewardsTimestamp,
+    startBlock: startRewardsBlock,
+    endBlock: endRewardsBlock,
+  })
 
   const randomBeacon = new Contract(
     RandomBeaconAddress,
@@ -192,6 +198,13 @@ export async function calculateRequirements() {
       bootstrapEntry.metric.chain_address.toLowerCase() ===
       operatorAddress.toLowerCase()
   )
+
+  if (!operators.length) {
+    console.log(
+      `No operator found for ${operatorAddress} in list of operator addresses: `
+    )
+    bootstrapData.forEach((o: any) => console.log(o.metric.chain_address))
+  }
 
   for (let i = 0; i < operators.length; i++) {
     const operatorAddress = operators[i].metric.chain_address
