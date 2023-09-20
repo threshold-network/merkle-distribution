@@ -32,6 +32,7 @@ import {
   APR,
   SECONDS_IN_YEAR,
 } from "./rewards-constants"
+import { InstanceParams } from "./types"
 
 program
   .version("0.0.1")
@@ -96,12 +97,6 @@ const prometheusAPIQuery = `${prometheusAPI}/query`
 // Go back in time relevant to the current date to get data for the exact
 // rewards interval dates.
 const offset = Math.floor(Date.now() / 1000) - endRewardsTimestamp
-
-type InstanceParams = {
-  upTimePercent: number
-  avgPreParams: number
-  version: any
-}
 
 export async function calculateRewards() {
   if (Date.now() / 1000 < endRewardsTimestamp) {
