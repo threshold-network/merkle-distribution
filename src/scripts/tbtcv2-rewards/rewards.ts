@@ -378,11 +378,11 @@ export async function calculateRewards() {
               instances[i].buildVersion.includes(secondToLatestClientTag)
             )
           ) {
-            // Instance run on the older version than 2 latest.
             requirements.set(IS_VERSION_SATISFIED, false)
+            // No need to check other instances because at least one instance run
+            // on the older version than 2 latest allowed.
+            break
           }
-          // No need to check other instances.
-          break
         }
       }
     } else {
@@ -406,9 +406,10 @@ export async function calculateRewards() {
         } else {
           if (!instances[i].buildVersion.includes(secondToLatestClientTag)) {
             requirements.set(IS_VERSION_SATISFIED, false)
+            // No need to check other instances because at least one instance run
+            // on the older version than 2 latest allowed.
+            break
           }
-          // No need to check other instances before the latestClientTagTimestamp.
-          break
         }
       }
     }
