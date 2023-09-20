@@ -1,6 +1,7 @@
 const { task } = require("hardhat/config")
 const fs = require("fs")
 const ora = require("ora")
+const simpleGit = require("simple-git")
 
 const MERKLE_ADDRESS = "0xeA7CA290c7811d1cC2e79f8d706bD05d8280BD37"
 
@@ -28,6 +29,25 @@ task(
         : null
     } catch (error) {
       console.error(`Error with address provided: ${error.reason}`)
+      return
+    }
+
+    const pullSpinner = ora("Looking for repository updates").start()
+    try {
+      const pullResult = await simpleGit().pull()
+      if (pullResult) {
+        if (pullResult.summary.changes) {
+          pullSpinner.stopAndPersist({ symbol: "✔" })
+          console.log("Repository has been updated")
+        } else {
+          pullSpinner.stopAndPersist({ symbol: "✔" })
+          console.log("No updates")
+        }
+      }
+    } catch (error) {
+      pullSpinner.stopAndPersist({ symbol: "✖️" })
+      console.error("Error running git pull:")
+      console.error(error.reason || error)
       return
     }
 
@@ -106,7 +126,7 @@ task(
       console.log(`-- ${stake}`)
     })
     console.log(`Claimer address ${claimer.address}`)
-    const spinner = ora("Sending transaction...").start()
+    const tranSpinner = ora("Sending transaction...").start()
 
     // Call the batchClaim method in Merkle Distribution contract
     try {
@@ -114,10 +134,10 @@ task(
         .connect(claimer)
         .batchClaim(merkleRootDist, batchClaim)
 
-      spinner.stopAndPersist({ symbol: "✔" })
+      tranSpinner.stopAndPersist({ symbol: "✔" })
       console.log(`https://etherscan.io/tx/${tx.hash}/`)
     } catch (error) {
-      spinner.stopAndPersist({ symbol: "✖️" })
+      tranSpinner.stopAndPersist({ symbol: "✖️" })
       console.error("Error claiming the rewards:")
       console.error(error.reason || error)
     }

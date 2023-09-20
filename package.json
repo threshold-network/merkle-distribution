@@ -50,6 +50,7 @@
     "ganache-cli": "^6.12.2",
     "isomorphic-unfetch": "^3.1.0",
     "ora": "5.4.1",
+    "simple-git": "^3.19.1",
     "solidity-coverage": "^0.7.21"
   }
 }
