@@ -18,7 +18,7 @@ KEEP_CORE_REPO="https://github.com/keep-network/keep-core"
 OCTOBER_17="1666051200" # Oct 18 00:00:00 GMT
 REWARDS_DETAILS_PATH_DEFAULT="./rewards-details"
 REQUIRED_PRE_PARAMS_DEFAULT=500
-REQUIRED_UPTIME_DEFAULT=50 # percent
+REQUIRED_UPTIME_DEFAULT=60 # percent
 
 help() {
   echo -e "\nUsage: $0" \
