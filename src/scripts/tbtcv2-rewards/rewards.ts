@@ -666,7 +666,16 @@ async function checkUptime(
     sumUptime += uptime
   }
 
-  const isUptimeSatisfied = sumUptime >= requiredUptime
+  // Uptime is calculated as a sum of uptimes for all the instances while they
+  // were running.
+  const isInstancesUptimeSatisfied = sumUptime >= requiredUptime
+  // Check if the uptime requirement is satisfied for the entire interval
+  const isIntervalUptimeSatisfied =
+    (uptimeSearchRange / rewardsInterval) * HUNDRED >= requiredUptime
+
+  const isUptimeSatisfied =
+    isInstancesUptimeSatisfied && isIntervalUptimeSatisfied
+
   // October is a special month for rewards calculation. If a node was set before
   // October 17th, then it is eligible for the entire month of rewards. Uptime of
   // a running node still need to meet the uptime requirement after it was set.
