@@ -331,6 +331,14 @@ export async function calculateRewards() {
     const secondToLatestClient = clientReleases[1].split("_")
     const secondToLatestClientTag = secondToLatestClient[0]
 
+    const eligibleClientTags = [latestClientTag, secondToLatestClientTag]
+
+    if (clientReleases.length == 3) {
+      const thirdToLatestClient = clientReleases[2].split("_")
+      const thirdToLatestClientTag = thirdToLatestClient[0]
+      eligibleClientTags.push(thirdToLatestClientTag)
+    }
+
     const instances = await processBuildVersions(
       operatorAddress,
       rewardsInterval,
@@ -340,9 +348,11 @@ export async function calculateRewards() {
     const upgradeCutoffDate = latestClientTagTimestamp + ALLOWED_UPGRADE_DELAY
     requirements.set(IS_VERSION_SATISFIED, true)
     if (upgradeCutoffDate < startRewardsTimestamp) {
-      // v1-|-------v1 or v2------|------------------v2 only--------------|
+      // E.g. Feb interval
+      // ---older eligible tags---|----------latest tag only--------------|
       // ---|---------------------|---------|-----------------------------|--->
-      //  v2tag                 cutoff     Feb1                          Feb28
+      // latest tag             cutoff     Feb1                         Feb28
+
       // All the instances must run on the latest version during the rewards
       // interval in Feb.
       for (let i = 0; i < instances.length; i++) {
@@ -351,9 +361,11 @@ export async function calculateRewards() {
         }
       }
     } else if (upgradeCutoffDate < endRewardsTimestamp) {
-      // -v1-|-------v1 or v2---------|--------v2 only--------|
+      // E.g. Feb interval
+      // -----older eligible tags-----|----latest tag only----|
       // ----|---------|--------------|-----------------------|--->
-      //   v2tag     Feb1          cutoff                  Feb28
+      // latest tag   Feb1          cutoff                   Feb28
+
       // All the instances between (upgradeCutoffDate : endRewardsTimestamp]
       // must run on the latest version
       for (let i = instances.length - 1; i >= 0; i--) {
@@ -372,12 +384,7 @@ export async function calculateRewards() {
           // upgrade cutoff date that happens to be right before the interval
           // end date. However, it might still be eligible for rewards because
           // of the uptime requirement.
-          if (
-            !(
-              instances[i].buildVersion.includes(latestClientTag) ||
-              instances[i].buildVersion.includes(secondToLatestClientTag)
-            )
-          ) {
+          if (!eligibleClientTags.includes(instances[i].buildVersion)) {
             requirements.set(IS_VERSION_SATISFIED, false)
             // No need to check other instances because at least one instance run
             // on the older version than 2 latest allowed.
@@ -386,30 +393,19 @@ export async function calculateRewards() {
         }
       }
     } else {
-      // ------------v1------------|-----------v1 or v2---------|---v2 only--->
+      // E.g. Feb interval
+      // ---older eligible tags----|-----older or latest tag----|---latest tag only--->
       // --|-----------------------|---------------|------------|-->
-      //  Feb1                   v2tag           Feb28        cutoff
-      // All the instances between [latestClientTagTimestamp : endRewardsTimestamp]
-      // must run either on secondToLatest or the latest version
+      //  Feb1                latest tag         Feb28        cutoff
+
+      // For simplicity purposes all the instances can run on any of the eligible
+      // versions.
       for (let i = instances.length - 1; i >= 0; i--) {
-        if (instances[i].lastRegisteredTimestamp >= latestClientTagTimestamp) {
-          if (
-            !(
-              instances[i].buildVersion.includes(latestClientTag) ||
-              instances[i].buildVersion.includes(secondToLatestClientTag)
-            )
-          ) {
-            // A client run a version older than 2 latest allowed. No rewards.
-            requirements.set(IS_VERSION_SATISFIED, false)
-            break
-          }
-        } else {
-          if (!instances[i].buildVersion.includes(secondToLatestClientTag)) {
-            requirements.set(IS_VERSION_SATISFIED, false)
-            // No need to check other instances because at least one instance run
-            // on the older version than 2 latest allowed.
-            break
-          }
+        if (!eligibleClientTags.includes(instances[i].buildVersion)) {
+          requirements.set(IS_VERSION_SATISFIED, false)
+          // No need to check other instances because at least one instance run
+          // on a version that is no longer eligible in this rewards interval.
+          break
         }
       }
     }
