@@ -54,14 +54,6 @@ program
   .requiredOption("-a, --api <prometheus api>", "prometheus API")
   .requiredOption("-j, --job <prometheus job>", "prometheus job")
   .requiredOption(
-    "-c, --october17-block <october 17 block>",
-    "october 17 block"
-  )
-  .requiredOption(
-    "-t, --october17-timestamp <october 17 timestamp>",
-    "october 17 timestamp"
-  )
-  .requiredOption(
     "-r, --releases <client releases in a rewards interval>",
     "client releases in a rewards interval"
   )
@@ -84,8 +76,6 @@ const startRewardsTimestamp = parseInt(options.startTimestamp)
 const endRewardsTimestamp = parseInt(options.endTimestamp)
 const startRewardsBlock = parseInt(options.startBlock)
 const endRewardsBlock = parseInt(options.endBlock)
-const october17Block = parseInt(options.october17Block)
-const october17Timestamp = parseInt(options.october17Timestamp)
 const rewardsDataOutput = options.output
 const rewardsDetailsPath = options.outputDetailsPath
 const network = options.network
@@ -264,7 +254,6 @@ export async function calculateRewards() {
       stakingProvider,
       startRewardsBlock,
       endRewardsBlock,
-      october17Block,
       currentBlockNumber
     )
     authorizations.set(BEACON_AUTHORIZATION, beaconAuthorization.toString())
@@ -292,7 +281,6 @@ export async function calculateRewards() {
       stakingProvider,
       startRewardsBlock,
       endRewardsBlock,
-      october17Block,
       currentBlockNumber
     )
 
@@ -462,15 +450,13 @@ async function getAuthorization(
   stakingProvider: string,
   startRewardsBlock: number,
   endRewardsBlock: number,
-  october17Block: number,
   currentBlockNumber: number
 ) {
   if (intervalEvents.length > 0) {
     return authorizationForRewardsInterval(
       intervalEvents,
       startRewardsBlock,
-      endRewardsBlock,
-      october17Block
+      endRewardsBlock
     )
   }
 
@@ -521,8 +507,7 @@ async function getAuthorization(
 function authorizationForRewardsInterval(
   intervalEvents: any[],
   startRewardsBlock: number,
-  endRewardsBlock: number,
-  october17Block: number
+  endRewardsBlock: number
 ) {
   let authorization = BigNumber.from("0")
   const deltaRewardsBlock = endRewardsBlock - startRewardsBlock
@@ -530,12 +515,8 @@ function authorizationForRewardsInterval(
   intervalEvents.sort((a, b) => a.blockNumber - b.blockNumber)
 
   let tmpBlock = startRewardsBlock // prev tmp block
-  let firstEventBlock = intervalEvents[0].blockNumber
 
   let index = 0
-  if (firstEventBlock < october17Block) {
-    index = 1
-  }
 
   for (let i = index; i < intervalEvents.length; i++) {
     const eventBlock = intervalEvents[i].blockNumber
@@ -663,12 +644,6 @@ async function checkUptime(
   }
 
   const isUptimeSatisfied = sumUptime >= requiredUptime
-  // October is a special month for rewards calculation. If a node was set before
-  // October 17th, then it is eligible for the entire month of rewards. Uptime of
-  // a running node still need to meet the uptime requirement after it was set.
-  if (firstRegisteredUptime < october17Timestamp) {
-    uptimeSearchRange = rewardsInterval
-  }
 
   const uptimeCoefficient = isUptimeSatisfied
     ? uptimeSearchRange / rewardsInterval
