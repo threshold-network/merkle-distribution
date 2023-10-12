@@ -20,7 +20,7 @@ rewards interval
 ## Client build version
 
 Node operators must stay updated with the latest keep-core client releases to
-receive rewards. The cutoff day for a new version is calculated by adding two
+receive rewards. The cutoff day for a new version is calculated by adding three
 weeks to its tag creation date, which can be verified by executing the command
 `git show <tag>`.
 

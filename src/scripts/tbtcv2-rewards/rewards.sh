@@ -16,12 +16,11 @@ NETWORK_DEFAULT="mainnet"
 KEEP_CORE_REPO="https://github.com/keep-network/keep-core"
 REWARDS_DETAILS_PATH_DEFAULT="./rewards-details"
 REQUIRED_PRE_PARAMS_DEFAULT=500
-REQUIRED_UPTIME_DEFAULT=50 # percent
+REQUIRED_UPTIME_DEFAULT=60 # percent
 # Default should be 2. In rare cases when we release a hot fix and all 3 tags
 # become eligible in a given interval, then it can be set to 3. 
 # Script supports up to 3 tags.
 ELIGIBLE_NUMBER_OF_TAGS=3 
-
 
 help() {
   echo -e "\nUsage: $0" \
