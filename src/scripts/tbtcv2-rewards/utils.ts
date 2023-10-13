@@ -1,10 +1,17 @@
 import { BigNumber } from "@ethersproject/bignumber"
 import { Contract } from "ethers"
 import axios from "axios"
-import { PRECISION, QUERY_RESOLUTION, HUNDRED } from "./rewards-constants"
+import {
+  OPERATORS_SEARCH_QUERY_STEP,
+  QUERY_RESOLUTION,
+  HUNDRED,
+  PRECISION,
+  ALLOWED_UPGRADE_DELAY,
+} from "./rewards-constants"
 import { InstanceParams } from "./types"
 
 export class Utils {
+  prometheusAPI: string
   prometheusAPIQuery: string
   prometheusJob: string
   offset: number
@@ -14,6 +21,7 @@ export class Utils {
   requiredPreParams: number
 
   constructor(
+    prometheusApi: string,
     prometheusAPIQuery: string,
     prometheusJob: string,
     offset: number,
@@ -22,6 +30,7 @@ export class Utils {
     october17Timestamp: number,
     requiredPreParams: number
   ) {
+    this.prometheusAPI = prometheusApi
     this.prometheusAPIQuery = prometheusAPIQuery
     this.prometheusJob = prometheusJob
     this.offset = offset
@@ -372,5 +381,124 @@ export class Utils {
         return "An unexpected error occurred"
       }
     }
+  }
+
+  public async getBootstrapData(
+    startRewardsTimestamp: number,
+    endRewardsTimestamp: number
+  ) {
+    // Query for bootstrap data that has peer instances grouped by operators
+    const queryBootstrapData = `${this.prometheusAPI}/query_range`
+    const paramsBootstrapData = {
+      query: `sum by(chain_address)({job='${this.prometheusJob}'})`,
+      start: startRewardsTimestamp,
+      end: endRewardsTimestamp,
+      step: OPERATORS_SEARCH_QUERY_STEP,
+    }
+
+    const bootstrapData = await this.queryPrometheus(
+      queryBootstrapData,
+      paramsBootstrapData
+    )
+    return bootstrapData.data.result
+  }
+
+  public async isVersionSatisfied(
+    operatorAddress: string,
+    rewardsInterval: number,
+    startRewardsTimestamp: number,
+    endRewardsTimestamp: number,
+    clientReleases: any,
+    instancesData: Map<string, InstanceParams>
+  ) {
+    // keep-core client already has at least 2 released versions
+    const latestClient = clientReleases[0].split("_")
+    const latestClientTag = latestClient[0]
+    const latestClientTagTimestamp = Number(latestClient[1])
+    const secondToLatestClient = clientReleases[1].split("_")
+    const secondToLatestClientTag = secondToLatestClient[0]
+
+    const instances = await this.processBuildVersions(
+      operatorAddress,
+      rewardsInterval,
+      instancesData
+    )
+
+    let isVersionSatisfied = true
+    const upgradeCutoffDate = latestClientTagTimestamp + ALLOWED_UPGRADE_DELAY
+    if (upgradeCutoffDate < startRewardsTimestamp) {
+      // v1-|-------v1 or v2------|------------------v2 only--------------|
+      // ---|---------------------|---------|-----------------------------|--->
+      //  v2tag                 cutoff     Feb1                          Feb28
+      // All the instances must run on the latest version during the rewards
+      // interval in Feb.
+      for (let i = 0; i < instances.length; i++) {
+        if (instances[i].buildVersion != latestClientTag) {
+          isVersionSatisfied = false
+        }
+      }
+    } else if (upgradeCutoffDate < endRewardsTimestamp) {
+      // -v1-|-------v1 or v2---------|--------v2 only--------|
+      // ----|---------|--------------|-----------------------|--->
+      //   v2tag     Feb1          cutoff                  Feb28
+      // All the instances between (upgradeCutoffDate : endRewardsTimestamp]
+      // must run on the latest version
+      for (let i = instances.length - 1; i >= 0; i--) {
+        if (
+          instances[i].lastRegisteredTimestamp > upgradeCutoffDate &&
+          !instances[i].buildVersion.includes(latestClientTag)
+        ) {
+          // After the cutoff day a node operator still run an instance with an
+          // older version. No rewards.
+          isVersionSatisfied = false
+          // No need to check further since at least one instance run on the
+          // older version after the cutoff day.
+          break
+        } else {
+          // It might happen that a node operator stopped an instance before the
+          // upgrade cutoff date that happens to be right before the interval
+          // end date. However, it might still be eligible for rewards because
+          // of the uptime requirement.
+          if (
+            !(
+              instances[i].buildVersion.includes(latestClientTag) ||
+              instances[i].buildVersion.includes(secondToLatestClientTag)
+            )
+          ) {
+            // Instance run on the older version than 2 latest.
+            isVersionSatisfied = false
+          }
+          // No need to check other instances.
+          break
+        }
+      }
+    } else {
+      // ------------v1------------|-----------v1 or v2---------|---v2 only--->
+      // --|-----------------------|---------------|------------|-->
+      //  Feb1                   v2tag           Feb28        cutoff
+      // All the instances between [latestClientTagTimestamp : endRewardsTimestamp]
+      // must run either on secondToLatest or the latest version
+      for (let i = instances.length - 1; i >= 0; i--) {
+        if (instances[i].lastRegisteredTimestamp >= latestClientTagTimestamp) {
+          if (
+            !(
+              instances[i].buildVersion.includes(latestClientTag) ||
+              instances[i].buildVersion.includes(secondToLatestClientTag)
+            )
+          ) {
+            // A client run a version older than 2 latest allowed. No rewards.
+            isVersionSatisfied = false
+            break
+          }
+        } else {
+          if (!instances[i].buildVersion.includes(secondToLatestClientTag)) {
+            isVersionSatisfied = false
+          }
+          // No need to check other instances before the latestClientTagTimestamp.
+          break
+        }
+      }
+    }
+    return isVersionSatisfied
   }
 }
