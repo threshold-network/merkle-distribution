@@ -1,4 +1,7 @@
-export const ALLOWED_UPGRADE_DELAY = 2886195 // exceptional case: new vers announced after 11 days
+// 3 weeks in sec (default value) + we add 6 days becuase the -m5 release was
+// announced 6 days after the tag was created. This applies only for the October
+// rewards interval.
+export const ALLOWED_UPGRADE_DELAY = 2332800
 export const OPERATORS_SEARCH_QUERY_STEP = 600 // 10min in sec
 export const IS_BEACON_AUTHORIZED = "isBeaconAuthorized"
 export const BEACON_AUTHORIZATION = "beaconAuthorization"
