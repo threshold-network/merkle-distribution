@@ -49,12 +49,23 @@ shift $(expr $OPTIND - 1) # remove options from positional parameters
 
 NETWORK=${network:-${NETWORK_DEFAULT}}
 ETHERSCAN_TOKEN=${etherscan_token:-""}
+STAKER_ADDRESS=${staker_address:-""}
+
+if [ "$STAKER_ADDRESS" == "" ]; then
+  printf "${LOG_WARNING_START}Staker address must be provided.${LOG_WARNING_END}"
+  help
+fi
+
+if [ "$ETHERSCAN_TOKEN" == "" ]; then
+  printf "${LOG_WARNING_START}Etherscan API key token must be provided.${LOG_WARNING_END}"
+  help
+fi
 
 printf "${LOG_START}Installing yarn dependencies...${LOG_END}"
 yarn install
 
 ETHERSCAN_TOKEN=${ETHERSCAN_TOKEN} yarn staker2operator \
-  --staker-address $staker_address \
+  --staker-address ${STAKER_ADDRESS} \
   --network ${NETWORK}
 
 printf "${DONE_START}Complete!${DONE_END}"

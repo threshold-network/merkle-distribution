@@ -1,6 +1,6 @@
-# Threshold Network tBTCv2 Requirements Monitoring
+# Monitoring Threshold Network's tBTCv2 Requirements
 
-`requirements.sh` is a script that can be run at any time to check that your node meets rewards requirements for the given month.
+`requirements.sh` is a script that pulls your node's record as understood by the official Threshold monitoring systems.  It can be run at any time to check that your node currently meets rewards requirements for the given month.
 
 It is intended to be used for monitoring, specifically for monitoring your node's uptime requirement
 so that you can alert on decreases in uptime that may be sending you on a path to not meeting the uptime requirement.
@@ -15,7 +15,7 @@ Install and use [Node Version Manager](https://github.com/nvm-sh/nvm) to obtain 
 - `nvm install --lts` will install the LTS node/yarn for you
 
 ### JQ
-`apt install jq`
+`sudo apt install jq`
 
 ### Clone repo and install packages
 - Clone this repo
@@ -24,6 +24,8 @@ Install and use [Node Version Manager](https://github.com/nvm-sh/nvm) to obtain 
 ## Usage
 
 **Scripts should be run from `src/scripts/tbtcv2-rewards` directory**
+
+> ` cd ./src/scripts/tbtcv-rewards`
 
 ### First-time: Obtain Etherscan key
 You'll need an Etherscan API key to run the scripts.  You can get one at https://info.etherscan.com/api-keys/
