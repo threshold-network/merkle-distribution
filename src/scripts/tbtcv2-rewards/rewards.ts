@@ -54,14 +54,6 @@ program
   .requiredOption("-a, --api <prometheus api>", "prometheus API")
   .requiredOption("-j, --job <prometheus job>", "prometheus job")
   .requiredOption(
-    "-c, --october17-block <october 17 block>",
-    "october 17 block"
-  )
-  .requiredOption(
-    "-t, --october17-timestamp <october 17 timestamp>",
-    "october 17 timestamp"
-  )
-  .requiredOption(
     "-r, --releases <client releases in a rewards interval>",
     "client releases in a rewards interval"
   )
@@ -84,8 +76,6 @@ const startRewardsTimestamp = parseInt(options.startTimestamp)
 const endRewardsTimestamp = parseInt(options.endTimestamp)
 const startRewardsBlock = parseInt(options.startBlock)
 const endRewardsBlock = parseInt(options.endBlock)
-const october17Block = parseInt(options.october17Block)
-const october17Timestamp = parseInt(options.october17Timestamp)
 const rewardsDataOutput = options.output
 const rewardsDetailsPath = options.outputDetailsPath
 const network = options.network
@@ -264,7 +254,6 @@ export async function calculateRewards() {
       stakingProvider,
       startRewardsBlock,
       endRewardsBlock,
-      october17Block,
       currentBlockNumber
     )
     authorizations.set(BEACON_AUTHORIZATION, beaconAuthorization.toString())
@@ -292,7 +281,6 @@ export async function calculateRewards() {
       stakingProvider,
       startRewardsBlock,
       endRewardsBlock,
-      october17Block,
       currentBlockNumber
     )
 
@@ -331,6 +319,14 @@ export async function calculateRewards() {
     const secondToLatestClient = clientReleases[1].split("_")
     const secondToLatestClientTag = secondToLatestClient[0]
 
+    const eligibleClientTags = [latestClientTag, secondToLatestClientTag]
+
+    if (clientReleases.length == 3) {
+      const thirdToLatestClient = clientReleases[2].split("_")
+      const thirdToLatestClientTag = thirdToLatestClient[0]
+      eligibleClientTags.push(thirdToLatestClientTag)
+    }
+
     const instances = await processBuildVersions(
       operatorAddress,
       rewardsInterval,
@@ -340,9 +336,11 @@ export async function calculateRewards() {
     const upgradeCutoffDate = latestClientTagTimestamp + ALLOWED_UPGRADE_DELAY
     requirements.set(IS_VERSION_SATISFIED, true)
     if (upgradeCutoffDate < startRewardsTimestamp) {
-      // v1-|-------v1 or v2------|------------------v2 only--------------|
+      // E.g. Feb interval
+      // ---older eligible tags---|----------latest tag only--------------|
       // ---|---------------------|---------|-----------------------------|--->
-      //  v2tag                 cutoff     Feb1                          Feb28
+      // latest tag             cutoff     Feb1                         Feb28
+
       // All the instances must run on the latest version during the rewards
       // interval in Feb.
       for (let i = 0; i < instances.length; i++) {
@@ -351,9 +349,11 @@ export async function calculateRewards() {
         }
       }
     } else if (upgradeCutoffDate < endRewardsTimestamp) {
-      // -v1-|-------v1 or v2---------|--------v2 only--------|
+      // E.g. Feb interval
+      // -----older eligible tags-----|----latest tag only----|
       // ----|---------|--------------|-----------------------|--->
-      //   v2tag     Feb1          cutoff                  Feb28
+      // latest tag   Feb1          cutoff                   Feb28
+
       // All the instances between (upgradeCutoffDate : endRewardsTimestamp]
       // must run on the latest version
       for (let i = instances.length - 1; i >= 0; i--) {
@@ -372,12 +372,7 @@ export async function calculateRewards() {
           // upgrade cutoff date that happens to be right before the interval
           // end date. However, it might still be eligible for rewards because
           // of the uptime requirement.
-          if (
-            !(
-              instances[i].buildVersion.includes(latestClientTag) ||
-              instances[i].buildVersion.includes(secondToLatestClientTag)
-            )
-          ) {
+          if (!eligibleClientTags.includes(instances[i].buildVersion)) {
             requirements.set(IS_VERSION_SATISFIED, false)
             // No need to check other instances because at least one instance run
             // on the older version than 2 latest allowed.
@@ -386,30 +381,19 @@ export async function calculateRewards() {
         }
       }
     } else {
-      // ------------v1------------|-----------v1 or v2---------|---v2 only--->
+      // E.g. Feb interval
+      // ---older eligible tags----|-----older or latest tag----|---latest tag only--->
       // --|-----------------------|---------------|------------|-->
-      //  Feb1                   v2tag           Feb28        cutoff
-      // All the instances between [latestClientTagTimestamp : endRewardsTimestamp]
-      // must run either on secondToLatest or the latest version
+      //  Feb1                latest tag         Feb28        cutoff
+
+      // For simplicity purposes all the instances can run on any of the eligible
+      // versions.
       for (let i = instances.length - 1; i >= 0; i--) {
-        if (instances[i].lastRegisteredTimestamp >= latestClientTagTimestamp) {
-          if (
-            !(
-              instances[i].buildVersion.includes(latestClientTag) ||
-              instances[i].buildVersion.includes(secondToLatestClientTag)
-            )
-          ) {
-            // A client run a version older than 2 latest allowed. No rewards.
-            requirements.set(IS_VERSION_SATISFIED, false)
-            break
-          }
-        } else {
-          if (!instances[i].buildVersion.includes(secondToLatestClientTag)) {
-            requirements.set(IS_VERSION_SATISFIED, false)
-            // No need to check other instances because at least one instance run
-            // on the older version than 2 latest allowed.
-            break
-          }
+        if (!eligibleClientTags.includes(instances[i].buildVersion)) {
+          requirements.set(IS_VERSION_SATISFIED, false)
+          // No need to check other instances because at least one instance run
+          // on a version that is no longer eligible in this rewards interval.
+          break
         }
       }
     }
@@ -466,15 +450,13 @@ async function getAuthorization(
   stakingProvider: string,
   startRewardsBlock: number,
   endRewardsBlock: number,
-  october17Block: number,
   currentBlockNumber: number
 ) {
   if (intervalEvents.length > 0) {
     return authorizationForRewardsInterval(
       intervalEvents,
       startRewardsBlock,
-      endRewardsBlock,
-      october17Block
+      endRewardsBlock
     )
   }
 
@@ -508,25 +490,10 @@ async function getAuthorization(
 //  Sep 18 - 30 constant 100k (last sub-interval)
 // Weighted authorization = (3-0)/30*100 + (8-3)/30*110 + (14-8)/30*135
 //                        + (18-14)/30*120 + (30-18)/30*100
-// October 2022 is a special month for rewards calculation.  If a node was set
-// after Oct 1 but prior to Oct 17, then we calculate the rewards for the entire
-// month.
-// See https://blog.threshold.network/tbtc-v2-hits-its-first-launch-milestone/
-// E.g. 1
-// First and only event was on Oct 10. The authorization is calculated for the
-// entire month.
-// E.g. 2
-// First increase event was on Oct 10 from 0 to 100k
-// Second increase was on Oct 15 from 100k to 150k
-// Authorization of 100k is interpolated for the dates between Oct 1 - Oct 10
-// Authorization for Oct 1 - Oct 15 is now 100k; coefficient 15/30
-// Authorization between Oct 15 - Oct 30 is 150k; coefficent 15/30
-// Weighted authorization: 15/30 * 100k + 15/30 * 150k
 function authorizationForRewardsInterval(
   intervalEvents: any[],
   startRewardsBlock: number,
-  endRewardsBlock: number,
-  october17Block: number
+  endRewardsBlock: number
 ) {
   let authorization = BigNumber.from("0")
   const deltaRewardsBlock = endRewardsBlock - startRewardsBlock
@@ -534,12 +501,8 @@ function authorizationForRewardsInterval(
   intervalEvents.sort((a, b) => a.blockNumber - b.blockNumber)
 
   let tmpBlock = startRewardsBlock // prev tmp block
-  let firstEventBlock = intervalEvents[0].blockNumber
 
   let index = 0
-  if (firstEventBlock < october17Block) {
-    index = 1
-  }
 
   for (let i = index; i < intervalEvents.length; i++) {
     const eventBlock = intervalEvents[i].blockNumber
@@ -667,12 +630,6 @@ async function checkUptime(
   }
 
   const isUptimeSatisfied = sumUptime >= requiredUptime
-  // October is a special month for rewards calculation. If a node was set before
-  // October 17th, then it is eligible for the entire month of rewards. Uptime of
-  // a running node still need to meet the uptime requirement after it was set.
-  if (firstRegisteredUptime < october17Timestamp) {
-    uptimeSearchRange = rewardsInterval
-  }
 
   const uptimeCoefficient = isUptimeSatisfied
     ? uptimeSearchRange / rewardsInterval

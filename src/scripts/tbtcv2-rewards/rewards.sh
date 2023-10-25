@@ -14,11 +14,13 @@ REWARDS_JSON_DEFAULT="./rewards.json"
 ETHERSCAN_API_DEFAULT="https://api.etherscan.io"
 NETWORK_DEFAULT="mainnet"
 KEEP_CORE_REPO="https://github.com/keep-network/keep-core"
-# Special October case when calculating rewards
-OCTOBER_17="1666051200" # Oct 18 00:00:00 GMT
 REWARDS_DETAILS_PATH_DEFAULT="./rewards-details"
 REQUIRED_PRE_PARAMS_DEFAULT=500
 REQUIRED_UPTIME_DEFAULT=60 # percent
+# Default should be 2. In rare cases when we release a hot fix and all 3 tags
+# become eligible in a given interval, then it can be set to 3. 
+# Script supports up to 3 tags.
+ELIGIBLE_NUMBER_OF_TAGS=3 
 
 help() {
   echo -e "\nUsage: $0" \
@@ -137,16 +139,8 @@ timestamp=$REWARDS_END_DATE&\
 closest=after&\
 apikey=${ETHERSCAN_TOKEN}"
 
-october17ApiCall="${ETHERSCAN_API}/api?\
-module=block&\
-action=getblocknobytime&\
-timestamp=$OCTOBER_17&\
-closest=after&\
-apikey=${ETHERSCAN_TOKEN}"
-
 startRewardsBlock=$(curl -s $startBlockApiCall | jq '.result|tonumber')
 endRewardsBlock=$(curl -s $endBlockApiCall | jq '.result|tonumber')
-october17Block=$(curl -s $october17ApiCall | jq '.result|tonumber')
 
 printf "${LOG_START}Installing yarn dependencies...${LOG_END}"
 yarn install
@@ -157,6 +151,7 @@ git remote remove keep-core-repo 2>/dev/null || true
 git remote add keep-core-repo ${KEEP_CORE_REPO}
 git fetch --tags --prune --quiet keep-core-repo
 allTags=($(git tag --sort=-version:refname --list 'v[0-9]*.*-m[0-9]'))
+printf "Found ${allTags[*]} tags"
 latestTag=${allTags[0]}
 latestTimestamp=($(git tag --sort=-version:refname --list 'v[0-9]*.*-m[0-9]' --format '%(creatordate:unix)' | head -n 1))
 latestTagTimestamp="${latestTag}_$latestTimestamp"
@@ -168,6 +163,12 @@ secondToLatestTagTimestamp="${secondToLatestTag}_$(git tag --sort=-version:refna
 tagsInRewardInterval=()
 tagsInRewardInterval+=($latestTagTimestamp)
 tagsInRewardInterval+=($secondToLatestTagTimestamp)
+
+if [ "$ELIGIBLE_NUMBER_OF_TAGS" -eq "3" ]; then
+  thirdToLatestTag=${allTags[2]}
+  thirdToLatestTagTimestamp="${thirdToLatestTag}_$(git tag --sort=-version:refname --list 'v[0-9]*.*-m[0-9]' --format '%(creatordate:unix)' | head -n 3 | tail -1)"
+  tagsInRewardInterval+=($thirdToLatestTagTimestamp)
+fi
 
 # Converting array to string so we can pass to the rewards-requirements.ts
 printf -v tags '%s|' "${tagsInRewardInterval[@]}"
@@ -186,8 +187,6 @@ ETHERSCAN_TOKEN=${ETHERSCAN_TOKEN} yarn rewards \
   --end-timestamp $REWARDS_END_DATE \
   --start-block $startRewardsBlock \
   --end-block $endRewardsBlock \
-  --october17-block $october17Block \
-  --october17-timestamp $OCTOBER_17 \
   --releases $tagsTrimmed \
   --network ${NETWORK} \
   --output ${REWARDS_JSON} \
