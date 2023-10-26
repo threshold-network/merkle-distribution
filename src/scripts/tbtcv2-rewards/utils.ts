@@ -84,20 +84,6 @@ export class Utils {
   //  Sep 18 - 30 constant 100k (last sub-interval)
   // Weighted authorization = (3-0)/30*100 + (8-3)/30*110 + (14-8)/30*135
   //                        + (18-14)/30*120 + (30-18)/30*100
-  // October 2022 is a special month for rewards calculation.  If a node was set
-  // after Oct 1 but prior to Oct 17, then we calculate the rewards for the entire
-  // month.
-  // See https://blog.threshold.network/tbtc-v2-hits-its-first-launch-milestone/
-  // E.g. 1
-  // First and only event was on Oct 10. The authorization is calculated for the
-  // entire month.
-  // E.g. 2
-  // First increase event was on Oct 10 from 0 to 100k
-  // Second increase was on Oct 15 from 100k to 150k
-  // Authorization of 100k is interpolated for the dates between Oct 1 - Oct 10
-  // Authorization for Oct 1 - Oct 15 is now 100k; coefficient 15/30
-  // Authorization between Oct 15 - Oct 30 is 150k; coefficent 15/30
-  // Weighted authorization: 15/30 * 100k + 15/30 * 150k
   public authorizationForRewardsInterval(
     intervalEvents: any[],
     startRewardsBlock: number,
