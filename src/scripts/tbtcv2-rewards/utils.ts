@@ -17,7 +17,6 @@ export class Utils {
   offset: number
   endRewardsTimestamp: number
   requiredUptime: number
-  october17Timestamp: number
   requiredPreParams: number
 
   constructor(
@@ -27,7 +26,6 @@ export class Utils {
     offset: number,
     endRewardsTimestamp: number,
     requireUptime: number,
-    october17Timestamp: number,
     requiredPreParams: number
   ) {
     this.prometheusAPI = prometheusApi
@@ -36,7 +34,6 @@ export class Utils {
     this.offset = offset
     this.endRewardsTimestamp = endRewardsTimestamp
     this.requiredUptime = requireUptime
-    this.october17Timestamp = october17Timestamp
     this.requiredPreParams = requiredPreParams
   }
 
@@ -47,15 +44,13 @@ export class Utils {
     stakingProvider: string,
     startRewardsBlock: number,
     endRewardsBlock: number,
-    october17Block: number,
     currentBlockNumber: number
   ) {
     if (intervalEvents.length > 0) {
       return this.authorizationForRewardsInterval(
         intervalEvents,
         startRewardsBlock,
-        endRewardsBlock,
-        october17Block
+        endRewardsBlock
       )
     }
 
@@ -106,8 +101,7 @@ export class Utils {
   public authorizationForRewardsInterval(
     intervalEvents: any[],
     startRewardsBlock: number,
-    endRewardsBlock: number,
-    october17Block: number
+    endRewardsBlock: number
   ) {
     let authorization = BigNumber.from("0")
     const deltaRewardsBlock = endRewardsBlock - startRewardsBlock
@@ -115,12 +109,8 @@ export class Utils {
     intervalEvents.sort((a, b) => a.blockNumber - b.blockNumber)
 
     let tmpBlock = startRewardsBlock // prev tmp block
-    let firstEventBlock = intervalEvents[0].blockNumber
 
     let index = 0
-    if (firstEventBlock < october17Block) {
-      index = 1
-    }
 
     for (let i = index; i < intervalEvents.length; i++) {
       const eventBlock = intervalEvents[i].blockNumber
@@ -254,12 +244,6 @@ export class Utils {
     }
 
     const isUptimeSatisfied = sumUptime >= this.requiredUptime
-    // October is a special month for rewards calculation. If a node was set before
-    // October 17th, then it is eligible for the entire month of rewards. Uptime of
-    // a running node still need to meet the uptime requirement after it was set.
-    if (firstRegisteredUptime < this.october17Timestamp) {
-      uptimeSearchRange = rewardsInterval
-    }
 
     const uptimeCoefficient = isUptimeSatisfied
       ? uptimeSearchRange / rewardsInterval
