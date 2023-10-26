@@ -52,14 +52,6 @@ program
   .requiredOption("-a, --api <prometheus api>", "prometheus API")
   .requiredOption("-j, --job <prometheus job>", "prometheus job")
   .requiredOption(
-    "-c, --october17-block <october 17 block>",
-    "october 17 block"
-  )
-  .requiredOption(
-    "-t, --october17-timestamp <october 17 timestamp>",
-    "october 17 timestamp"
-  )
-  .requiredOption(
     "-r, --releases <client releases in a rewards interval>",
     "client releases in a rewards interval"
   )
@@ -82,8 +74,6 @@ const startRewardsTimestamp = parseInt(options.startTimestamp)
 const endRewardsTimestamp = parseInt(options.endTimestamp)
 const startRewardsBlock = parseInt(options.startBlock)
 const endRewardsBlock = parseInt(options.endBlock)
-const october17Block = parseInt(options.october17Block)
-const october17Timestamp = parseInt(options.october17Timestamp)
 const rewardsDataOutput = options.output
 const rewardsDetailsPath = options.outputDetailsPath
 const network = options.network
@@ -102,7 +92,6 @@ const utils = new Utils(
   offset,
   endRewardsTimestamp,
   requiredUptime,
-  october17Timestamp,
   requiredPreParams
 )
 
@@ -259,7 +248,6 @@ export async function calculateRewards() {
       stakingProvider,
       startRewardsBlock,
       endRewardsBlock,
-      october17Block,
       currentBlockNumber
     )
     authorizations.set(BEACON_AUTHORIZATION, beaconAuthorization.toString())
@@ -287,7 +275,6 @@ export async function calculateRewards() {
       stakingProvider,
       startRewardsBlock,
       endRewardsBlock,
-      october17Block,
       currentBlockNumber
     )
 

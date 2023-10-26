@@ -14,8 +14,6 @@ REWARDS_JSON_DEFAULT="./rewards.json"
 ETHERSCAN_API_DEFAULT="https://api.etherscan.io"
 NETWORK_DEFAULT="mainnet"
 KEEP_CORE_REPO="https://github.com/keep-network/keep-core"
-# Special October case when calculating rewards
-OCTOBER_17="1666051200" # Oct 18 00:00:00 GMT
 REWARDS_DETAILS_PATH_DEFAULT="./rewards-details"
 REQUIRED_PRE_PARAMS_DEFAULT=500
 REQUIRED_UPTIME_DEFAULT=60 # percent
@@ -141,16 +139,8 @@ timestamp=$REWARDS_END_DATE&\
 closest=after&\
 apikey=${ETHERSCAN_TOKEN}"
 
-october17ApiCall="${ETHERSCAN_API}/api?\
-module=block&\
-action=getblocknobytime&\
-timestamp=$OCTOBER_17&\
-closest=after&\
-apikey=${ETHERSCAN_TOKEN}"
-
 startRewardsBlock=$(curl -s $startBlockApiCall | jq '.result|tonumber')
 endRewardsBlock=$(curl -s $endBlockApiCall | jq '.result|tonumber')
-october17Block=$(curl -s $october17ApiCall | jq '.result|tonumber')
 
 printf "${LOG_START}Installing yarn dependencies...${LOG_END}"
 yarn install
@@ -197,8 +187,6 @@ ETHERSCAN_TOKEN=${ETHERSCAN_TOKEN} yarn rewards \
   --end-timestamp $REWARDS_END_DATE \
   --start-block $startRewardsBlock \
   --end-block $endRewardsBlock \
-  --october17-block $october17Block \
-  --october17-timestamp $OCTOBER_17 \
   --releases $tagsTrimmed \
   --network ${NETWORK} \
   --output ${REWARDS_JSON} \
