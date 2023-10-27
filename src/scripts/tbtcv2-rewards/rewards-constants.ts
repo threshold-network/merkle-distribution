@@ -1,7 +1,7 @@
-// 3 weeks in sec (default value) + we add 6 days becuase the -m5 release was
-// announced 6 days after the tag was created. This applies only for the October
-// rewards interval.
-export const ALLOWED_UPGRADE_DELAY = 2332800
+// 3 weeks in sec (default value) + we add 22,67 days because the -m6 release was
+// announced 22,67 days after the tag was created. This applies only for the October
+// and November rewards interval (cutoff date for -m6 is Nov 15).
+export const ALLOWED_UPGRADE_DELAY = 3773887
 export const OPERATORS_SEARCH_QUERY_STEP = 600 // 10min in sec
 export const IS_BEACON_AUTHORIZED = "isBeaconAuthorized"
 export const BEACON_AUTHORIZATION = "beaconAuthorization"
