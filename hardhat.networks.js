@@ -51,6 +51,15 @@ register(
   "goerli",
   process.env.ETHERSCAN_TOKEN
 )
+register(
+  "sepolia",
+  ["deploy"],
+  11155111,
+  process.env.SEPOLIA_RPC_URL,
+  process.env.SEPOLIA_PRIVATE_KEY,
+  "sepolia",
+  process.env.ETHERSCAN_TOKEN
+)
 
 networks["hardhat"] = {
   forking: {

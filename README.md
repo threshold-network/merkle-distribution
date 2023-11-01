@@ -151,18 +151,18 @@ npx hardhat test
 
 ## Deploy
 
-To deploy to the Goerli test network you will need a `.env` that looks similar to:
+To deploy to the Sepolia test network you will need a `.env` that looks similar to:
 
 ```
-GOERLI_RPC_URL="https://goerli.infura.io/v3/bd76xxxxxxxxxxxxxxxxxxxxxxxxxff0"
-GOERLI_PRIVATE_KEY="3d3ad2xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx87b"
+SEPOLIA_RPC_URL="https://sepolia.infura.io/v3/bd76xxxxxxxxxxxxxxxxxxxxxxxxxff0"
+SEPOLIA_PRIVATE_KEY="3d3ad2xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx87b"
 ETHERSCAN_TOKEN="M5xxxxxxxxxxxxxxxxxxxxxxxxxxxxxSMV"
 ```
 
 You can then run
 
 ```bash
-npx hardhat --network goerli deploy
+npx hardhat --network sepolia deploy
 ```
 
 The contract will be deployed and the source code will be verified on etherscan.
