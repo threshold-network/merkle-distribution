@@ -92,6 +92,10 @@ async function getStakerAuthorizations(stakingProvider) {
 
 async function main() {
   const stakers = await getStakers()
+  if (!stakers) {
+    return
+  }
+
   for (let i = 0; i < stakers.length; i++) {
     stakers[i].owner = stakers[i].id
     delete stakers[i].id
