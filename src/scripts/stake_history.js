@@ -79,23 +79,25 @@ async function main() {
   const stakes = args[0] ? [args[0]] : defaultStakes
   const timestamp = args[1] ? args[1] : defaultTimestamp
 
-  const stakeHistoryList = {}
+  const stakesHistory = {}
 
   console.log(new Date().toString(), ": Getting the staking history...")
   console.time()
 
   for (let i = 0; i < stakes.length; i++) {
-    const stakingHistory = await Subgraph.getStakingHistory(
+    const history = await Subgraph.getStakingHistory(
       graphqlApi,
       timestamp,
       stakes[i]
     )
 
-    stakeHistoryList[stakes[i]] = stakingHistory
+    stakesHistory[stakes[i]] = history
   }
 
   console.log("Retrieving the staking history took: ")
   console.timeEnd()
+
+  const stakesHistoryJson = JSON.stringify(stakesHistory, null, 2)
 
   const octokit = new Octokit({
     auth: process.env.GITHUB_TOKEN,
@@ -106,7 +108,7 @@ async function main() {
     description: `Last update: ${new Date()}`,
     files: {
       "legacy_stakers_monitoring.json": {
-        content: JSON.stringify(stakeHistoryList, null, 2),
+        content: stakesHistoryJson,
       },
     },
     headers: {
