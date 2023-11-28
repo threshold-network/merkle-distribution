@@ -1,4 +1,7 @@
 // Script that retrieves the history of a list of stakes since a specific block
+// the data will be uploaded to a Github gist.
+// It is necessary to have the following env variables in .env file:
+
 // Use:
 // node stake_history.js [<st. prov. address> <timestamp>]
 // If no address as argument, list below will be taken (legacy stakers)
@@ -12,6 +15,7 @@ const Subgraph = require("./pre-rewards/subgraph.js")
 
 const graphqlApi =
   "https://api.studio.thegraph.com/query/24143/main-threshold-subgraph/0.0.7"
+const gistId = "198e3fe2f9d4b5f0442b6354ff8ffa8b"
 
 // Time in which legacy stakers were disabled
 // https://etherscan.io/tx/0x68ddee6b5651d5348a40555b0079b5066d05a63196e3832323afafae0095a656
@@ -77,8 +81,9 @@ async function main() {
 
   const stakeHistoryList = {}
 
+  console.log(new Date().toString(), ": Getting the staking history...")
   console.time()
-  console.log("Getting the staking history...")
+
   for (let i = 0; i < stakes.length; i++) {
     const stakingHistory = await Subgraph.getStakingHistory(
       graphqlApi,
@@ -89,6 +94,7 @@ async function main() {
     stakeHistoryList[stakes[i]] = stakingHistory
   }
 
+  console.log("Retrieving the staking history took: ")
   console.timeEnd()
 
   const octokit = new Octokit({
@@ -96,7 +102,7 @@ async function main() {
   })
 
   await octokit.request("PATCH /gists/{gist_id}", {
-    gist_id: "198e3fe2f9d4b5f0442b6354ff8ffa8b",
+    gist_id: gistId,
     description: `Last update: ${new Date()}`,
     files: {
       "legacy_stakers_monitoring.json": {
@@ -109,5 +115,7 @@ async function main() {
   })
 }
 
-console.log("Starting job scheduling")
+console.log("Start job scheduling")
+
+// Run the script every hour
 schedule.scheduleJob("0 */1 * * *", main)
