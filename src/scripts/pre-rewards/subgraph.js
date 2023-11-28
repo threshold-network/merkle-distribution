@@ -616,3 +616,111 @@ exports.getStakingInfo = async function (gqlUrl, stakingProvider) {
 
   return stakeData
 }
+
+/**
+ * Retrieve the history of a list of stakes since a specific block
+ * @param {string}  gqlURL            Subgraph's GraphQL API URL
+ * @param {string}  stakingProvider   Staking providers address
+ * @param {Number}  [startTimestamp]  Will show only events after this time
+ * @return {Object}                   The stake's data
+ */
+exports.getStakingHistory = async function (
+  gqlUrl,
+  startTimestamp,
+  stakingProvider
+) {
+  if (!ethers.utils.isAddress(stakingProvider)) {
+    console.error("Error: Invalid Staking Provider address")
+    return
+  }
+
+  const timestamp = startTimestamp ? startTimestamp : 0
+
+  let lastId = ""
+  let recvEpochStakes = []
+  let epochStakes = []
+
+  const gqlClient = createClient({ url: gqlUrl })
+
+  const EPOCH_STAKES_QUERY = gql`
+    query EpochStakes(
+      $stakingProvider: String
+      $resultsPerQuery: Int
+      $lastId: String
+    ) {
+      epochStakes(
+        first: $resultsPerQuery
+        where: { stakingProvider: $stakingProvider, id_gt: $lastId }
+      ) {
+        id
+        amount
+        epoch {
+          id
+          timestamp
+        }
+      }
+    }
+  `
+
+  do {
+    const response = await gqlClient
+      .query(EPOCH_STAKES_QUERY, {
+        stakingProvider: stakingProvider.toLowerCase(),
+        resultsPerQuery: RESULTS_PER_QUERY,
+        lastId: lastId,
+      })
+      .toPromise()
+
+    if (response.error) {
+      console.error(`Error getting epoch stakes:\n${response.error.message}`)
+      return null
+    }
+
+    if (!response.data) {
+      console.error("GraphQL client didn't return data")
+      return null
+    }
+
+    recvEpochStakes = response.data.epochStakes
+
+    if (recvEpochStakes.length > 0) {
+      epochStakes = epochStakes.concat(recvEpochStakes)
+      lastId = recvEpochStakes[recvEpochStakes.length - 1].id
+    }
+  } while (recvEpochStakes.length > 0)
+
+  epochStakes = epochStakes.sort((epochA, epochB) => {
+    return parseInt(epochA.epoch.id) - parseInt(epochB.epoch.id)
+  })
+
+  let stakedAmount = 0
+  let stakingHistory = epochStakes.map((epoch, index) => {
+    const epochAmount = parseInt(epoch.amount)
+
+    if (epoch.epoch.timestamp <= timestamp || epochAmount === stakedAmount) {
+      return null
+    }
+
+    const historyElement = { epoch: epoch.epoch.id }
+    if (index === 0) {
+      historyElement.event = "staked"
+    } else {
+      historyElement.event =
+        epochAmount > stakedAmount ? "topped-up" : "unstaked"
+    }
+    historyElement.prevAmountStaked = (stakedAmount / 10 ** 18).toFixed()
+    historyElement.currAmountStaked = (epochAmount / 10 ** 18).toFixed()
+    historyElement.timestamp = new Date(
+      epoch.epoch.timestamp * 1000
+    ).toISOString()
+    stakedAmount = epochAmount
+
+    return historyElement
+  })
+
+  stakingHistory = stakingHistory.filter(
+    (historyElement) => historyElement !== null
+  )
+
+  return stakingHistory
+}
