@@ -619,7 +619,7 @@ exports.getStakingInfo = async function (gqlUrl, stakingProvider) {
 
 /**
  * Retrieve the history of a list of stakes since a specific block
- * @param {string}  gqlURL            Subgraph's GraphQL API URL
+ * @param {string}  gqlUrl            Subgraph's GraphQL API URL
  * @param {string}  stakingProvider   Staking providers address
  * @param {Number}  [startTimestamp]  Will show only events after this time
  * @return {Object}                   The stake's data
