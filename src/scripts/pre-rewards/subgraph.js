@@ -476,7 +476,7 @@ exports.getBonusStakes = async function (gqlUrl) {
  * @param {string}  stakingProvider   Staking provider address
  * @return {Object}                   The stake's data
  */
-exports.getStakingHistory = async function (gqlUrl, stakingProvider) {
+exports.getStakingInfo = async function (gqlUrl, stakingProvider) {
   let lastId = ""
   let data = []
   let epochStakes = []

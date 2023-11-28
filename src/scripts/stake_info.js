@@ -1,5 +1,6 @@
-// Script that retrieves the information of a particular staker, including the staking history
-// Use: node src/scripts/stake_history.js <staking provider address>
+// Script that retrieves the information of a particular staker, including the
+// staking history
+// Use: node src/scripts/stake_info.js <staking provider address>
 
 const Subgraph = require("./pre-rewards/subgraph.js")
 const { ethers } = require("ethers")
@@ -16,7 +17,7 @@ async function main() {
     return
   }
 
-  const stakeHistory = await Subgraph.getStakingHistory(
+  const stakeHistory = await Subgraph.getStakingInfo(
     graphqlApi,
     stakingProvAddress
   )
@@ -24,6 +25,4 @@ async function main() {
   console.log(JSON.stringify(stakeHistory, null, 2))
 }
 
-;(async () => {
-  await main()
-})()
+main()
