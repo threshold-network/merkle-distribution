@@ -87,8 +87,8 @@ async function main() {
   for (let i = 0; i < stakes.length; i++) {
     const history = await Subgraph.getStakingHistory(
       graphqlApi,
-      timestamp,
-      stakes[i]
+      stakes[i],
+      timestamp
     )
 
     stakesHistory[stakes[i]] = history

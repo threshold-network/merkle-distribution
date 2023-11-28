@@ -477,10 +477,6 @@ exports.getBonusStakes = async function (gqlUrl) {
  * @return {Object}                   The stake's data
  */
 exports.getStakingInfo = async function (gqlUrl, stakingProvider) {
-  let lastId = ""
-  let data = []
-  let epochStakes = []
-  let amount = 0
   let stakeData = {
     data: {},
     stake: {},
@@ -513,26 +509,6 @@ exports.getStakingInfo = async function (gqlUrl, stakingProvider) {
         operator
         bondedTimestamp
         confirmedTimestamp
-      }
-    }
-  `
-
-  const EPOCH_STAKES_QUERY = gql`
-    query EpochStakes(
-      $stakingProvider: String
-      $resultsPerQuery: Int
-      $lastId: String
-    ) {
-      epochStakes(
-        first: $resultsPerQuery
-        where: { stakingProvider: $stakingProvider, id_gt: $lastId }
-      ) {
-        id
-        amount
-        epoch {
-          id
-          timestamp
-        }
       }
     }
   `
@@ -576,58 +552,26 @@ exports.getStakingInfo = async function (gqlUrl, stakingProvider) {
       }
     })
 
-  do {
-    await gqlClient
-      .query(EPOCH_STAKES_QUERY, {
-        stakingProvider: stakingProvider.toLowerCase(),
-        resultsPerQuery: RESULTS_PER_QUERY,
-        lastId: lastId,
-      })
-      .toPromise()
-      .then((result) => {
-        if (result.error) console.error(result.error)
-        data = result.data?.epochStakes
-        if (data.length > 0) {
-          epochStakes = epochStakes.concat(data)
-          lastId = data[data.length - 1].id
-        }
-      })
-  } while (data.length > 0)
-
-  epochStakes = epochStakes.sort((epochA, epochB) => {
-    return parseInt(epochA.epoch.id) - parseInt(epochB.epoch.id)
-  })
-
-  epochStakes.forEach((epoch) => {
-    const epochAmount = parseInt(epoch.amount)
-    if (epochAmount !== amount) {
-      const histElem = { epoch: epoch.epoch.id }
-      if (stakeData.stakingHistory.length == 0) {
-        histElem.event = "staked"
-      } else {
-        histElem.event = epochAmount > amount ? "topped-up" : "unstaked"
-      }
-      histElem.staked = (epochAmount / 10 ** 18).toFixed()
-      histElem.timestamp = new Date(epoch.epoch.timestamp * 1000).toISOString()
-      stakeData.stakingHistory.push(histElem)
-      amount = epochAmount
-    }
-  })
+  stakeData.stakingHistory = await this.getStakingHistory(
+    gqlUrl,
+    stakingProvider,
+    0
+  )
 
   return stakeData
 }
 
 /**
  * Retrieve the history of a list of stakes since a specific block
- * @param {string}  gqlURL            Subgraph's GraphQL API URL
+ * @param {string}  gqlUrl            Subgraph's GraphQL API URL
  * @param {string}  stakingProvider   Staking providers address
  * @param {Number}  [startTimestamp]  Will show only events after this time
  * @return {Object}                   The stake's data
  */
 exports.getStakingHistory = async function (
   gqlUrl,
-  startTimestamp,
-  stakingProvider
+  stakingProvider,
+  startTimestamp
 ) {
   if (!ethers.utils.isAddress(stakingProvider)) {
     console.error("Error: Invalid Staking Provider address")
