@@ -626,8 +626,8 @@ exports.getStakingInfo = async function (gqlUrl, stakingProvider) {
  */
 exports.getStakingHistory = async function (
   gqlUrl,
-  startTimestamp,
-  stakingProvider
+  stakingProvider,
+  startTimestamp
 ) {
   if (!ethers.utils.isAddress(stakingProvider)) {
     console.error("Error: Invalid Staking Provider address")
