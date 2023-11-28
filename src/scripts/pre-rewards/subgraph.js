@@ -2,9 +2,7 @@ require("isomorphic-unfetch")
 const { createClient, gql } = require("@urql/core")
 const { ethers } = require("ethers")
 const BigNumber = require("bignumber.js")
-
-// The Graph limits GraphQL queries to 1000 results max
-const RESULTS_PER_QUERY = 1000
+const Constants = require("./constants.js")
 
 async function getEpochById(gqlClient, epochId) {
   let epoch
@@ -58,7 +56,7 @@ async function getEpochById(gqlClient, epochId) {
     await gqlClient
       .query(EPOCH_STAKES_QUERY, {
         epochIds: epochIds,
-        resultsPerQuery: RESULTS_PER_QUERY,
+        resultsPerQuery: Constants.gqlResultsPerQuery,
         lastId: lastId,
       })
       .toPromise()
@@ -129,7 +127,7 @@ async function getEpochsBetweenDates(gqlClient, startTimestamp, endTimestamp) {
       .query(EPOCHS_QUERY, {
         lastTimestamp: lastTimestamp.toString(),
         endTimestamp: endTimestamp.toString(),
-        resultsPerQuery: RESULTS_PER_QUERY,
+        resultsPerQuery: Constants.gqlResultsPerQuery,
       })
       .toPromise()
       .then((result) => {
@@ -148,7 +146,7 @@ async function getEpochsBetweenDates(gqlClient, startTimestamp, endTimestamp) {
     await gqlClient
       .query(EPOCH_STAKES_QUERY, {
         epochIds: epochIds,
-        resultsPerQuery: RESULTS_PER_QUERY,
+        resultsPerQuery: Constants.gqlResultsPerQuery,
         lastId: lastId,
       })
       .toPromise()
@@ -198,7 +196,7 @@ async function getOperatorsConfirmedBeforeDate(gqlClient, timestamp) {
     await gqlClient
       .query(OPS_CONF_BETWEEN_DATES, {
         timestamp: timestamp.toString(),
-        resultsPerQuery: RESULTS_PER_QUERY,
+        resultsPerQuery: Constants.gqlResultsPerQuery,
         lastId: lastId,
       })
       .toPromise()
@@ -236,7 +234,7 @@ async function getStakeDatasInfo(gqlClient) {
   do {
     await gqlClient
       .query(STAKES_DATA_INFO, {
-        resultsPerQuery: RESULTS_PER_QUERY,
+        resultsPerQuery: Constants.gqlResultsPerQuery,
         lastId: lastId,
       })
       .toPromise()
@@ -610,7 +608,7 @@ exports.getStakingHistory = async function (
     const response = await gqlClient
       .query(EPOCH_STAKES_QUERY, {
         stakingProvider: stakingProvider.toLowerCase(),
-        resultsPerQuery: RESULTS_PER_QUERY,
+        resultsPerQuery: Constants.gqlResultsPerQuery,
         lastId: lastId,
       })
       .toPromise()
