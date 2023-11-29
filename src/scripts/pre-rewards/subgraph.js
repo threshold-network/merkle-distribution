@@ -251,6 +251,101 @@ async function getStakeDatasInfo(gqlClient) {
   return stakeDatas
 }
 
+// For a specific block, return a list of stakes whose tokens were staked in Nu
+// or Keep staking contracts. These staked tokens were registred as nuInT and
+// keepInT in the Threshold staking contract.
+async function getLegacyStakes(gqlClient, blockNumber) {
+  const legacyStakersQuery = gql`
+    query legacyStakersQuery($blockNumber: Int) {
+      accounts(
+        first: 1000
+        block: { number: $blockNumber }
+        where: {
+          stakes_: { or: [{ keepInTStake_gt: "0" }, { nuInTStake_gt: "0" }] }
+        }
+      ) {
+        id
+        stakes {
+          id
+          keepInTStake
+          nuInTStake
+          tStake
+        }
+      }
+    }
+  `
+
+  const response = await gqlClient
+    .query(legacyStakersQuery, { blockNumber: blockNumber })
+    .toPromise()
+
+  if (response.error) {
+    console.error(`Error: ${response.error.message}`)
+    return null
+  }
+
+  if (!response.data) {
+    console.error("No data found")
+    return null
+  }
+
+  const stakers = response.data["accounts"]
+
+  return stakers
+}
+
+// For a specific stake at a specific block, return the Threshold Network apps
+// authorizations. Note: if blockNumber provided, rpcUrl must address to an
+// archive node
+async function getStakeAuthorizations(
+  rpcUrl,
+  etherscanApiKey,
+  stakingProvider,
+  blockNumber
+) {
+  if (!blockNumber) {
+    blockNumber = "latest"
+  }
+
+  // Get the ABI of Token Staking contract
+  const etherscanUrl =
+    "https://api.etherscan.io/api?module=contract&" +
+    "action=getabi&" +
+    `address=${Constants.tokenStakingAddress}&` +
+    `apikey=${etherscanApiKey}`
+
+  const fetchResponse = await fetch(etherscanUrl)
+  const fetchResponseJson = await fetchResponse.json()
+  const tokenStakingAbi = fetchResponseJson.result
+
+  const provider = new ethers.providers.JsonRpcProvider(rpcUrl)
+
+  const tokenStakingContract = new ethers.Contract(
+    Constants.tokenStakingProxyAddress,
+    tokenStakingAbi,
+    provider
+  )
+
+  const walletRegistryAuthorization =
+    await tokenStakingContract.authorizedStake(
+      stakingProvider,
+      Constants.walletRegistryAddress,
+      { blockTag: blockNumber }
+    )
+  const RandomBeaconAuthorization = await tokenStakingContract.authorizedStake(
+    stakingProvider,
+    Constants.randomBeaconAddress,
+    { blockTag: blockNumber }
+  )
+
+  const authorizations = {
+    WalletRegistry: walletRegistryAuthorization.toString(),
+    RandomBeacon: RandomBeaconAuthorization.toString(),
+  }
+
+  return authorizations
+}
+
 /**
  * Return the PRE-rewards-elegible stakes, including beneficiary and epoch
  * stakes between two dates. Stakes earn rewards during the period in which:
@@ -562,7 +657,7 @@ exports.getStakingInfo = async function (gqlUrl, stakingProvider) {
 /**
  * Retrieve the history of a list of stakes since a specific block
  * @param {string}  gqlUrl            Subgraph's GraphQL API URL
- * @param {string}  stakingProvider   Staking providers address
+ * @param {string}  stakingProvider   Staking provider address
  * @param {Number}  [startTimestamp]  Will show only events after this time
  * @return {Object}                   The stake's data
  */
@@ -665,4 +760,58 @@ exports.getStakingHistory = async function (
   )
 
   return stakingHistory
+}
+
+/**
+ * Get the data about legacy stakes, i.e., stakes that originally were set in
+ * Nucypher and Keep staking contracts in Nu and Keep tokens respectively.
+ * These stakes were migrated to Threshold staking contract by swapping them to
+ * T token. The staked tokens that comes from legacy tokens were given the name
+ * of nuInT and keepInT respectively in Threshold staking contract.
+ * @param {string}  gqlUrl            Subgraph's GraphQL API URL
+ * @param {string}  rpcUrl            Web3 provider URL. Must be a archive node
+ * @param {string}  etherscanApiKey   Etherscan API key
+ * @param {Number}  blockNumber       Block height at which data will be taken
+ * @return {Object}                   The stake's data
+ */
+exports.getLegacyStakesInfo = async function (
+  gqlUrl,
+  rpcUrl,
+  etherscanApiKey,
+  blockNumber
+) {
+  const stakes = {}
+
+  const gqlClient = createClient({ url: gqlUrl, maskTypename: true })
+
+  const ownerList = await getLegacyStakes(gqlClient, blockNumber)
+  if (!ownerList) {
+    return {}
+  }
+
+  for (let ownerIndex = 0; ownerIndex < ownerList.length; ownerIndex++) {
+    const ownerStakes = ownerList[ownerIndex]
+    for (let i = 0; i < ownerStakes.stakes.length; i++) {
+      const stake = ownerStakes.stakes[i]
+
+      if (stake.keepInTStake === "0" && stake.nuInTStake === "0") {
+        continue
+      }
+
+      stakes[stake.id] = {
+        owner: ownerStakes.id,
+        keepInTStake: stake.keepInTStake,
+        nuInTStake: stake.nuInTStake,
+        tStake: stake.tStake,
+        authorizations: await getStakeAuthorizations(
+          rpcUrl,
+          etherscanApiKey,
+          stake.id,
+          blockNumber
+        ),
+      }
+    }
+  }
+
+  return stakes
 }
