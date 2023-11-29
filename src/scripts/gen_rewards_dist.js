@@ -74,7 +74,7 @@ async function main() {
       startTime,
       endTime
     )
-    earnedPreRewards = await Rewards.calculatePreRewards(preStakes, preWeight)
+    earnedPreRewards = Rewards.calculatePreRewards(preStakes, preWeight)
   }
 
   // tBTCv2 rewards calculation
@@ -164,6 +164,4 @@ async function main() {
   console.log("Total accumulated amount of rewards: ", merkleDist.totalAmount)
 }
 
-;(async () => {
-  await main()
-})()
+main()
