@@ -763,6 +763,7 @@ exports.getStakingHistory = async function (
  */
 exports.getLegacyStakesInfo = async function (gqlUrl, rpcUrl, blockNumber) {
   const stakes = {}
+  const authPromises = []
 
   const gqlClient = createClient({ url: gqlUrl, maskTypename: true })
 
@@ -785,14 +786,21 @@ exports.getLegacyStakesInfo = async function (gqlUrl, rpcUrl, blockNumber) {
         keepInTStake: stake.keepInTStake,
         nuInTStake: stake.nuInTStake,
         tStake: stake.tStake,
-        authorizations: await getStakeAuthorizations(
-          rpcUrl,
-          stake.id,
-          blockNumber
-        ),
       }
+
+      const authPromise = getStakeAuthorizations(
+        rpcUrl,
+        stake.id,
+        blockNumber
+      ).then((auths) => {
+        stakes[stake.id].authorizations = auths
+      })
+
+      authPromises.push(authPromise)
     }
   }
+
+  await Promise.all(authPromises)
 
   return stakes
 }
