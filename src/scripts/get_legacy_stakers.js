@@ -1,5 +1,5 @@
 // Script that gets information of stakers with legacy Nu or Keep
-// It needs variables in .env ETHERSCAN_TOKEN, SUBGRAPH_API_KEY and MAINNET_RPC_URL
+// It needs variables in .env SUBGRAPH_API_KEY and MAINNET_RPC_URL
 // Note: MAINNET_RPC_URL must address to an archive node
 // Use: node src/scripts/get_legacy_stakers.js
 
@@ -7,7 +7,6 @@ require("dotenv").config()
 
 const Subgraph = require("./pre-rewards/subgraph.js")
 
-const etherscanApiKey = process.env.ETHERSCAN_TOKEN
 const subgraphApiKey = process.env.SUBGRAPH_API_KEY
 const rpcUrl = process.env.MAINNET_RPC_URL
 
@@ -22,7 +21,6 @@ async function main() {
   const legacyStakes = await Subgraph.getLegacyStakesInfo(
     gqlUrl,
     rpcUrl,
-    etherscanApiKey,
     blockNumber
   )
 

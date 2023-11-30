@@ -2,6 +2,9 @@ require("isomorphic-unfetch")
 const { createClient, gql } = require("@urql/core")
 const { ethers } = require("ethers")
 const BigNumber = require("bignumber.js")
+const {
+  abi: tokenStakingAbi,
+} = require("@threshold-network/solidity-contracts/artifacts/TokenStaking.json")
 const Constants = require("./constants.js")
 
 async function getEpochById(gqlClient, epochId) {
@@ -297,26 +300,10 @@ async function getLegacyStakes(gqlClient, blockNumber) {
 // For a specific stake at a specific block, return the Threshold Network apps
 // authorizations. Note: if blockNumber provided, rpcUrl must address to an
 // archive node
-async function getStakeAuthorizations(
-  rpcUrl,
-  etherscanApiKey,
-  stakingProvider,
-  blockNumber
-) {
+async function getStakeAuthorizations(rpcUrl, stakingProvider, blockNumber) {
   if (!blockNumber) {
     blockNumber = "latest"
   }
-
-  // Get the ABI of Token Staking contract
-  const etherscanUrl =
-    "https://api.etherscan.io/api?module=contract&" +
-    "action=getabi&" +
-    `address=${Constants.tokenStakingAddress}&` +
-    `apikey=${etherscanApiKey}`
-
-  const fetchResponse = await fetch(etherscanUrl)
-  const fetchResponseJson = await fetchResponse.json()
-  const tokenStakingAbi = fetchResponseJson.result
 
   const provider = new ethers.providers.JsonRpcProvider(rpcUrl)
 
@@ -774,12 +761,7 @@ exports.getStakingHistory = async function (
  * @param {Number}  blockNumber       Block height at which data will be taken
  * @return {Object}                   The stake's data
  */
-exports.getLegacyStakesInfo = async function (
-  gqlUrl,
-  rpcUrl,
-  etherscanApiKey,
-  blockNumber
-) {
+exports.getLegacyStakesInfo = async function (gqlUrl, rpcUrl, blockNumber) {
   const stakes = {}
 
   const gqlClient = createClient({ url: gqlUrl, maskTypename: true })
@@ -805,7 +787,6 @@ exports.getLegacyStakesInfo = async function (
         tStake: stake.tStake,
         authorizations: await getStakeAuthorizations(
           rpcUrl,
-          etherscanApiKey,
           stake.id,
           blockNumber
         ),
