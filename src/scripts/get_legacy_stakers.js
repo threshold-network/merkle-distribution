@@ -24,7 +24,7 @@ async function main() {
     blockNumber
   )
 
-  console.log(legacyStakes)
+  console.log(JSON.stringify(legacyStakes, null, 4))
 }
 
 main()
