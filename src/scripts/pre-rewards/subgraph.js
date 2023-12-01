@@ -301,6 +301,7 @@ async function getLegacyStakes(gqlClient, blockNumber) {
 // authorizations. Note: if blockNumber provided, rpcUrl must address to an
 // archive node
 async function getStakeAuthorizations(rpcUrl, stakingProvider, blockNumber) {
+  // TODO: sometimes the script reach the throughput limitation.
   if (!blockNumber) {
     blockNumber = "latest"
   }
@@ -800,6 +801,106 @@ exports.getLegacyStakesInfo = async function (gqlUrl, rpcUrl, blockNumber) {
   }
 
   await Promise.all(authPromises)
+
+  return stakes
+}
+
+/**
+ * Get the authorization decreases of legacy stakes.
+ *
+ * When legacy stakes (Keep and Nu staking) were deactivated from Threshold
+ * staking, the T tokens staked in the contract and that came from the legacy
+ * tokens (keepInT, nuInT in the contract) were unstaked.
+ * In addition to this, those legacy tokens that were part of Threshold apps
+ * authorizations (walletRegistry, randomBeacon) are no longer part of the
+ * authorization.
+ * But no authorization-decrease events were emitted by the contract, so the
+ * scripts that calculates the related rewards can't take into account that
+ * by themselves.
+ *
+ * This function returns the amount of authorization that was decreased for
+ * every legacy stake.
+ *
+ * @param {string}  gqlUrl        Subgraph's GraphQL API URL
+ * @param {string}  rpcUrl        Web3 provider URL. Must be an archive node
+ * @param {Number}  blockNumber   Block at which legacy stakes were deactivated
+ * @return {Object}               The authorization decreased by stake
+ */
+exports.getLegacyStakesAuthDecreases = async function (
+  gqlUrl,
+  rpcUrl,
+  blockNumber
+) {
+  const stakes = {}
+  const authBeforePromiseList = []
+  const authAfterPromiseList = []
+
+  const gqlClient = createClient({ url: gqlUrl, maskTypename: true })
+
+  const ownerList = await getLegacyStakes(gqlClient, blockNumber - 1)
+  if (!ownerList) {
+    return {}
+  }
+
+  ownerList.map((ownerStakes) => {
+    ownerStakes.stakes.map((stake) => {
+      if (stake.keepInTStake === "0" && stake.nuInTStake === "0") {
+        return
+      }
+
+      stakes[stake.id] = {
+        owner: ownerStakes.id,
+        keepInTStake: stake.keepInTStake,
+        nuInTStake: stake.nuInTStake,
+        tStake: stake.tStake,
+      }
+
+      // Get the auths amount before the transaction that run the deauths
+      const authBeforePromise = getStakeAuthorizations(
+        rpcUrl,
+        stake.id,
+        blockNumber - 1
+      ).then((auths) => {
+        stakes[stake.id].authsBefore = auths
+      })
+
+      authBeforePromiseList.push(authBeforePromise)
+
+      // Get the auths amount after the transaction that run the deauths
+      const authAfterPromise = getStakeAuthorizations(
+        rpcUrl,
+        stake.id,
+        blockNumber
+      ).then((auths) => {
+        stakes[stake.id].authsAfter = auths
+      })
+
+      authAfterPromiseList.push(authAfterPromise)
+    })
+  })
+
+  await Promise.all([...authBeforePromiseList, ...authAfterPromiseList])
+
+  Object.keys(stakes).map((stakeAddress) => {
+    stakes[stakeAddress].authsDecreased = {}
+    const walletRegistryAuthBefore = ethers.BigNumber.from(
+      stakes[stakeAddress].authsBefore.WalletRegistry
+    )
+    const randomBeaconAuthBefore = ethers.BigNumber.from(
+      stakes[stakeAddress].authsBefore.RandomBeacon
+    )
+    const walletRegistryAuthAfter = ethers.BigNumber.from(
+      stakes[stakeAddress].authsAfter.WalletRegistry
+    )
+    const randomBeaconAuthAfter = ethers.BigNumber.from(
+      stakes[stakeAddress].authsAfter.RandomBeacon
+    )
+    stakes[stakeAddress].authsDecreased.WalletRegistry =
+      walletRegistryAuthBefore.sub(walletRegistryAuthAfter).toString()
+    stakes[stakeAddress].authsDecreased.RandomBeacon = randomBeaconAuthBefore
+      .sub(randomBeaconAuthAfter)
+      .toString()
+  })
 
   return stakes
 }
