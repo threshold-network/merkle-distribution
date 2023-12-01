@@ -15,13 +15,13 @@ const gqlUrl = `https://gateway.thegraph.com/api/${subgraphApiKey}/subgraphs/id/
 
 // Block height in which legacy stakers were disabled
 // https://etherscan.io/tx/0x68ddee6b5651d5348a40555b0079b5066d05a63196e3832323afafae0095a656
-const blockNumber = 18624791
+const blockNumber = 18624792
 
 async function main() {
   const legacyStakes = await Subgraph.getLegacyStakesInfo(
     gqlUrl,
     rpcUrl,
-    blockNumber
+    blockNumber - 1
   )
 
   console.log(JSON.stringify(legacyStakes, null, 4))

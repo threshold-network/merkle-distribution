@@ -1,5 +1,5 @@
 import { BigNumber } from "@ethersproject/bignumber"
-import { Contract } from "ethers"
+import { Contract, Event } from "ethers"
 import { program } from "commander"
 import * as fs from "fs"
 import { ethers } from "ethers"
@@ -32,6 +32,12 @@ import {
   APR,
   SECONDS_IN_YEAR,
 } from "./rewards-constants"
+
+import { getLegacyStakesAuthDecreases } from "./../pre-rewards/subgraph.js"
+import {
+  randomBeaconAddress,
+  walletRegistryAddress,
+} from "../pre-rewards/constants"
 
 program
   .version("0.0.1")
@@ -158,6 +164,64 @@ export async function calculateRewards() {
     startRewardsBlock,
     endRewardsBlock
   )
+
+  // Special case: Dec 1st 23 distribution
+  // When legacy stakes (Keep and Nu staking) were deactivated from Threshold
+  // staking, the T tokens staked in the contract and that came from the legacy
+  // tokens (keepInT, nuInT in the contract) were unstaked.
+  // In addition to this, those legacy tokens that were part of Threshold apps
+  // authorizations (walletRegistry, randomBeacon) are no longer part of the
+  // authorization.
+  // But no authorization-decrease events were emitted by the contract, so the
+  // scripts that calculates the related rewards can't take into account that
+  // by themselves.
+
+  // Block height in which legacy stakers were disabled
+  // https://etherscan.io/tx/0x68ddee6b5651d5348a40555b0079b5066d05a63196e3832323afafae0095a656
+  const blockNumber = 18624792
+  const legacyStakes = await getlegacyStakes(blockNumber)
+
+  if (legacyStakes) {
+    Object.entries(legacyStakes).forEach(([stakingProv, stakeData]) => {
+      if (stakeData.authsDecreased.WalletRegistry !== "0") {
+        console.log(stakingProv)
+        console.log(stakeData.authsBefore.WalletRegistry)
+        console.log(stakeData.authsBefore.RandomBeacon)
+        console.log(stakeData.authsAfter.WalletRegistry)
+        console.log(stakeData.authsAfter.RandomBeacon)
+
+        const event = {
+          blockNumber: blockNumber,
+          args: {
+            stakingProvider: ethers.utils.getAddress(stakingProv),
+            application: walletRegistryAddress,
+            fromAmount: ethers.BigNumber.from(
+              stakeData.authsBefore.WalletRegistry
+            ),
+            toAmount: ethers.BigNumber.from(
+              stakeData.authsAfter.WalletRegistry
+            ),
+          },
+        }
+        intervalAuthorizationDecreasedEvents.push(event as unknown as Event)
+      }
+
+      if (stakeData.authsDecreased.RandomBeacon !== "0") {
+        const event = {
+          blockNumber: blockNumber,
+          args: {
+            stakingProvider: ethers.utils.getAddress(stakingProv),
+            application: randomBeaconAddress,
+            fromAmount: ethers.BigNumber.from(
+              stakeData.authsBefore.RandomBeacon
+            ),
+            toAmount: ethers.BigNumber.from(stakeData.authsAfter.RandomBeacon),
+          },
+        }
+        intervalAuthorizationDecreasedEvents.push(event as unknown as Event)
+      }
+    })
+  }
 
   console.log(
     "Fetching AuthorizationIncreased events after rewards interval..."
@@ -748,6 +812,31 @@ async function queryPrometheus(url: string, params: any): Promise<any> {
       return "An unexpected error occurred"
     }
   }
+}
+
+async function getlegacyStakes(blockNumber: number) {
+  const subgraphApiKey = process.env.SUBGRAPH_API_KEY
+  const rpcUrl = process.env.MAINNET_RPC_URL
+
+  if (!subgraphApiKey) {
+    console.error("No Subgraph API key in .env file")
+    return
+  }
+
+  if (!rpcUrl) {
+    console.error("No mainnet provider RPC URL in .env file")
+    return
+  }
+  const subgraphId = "8iv4pFv7UL3vMjYeetmFCKD9Mg2V4d1S2rapQXo8fRq5"
+  const gqlUrl = `https://gateway.thegraph.com/api/${subgraphApiKey}/subgraphs/id/${subgraphId}`
+
+  const legacyStakes = await getLegacyStakesAuthDecreases(
+    gqlUrl,
+    rpcUrl,
+    blockNumber
+  )
+
+  return legacyStakes
 }
 
 calculateRewards()
