@@ -757,7 +757,6 @@ exports.getStakingHistory = async function (
  * of nuInT and keepInT respectively in Threshold staking contract.
  * @param {string}  gqlUrl            Subgraph's GraphQL API URL
  * @param {string}  rpcUrl            Web3 provider URL. Must be a archive node
- * @param {string}  etherscanApiKey   Etherscan API key
  * @param {Number}  blockNumber       Block height at which data will be taken
  * @return {Object}                   The stake's data
  */
