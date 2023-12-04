@@ -291,12 +291,13 @@ exports.getPreStakes = async function (gqlUrl, startTimestamp, endTimestamp) {
   epochs[0].timestamp = startTimestamp.toString()
   epochs[0].duration = (epochs[1].timestamp - startTimestamp).toString()
   const lastEpochIndex = epochs.length - 1 > 0 ? epochs.length - 1 : 0
-  epochs[lastEpochIndex].duration =
+  epochs[lastEpochIndex].duration = (
     endTimestamp - epochs[lastEpochIndex].timestamp
+  ).toString()
 
   // Clean the empty epochs
   epochs = epochs.filter((epoch) => {
-    return epoch.stakes.length > 0
+    return epoch.stakes.length > 0 && epoch.duration !== "0"
   })
 
   // Sort the epoch's stakes by staking provider
