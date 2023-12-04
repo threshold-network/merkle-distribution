@@ -187,9 +187,7 @@ export async function calculateRewards() {
       event.blockNumber < endRewardsBlock
   )
   const postLegacyEvents = legacyEvents.filter(
-    (event) =>
-      event.blockNumber > startRewardsBlock &&
-      event.blockNumber > endRewardsBlock - 1
+    (event) => event.blockNumber > endRewardsBlock - 1
   )
 
   intervalAuthorizationDecreasedEvents =
