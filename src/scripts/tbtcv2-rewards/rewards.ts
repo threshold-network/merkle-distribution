@@ -153,7 +153,7 @@ export async function calculateRewards() {
   )
 
   console.log("Fetching AuthorizationDecreased events in rewards interval...")
-  const intervalAuthorizationDecreasedEvents = await tokenStaking.queryFilter(
+  let intervalAuthorizationDecreasedEvents = await tokenStaking.queryFilter(
     "AuthorizationDecreaseApproved",
     startRewardsBlock,
     endRewardsBlock
@@ -172,12 +172,28 @@ export async function calculateRewards() {
   console.log(
     "Fetching AuthorizationDecreased events after rewards interval..."
   )
-  const postIntervalAuthorizationDecreasedEvents =
-    await tokenStaking.queryFilter(
-      "AuthorizationDecreaseApproved",
-      endRewardsBlock,
-      currentBlockNumber
-    )
+  let postIntervalAuthorizationDecreasedEvents = await tokenStaking.queryFilter(
+    "AuthorizationDecreaseApproved",
+    endRewardsBlock,
+    currentBlockNumber
+  )
+
+  // Special case: Dec 1st 23 distribution - legacy stakes
+  const legacyEvents = await getLegacyEvents(provider)
+
+  const intervalLegacyEvents = legacyEvents.filter(
+    (event) =>
+      event.blockNumber >= startRewardsBlock &&
+      event.blockNumber < endRewardsBlock
+  )
+  const postLegacyEvents = legacyEvents.filter(
+    (event) => event.blockNumber > endRewardsBlock - 1
+  )
+
+  intervalAuthorizationDecreasedEvents =
+    intervalAuthorizationDecreasedEvents.concat(intervalLegacyEvents)
+  postIntervalAuthorizationDecreasedEvents =
+    postIntervalAuthorizationDecreasedEvents.concat(postLegacyEvents)
 
   for (let i = 0; i < bootstrapData.length; i++) {
     const operatorAddress = bootstrapData[i].metric.chain_address
@@ -748,6 +764,49 @@ async function queryPrometheus(url: string, params: any): Promise<any> {
       return "An unexpected error occurred"
     }
   }
+}
+
+// Special case: Dec 1st 23 distribution
+// When legacy stakes (Keep and Nu staking) were deactivated from Threshold
+// staking, the T tokens staked in the contract and that came from the legacy
+// tokens (keepInT, nuInT in the contract) were unstaked.
+// In addition to this, those legacy tokens that were part of Threshold apps
+// authorizations (walletRegistry, randomBeacon) are no longer part of the
+// authorization.
+// But no `AuthorizationDecreaseApproved` events where emitted, but a special
+// event "AuthorizationInvoluntaryDecreased". So the script were not able to
+// correctly calculate the authorization for this period.
+
+// Transaction in which legacy stakes were disabled:
+// https://etherscan.io/tx/0x68ddee6b5651d5348a40555b0079b5066d05a63196e3832323afafae0095a656
+async function getLegacyEvents(provider: ethers.providers.EtherscanProvider) {
+  const legacyTxHash =
+    "0x68ddee6b5651d5348a40555b0079b5066d05a63196e3832323afafae0095a656"
+  const eventSignature =
+    "0x0f0171fffaa54732b1f79a3164b315658061a1a51bf8c1010fbed908a8e333f9"
+  const legacyTxReceipt = await provider.getTransactionReceipt(legacyTxHash)
+
+  const legacyEvents = legacyTxReceipt.logs
+    .filter((log) => log.topics[0] === eventSignature)
+    .map((legacyEvent) => {
+      const parsedArgs = {
+        stakingProvider: ethers.utils.getAddress(
+          "0x" + legacyEvent.topics[1].slice(-40)
+        ),
+        application: ethers.utils.getAddress(
+          "0x" + legacyEvent.topics[2].slice(-40)
+        ),
+        fromAmount: ethers.BigNumber.from(legacyEvent.data.slice(0, 66)),
+        toAmount: ethers.BigNumber.from("0x" + legacyEvent.data.slice(66)),
+      }
+
+      return {
+        ...legacyEvent,
+        args: parsedArgs,
+      } as unknown as ethers.Event
+    })
+
+  return legacyEvents
 }
 
 calculateRewards()
