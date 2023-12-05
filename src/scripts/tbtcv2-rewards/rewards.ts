@@ -170,13 +170,24 @@ export async function calculateRewards() {
     )
 
   console.log(
-    "Fetching AuthorizationDecreased events after rewards interval..."
+    "Fetching AuthorizationDecreasedApproved events after rewards interval..."
   )
-  let postIntervalAuthorizationDecreasedEvents = await tokenStaking.queryFilter(
-    "AuthorizationDecreaseApproved",
-    endRewardsBlock,
-    currentBlockNumber
+  let postIntervalAuthorizationDecreasedApprovedEvents =
+    await tokenStaking.queryFilter(
+      "AuthorizationDecreaseApproved",
+      endRewardsBlock,
+      currentBlockNumber
+    )
+
+  console.log(
+    "Fetching AuthorizationDecreasedRequested events after rewards interval..."
   )
+  let postIntervalAuthorizationDecreasedRequestedEvents =
+    await tokenStaking.queryFilter(
+      "AuthorizationDecreaseRequested",
+      endRewardsBlock,
+      currentBlockNumber
+    )
 
   // Special case: Dec 1st 23 distribution - legacy stakes
   const legacyEvents = await getLegacyEvents(provider)
@@ -192,8 +203,11 @@ export async function calculateRewards() {
 
   intervalAuthorizationDecreasedEvents =
     intervalAuthorizationDecreasedEvents.concat(intervalLegacyEvents)
-  postIntervalAuthorizationDecreasedEvents =
-    postIntervalAuthorizationDecreasedEvents.concat(postLegacyEvents)
+
+  const postIntervalAuthorizationDecreasedEvents =
+    postIntervalAuthorizationDecreasedApprovedEvents
+      .concat(postIntervalAuthorizationDecreasedRequestedEvents)
+      .concat(postLegacyEvents)
 
   for (let i = 0; i < bootstrapData.length; i++) {
     const operatorAddress = bootstrapData[i].metric.chain_address
