@@ -5,6 +5,7 @@
 require("dotenv").config()
 const fs = require("fs")
 const shell = require("shelljs")
+const ethers = require("ethers")
 const Subgraph = require("./pre-rewards/subgraph.js")
 const Rewards = require("./pre-rewards/rewards.js")
 const MerkleDist = require("./merkle_dist/merkle_dist.js")
@@ -13,9 +14,9 @@ const MerkleDist = require("./merkle_dist/merkle_dist.js")
 const bonusWeight = 0.0
 const preWeight = 0.25
 const tbtcv2Weight = 0.75
-const startTime = new Date("2023-11-01T00:00:00+00:00").getTime() / 1000
-const endTime = new Date("2023-11-22T04:06:11+00:00").getTime() / 1000
-const lastDistribution = "2023-11-01"
+const startTime = new Date("2023-11-22T04:06:11+00:00").getTime() / 1000
+const endTime = new Date("2023-12-01T00:00:00+00:00").getTime() / 1000
+const lastDistribution = "2023-11-22"
 
 const etherscanApiKey = process.env.ETHERSCAN_TOKEN
 const subgraphApiKey = process.env.SUBGRAPH_API_KEY
@@ -59,6 +60,29 @@ async function main() {
     return
   }
 
+  // Special case: Dec 1st 23 distribution. ######
+  // Nov 22nd 23, legacy stakes (i.e. T stakes that originally came from Keep
+  // and Nu staking contracts) were deactivated. There is a period in which
+  // these stakers can migrate to T and stake their tokens without losing the
+  // rewards associated a this migration period.
+  // This period goes beyond the date in which this distribution is made, so
+  // there is no way of knowing which stakes will comply with the migration
+  // requirement. So the rewards for elegible legacy stakes in this period will
+  // be released in the following distributions.
+
+  // More info can be found here:
+  // https://github.com/threshold-network/solidity-contracts/issues/141
+  // https://forum.threshold.network/t/transition-guide-for-legacy-stakers/719
+  // https://etherscan.io/tx/0x68ddee6b5651d5348a40555b0079b5066d05a63196e3832323afafae0095a656
+
+  // Block height in which legacy stakers were deactivated
+  const blockNumber = 18624792
+  const legacyStakes = await Subgraph.getLegacyStakes(
+    graphqlApi,
+    blockNumber - 1
+  )
+  // ########################
+
   // Bonus rewards calculation
   if (bonusWeight > 0) {
     console.log("Calculating bonus rewards...")
@@ -89,6 +113,34 @@ async function main() {
       tbtcv2Weight
     )
   }
+
+  // ### Special case: Dec 1st 23 distribution. #####
+  Object.keys(legacyStakes).map((legacyStake) => {
+    const legacyStakeAddress = ethers.utils.getAddress(legacyStake)
+    delete earnedPreRewards[legacyStakeAddress]
+    delete earnedTbtcv2Rewards[legacyStakeAddress]
+  })
+
+  const rewardsDetailsPath =
+    "distributions/2023-12-01/tBTCv2-rewards-details/1700625971-1701388800.json"
+  const rewardsDetails = JSON.parse(fs.readFileSync(rewardsDetailsPath))
+
+  const rewardsDetailsFiltered = rewardsDetails.filter((rewardDetail) => {
+    const rewardStakingProvider = Object.keys(rewardDetail)[0].toLowerCase()
+    const legacyStakesStakingProviders = Object.keys(legacyStakes)
+    return !legacyStakesStakingProviders.includes(rewardStakingProvider)
+  })
+
+  fs.writeFileSync(
+    rewardsDetailsPath,
+    JSON.stringify(rewardsDetailsFiltered, null, 4)
+  )
+  // ##################################
+
+  console.log("PRE rewards ###################")
+  console.log(earnedPreRewards)
+  console.log("tBTCv2 Rewards ##################")
+  console.log(earnedTbtcv2Rewards)
 
   // Add rewards earned to cumulative totals
   try {
