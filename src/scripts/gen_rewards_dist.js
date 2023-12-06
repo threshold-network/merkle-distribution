@@ -13,9 +13,9 @@ const MerkleDist = require("./merkle_dist/merkle_dist.js")
 const bonusWeight = 0.0
 const preWeight = 0.25
 const tbtcv2Weight = 0.75
-const startTime = new Date("2023-10-01T00:00:00+00:00").getTime() / 1000
-const endTime = new Date("2023-11-01T00:00:00+00:00").getTime() / 1000
-const lastDistribution = "2023-10-01"
+const startTime = new Date("2023-11-01T00:00:00+00:00").getTime() / 1000
+const endTime = new Date("2023-11-22T04:06:11+00:00").getTime() / 1000
+const lastDistribution = "2023-11-01"
 
 const etherscanApiKey = process.env.ETHERSCAN_TOKEN
 const subgraphApiKey = process.env.SUBGRAPH_API_KEY
