@@ -669,3 +669,69 @@ exports.getStakingHistory = async function (
 
   return stakingHistory
 }
+
+/**
+ * For a specific block, return a list of stakes whose tokens were staked in Nu
+ * or Keep staking contracts. These staked tokens were registred as nuInT and
+ * keepInT in the Threshold staking contract.
+ * @param {string} gqlUrl       Subgraph's GraphQL API URL
+ * @param {number} blockNumber  Block at which legacy stakes were deactivated
+ * @returns {Object[]}          Stakes info
+ */
+exports.getLegacyStakes = async function (gqlUrl, blockNumber) {
+  const legacyStakersQuery = gql`
+    query legacyStakersQuery($blockNumber: Int) {
+      accounts(
+        first: 1000
+        block: { number: $blockNumber }
+        where: {
+          stakes_: { or: [{ keepInTStake_gt: "0" }, { nuInTStake_gt: "0" }] }
+        }
+      ) {
+        id
+        stakes {
+          id
+          keepInTStake
+          nuInTStake
+          tStake
+          totalStaked
+        }
+      }
+    }
+  `
+
+  const gqlClient = createClient({ url: gqlUrl, maskTypename: true })
+
+  const response = await gqlClient
+    .query(legacyStakersQuery, { blockNumber: blockNumber })
+    .toPromise()
+
+  if (response.error) {
+    console.error(`Error in getLegacyStakes: ${response.error.message}`)
+    return null
+  }
+
+  if (!response.data) {
+    console.error("No data found")
+    return null
+  }
+
+  const accounts = response.data["accounts"]
+
+  const stakes = {}
+  accounts.map((account) => {
+    account.stakes.map((stake) => {
+      if (stake.keepInTStake === "0" && stake.nuInTStake === "0") {
+        return
+      }
+      stakes[stake.id] = {
+        owner: account.id,
+        keepInTStake: stake.keepInTStake,
+        nuInTStake: stake.nuInTStake,
+        tStake: stake.tStake,
+      }
+    })
+  })
+
+  return stakes
+}
