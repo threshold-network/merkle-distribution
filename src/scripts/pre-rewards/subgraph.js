@@ -638,11 +638,11 @@ exports.getStakingHistory = async function (
     return parseInt(epochA.epoch.id) - parseInt(epochB.epoch.id)
   })
 
-  let stakedAmount = 0
+  let stakedAmount = BigNumber(0)
   let stakingHistory = epochStakes.map((epoch, index) => {
-    const epochAmount = parseInt(epoch.amount)
+    const epochAmount = BigNumber(epoch.amount)
 
-    if (epoch.epoch.timestamp <= timestamp || epochAmount === stakedAmount) {
+    if (epochAmount.eq(stakedAmount)) {
       return null
     }
 
@@ -650,14 +650,16 @@ exports.getStakingHistory = async function (
     if (index === 0) {
       historyElement.event = "staked"
     } else {
-      historyElement.event =
-        epochAmount > stakedAmount ? "topped-up" : "unstaked"
+      historyElement.event = epochAmount.gt(stakedAmount)
+        ? "topped-up"
+        : "unstaked"
     }
-    historyElement.prevAmountStaked = (stakedAmount / 10 ** 18).toFixed()
-    historyElement.currAmountStaked = (epochAmount / 10 ** 18).toFixed()
+    historyElement.prevAmountStaked = stakedAmount.toFixed()
+    historyElement.currAmountStaked = epochAmount.toFixed()
     historyElement.timestamp = new Date(
       epoch.epoch.timestamp * 1000
     ).toISOString()
+    historyElement.unixTimestamp = epoch.epoch.timestamp
     stakedAmount = epochAmount
 
     return historyElement
@@ -665,6 +667,10 @@ exports.getStakingHistory = async function (
 
   stakingHistory = stakingHistory.filter(
     (historyElement) => historyElement !== null
+  )
+
+  stakingHistory = stakingHistory.filter(
+    (historyElement) => parseInt(historyElement.unixTimestamp) > timestamp
   )
 
   return stakingHistory
