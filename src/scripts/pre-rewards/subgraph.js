@@ -567,19 +567,22 @@ exports.getStakingInfo = async function (gqlUrl, stakingProvider) {
  * @param {string}  gqlUrl            Subgraph's GraphQL API URL
  * @param {string}  stakingProvider   Staking providers address
  * @param {Number}  [startTimestamp]  Will show only events after this time
+ * @param {Number}  [endTimestamp]    Will show only events before this time
  * @return {Object}                   The stake's data
  */
 exports.getStakingHistory = async function (
   gqlUrl,
   stakingProvider,
-  startTimestamp
+  startTimestamp,
+  endTimestamp
 ) {
   if (!ethers.utils.isAddress(stakingProvider)) {
     console.error("Error: Invalid Staking Provider address")
     return
   }
 
-  const timestamp = startTimestamp ? startTimestamp : 0
+  const startTime = startTimestamp ? startTimestamp : 0
+  const endTime = endTimestamp ? endTimestamp : Math.floor(Date.now() / 1000)
 
   let lastId = ""
   let recvEpochStakes = []
@@ -670,7 +673,9 @@ exports.getStakingHistory = async function (
   )
 
   stakingHistory = stakingHistory.filter(
-    (historyElement) => parseInt(historyElement.unixTimestamp) > timestamp
+    (historyElement) =>
+      parseInt(historyElement.unixTimestamp) > startTime &&
+      parseInt(historyElement.unixTimestamp) <= endTime
   )
 
   return stakingHistory
