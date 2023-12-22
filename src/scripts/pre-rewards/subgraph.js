@@ -688,11 +688,12 @@ exports.getStakingHistory = async function (
  * @param {string} gqlUrl       Subgraph's GraphQL API URL
  * @returns {Object[]}          Stakes rewards
  */
-exports.getLegacyNuRewardsTransitionCompleted = async function (gqlUrl) {
+exports.getLegacyNuRewards = async function (gqlUrl) {
   const deactivationBlock = 18624792
   const deactivationTimestamp = 1700625971 // Nov 22nd 2023 04:06:11
   const dec1Timestamp = 1701388800 // Dec 1st 2023 00:00 UTC
   const legacyNuDeadlineTimestamp = 1701993600 // Dec 8th 2023 00:00 UTC
+  const secondsInYear = 31536000
 
   // Get the legacy Nu stakes
   const legacyNuStakesQuery = gql`
@@ -745,8 +746,6 @@ exports.getLegacyNuRewardsTransitionCompleted = async function (gqlUrl) {
     })
   })
 
-  // Filter the stakes that did a top-up after deactivation and before
-  // transition deadline
   const stakesWithHistory = {}
   const stakesHistoryPromises = []
   Object.keys(stakes).map((stake) => {
@@ -769,12 +768,21 @@ exports.getLegacyNuRewardsTransitionCompleted = async function (gqlUrl) {
 
   stakes = stakesWithHistory
 
+  // noTransitionTStakes are those stakes that had tStake before the
+  // deactivation and that didn't complete the transition. These won't receive
+  // nuInT rewards, but they will receive rewards for tStake during Nov 22 to
+  // Dec 1 period.
+  const noTransitionTStakes = {}
+
   // Filter stakes that had topped-up events in the transition period
   Object.keys(stakes).map((stake) => {
     stakes[stake].history = stakes[stake].history.filter(
       (event) => event.event === "topped-up"
     )
     if (stakes[stake].history.length === 0) {
+      if (stakes[stake].tStake !== "0") {
+        noTransitionTStakes[stake] = stakes[stake]
+      }
       delete stakes[stake]
     }
   })
@@ -797,7 +805,6 @@ exports.getLegacyNuRewardsTransitionCompleted = async function (gqlUrl) {
       stakes[stake].history[lastEventIndex].unixTimestamp
     )
 
-    const secondsInYear = 31536000
     const tIncreased = lastAmount.minus(prevAmount)
 
     // nuInT rewards calculation
@@ -835,18 +842,20 @@ exports.getLegacyNuRewardsTransitionCompleted = async function (gqlUrl) {
     rewards[stake] = totalRewards.times(0.25).toFixed(0)
   })
 
+  // Calculate the Rewards of T stakes that didn't do the transition.
+  // The rewards for the period Nov 22 to Dec 1 wasn't distributed
+  Object.keys(noTransitionTStakes).map((stake) => {
+    const tStake = BigNumber(noTransitionTStakes[stake].tStake)
+    const duration = dec1Timestamp - deactivationTimestamp
+    const reward = tStake
+      .times(15)
+      .times(duration)
+      .div(secondsInYear * 100)
+    rewards[stake] = reward.times(0.25).toFixed(0)
+  })
+
   return rewards
 }
-
-/**
- * Return the rewards of those legacy Nu stakes that didn't complete the
- * transition, but that they had an amount of T staked and didn't receive their
- * rewards for the Nov 22nd - Dec 1st period.
- * See https://forum.threshold.network/t/transition-guide-for-legacy-stakers/719
- * @param {string} gqlUrl       Subgraph's GraphQL API URL
- * @returns {Object[]}          Stakes rewards
- */
-// exports.getLegacyNuRewardsTransitionNotCompleted = async function (gqlUrl) {}
 
 /**
  * For a specific block, return a list of stakes whose tokens were staked in Nu
