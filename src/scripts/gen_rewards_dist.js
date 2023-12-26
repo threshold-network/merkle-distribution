@@ -77,6 +77,8 @@ async function main() {
       endTime
     )
     earnedPreRewards = Rewards.calculatePreRewards(preStakes, preWeight)
+    console.log("======= EARNED PRE REWARDS =======")
+    console.log(earnedPreRewards)
   }
 
   // Special case: Dec 8th 23 distribution. ###################################
@@ -100,7 +102,16 @@ async function main() {
   // https://etherscan.io/tx/0x68ddee6b5651d5348a40555b0079b5066d05a63196e3832323afafae0095a656
   // https://github.com/threshold-network/merkle-distribution/pull/111
 
+  // We need the legacy stakes to delete the Keep legacy stakes
+  const blockNumber = 18624792 // Block height in which legacy stakes were deac
+  const legacyStakes = await Subgraph.getLegacyStakes(
+    graphqlApi,
+    blockNumber - 1
+  )
+
   const legacyNuRewards = await Subgraph.getLegacyNuRewards(graphqlApi)
+  console.log("======= LEGACY NU REWARDS =======")
+  console.log(legacyNuRewards)
 
   Object.keys(legacyNuRewards).map((stake) => {
     // Caution: we are assuming that each legacyNuReward stake will have the
@@ -113,6 +124,9 @@ async function main() {
       .toFixed(0)
   })
 
+  console.log("======= LEGACY NU + PRE REWARDS =======")
+  console.log(earnedPreRewards)
+
   // tBTCv2 rewards calculation
   if (tbtcv2Weight > 0) {
     console.log("Calculating tBTCv2 rewards...")
@@ -124,7 +138,40 @@ async function main() {
       tbtcv2RewardsRaw,
       tbtcv2Weight
     )
+    console.log("======= EARNED TBTC REWARDS BEFORE LEGACY REMOVE =======")
+    console.log(earnedTbtcv2Rewards)
   }
+
+  // Delete the Keep legacy stakes in earned rewards
+  Object.keys(legacyStakes).map((legacyStake) => {
+    const legacyStakeAddress = ethers.utils.getAddress(legacyStake)
+    delete earnedTbtcv2Rewards[legacyStakeAddress]
+  })
+
+  console.log("======= EARNED TBTC REWARDS AFTER LEGACY REMOVE =======")
+  console.log(earnedTbtcv2Rewards)
+
+  // Delete the Keep legacy stakes in rewards details file
+  const rewardsDetailsPath =
+    "distributions/2023-12-08/tBTCv2-rewards-details/1701388800-1701993600.json"
+  const rewardsDetails = JSON.parse(fs.readFileSync(rewardsDetailsPath))
+
+  console.log("======= REWARDS DETAILS BEFORE LEGACY REMOVE =======")
+  console.log(JSON.stringify(rewardsDetails, null, 4))
+
+  const rewardsDetailsFiltered = rewardsDetails.filter((rewardDetail) => {
+    const rewardStakingProvider = Object.keys(rewardDetail)[0].toLowerCase()
+    const legacyStakesStakingProviders = Object.keys(legacyStakes)
+    return !legacyStakesStakingProviders.includes(rewardStakingProvider)
+  })
+
+  fs.writeFileSync(
+    rewardsDetailsPath,
+    JSON.stringify(rewardsDetailsFiltered, null, 4)
+  )
+
+  console.log("======= REWARDS DETAILS AFTER LEGACY REMOVE =======")
+  console.log(JSON.stringify(rewardsDetailsFiltered, null, 4))
 
   // Add rewards earned to cumulative totals
   try {
