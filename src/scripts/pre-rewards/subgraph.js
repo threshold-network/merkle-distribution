@@ -835,6 +835,15 @@ exports.getLegacyNuRewards = async function (gqlUrl) {
         .times(15)
         .times(tRestakeDuration)
         .div(secondsInYear * 100)
+      // Calculate the tStake from 22nov to Dec 1st
+    } else {
+      // tStake: t staked amount before restaking event
+      const tStakeDuration = dec1Timestamp - deactivationTimestamp
+      const tStake = BigNumber(stakes[stake].tStake)
+      tStakeReward = tStake
+        .times(15)
+        .times(tStakeDuration)
+        .div(secondsInYear * 100)
     }
 
     const totalRewards = nuInTReward.plus(tStakeReward).plus(tRestakeReward)
