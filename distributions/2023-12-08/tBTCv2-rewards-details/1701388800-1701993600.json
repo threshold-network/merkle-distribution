@@ -391,10 +391,10 @@
             },
             "instances": {
                 "159.223.79.133:9601": {
-                    "upTimePercent": 99.93053488141312,
+                    "upTimePercent": 99.93054177416154,
                     "avgPreParams": 1000,
                     "version": {
-                        "v2.0.0-m6": 1701993720
+                        "v2.0.0-m6": 1701993660
                     }
                 }
             },
@@ -415,10 +415,10 @@
             },
             "instances": {
                 "34.27.186.169:9609": {
-                    "upTimePercent": 99.4542026396745,
+                    "upTimePercent": 99.45425679698353,
                     "avgPreParams": 1000,
                     "version": {
-                        "v2.0.0-m6": 1701993720
+                        "v2.0.0-m6": 1701993660
                     }
                 }
             },
@@ -442,7 +442,7 @@
                     "upTimePercent": 100,
                     "avgPreParams": 1000,
                     "version": {
-                        "v2.0.0-m6": 1701993720
+                        "v2.0.0-m6": 1701993660
                     }
                 }
             },
@@ -466,7 +466,7 @@
                     "upTimePercent": 100,
                     "avgPreParams": 956,
                     "version": {
-                        "v2.0.0-m6": 1701993720
+                        "v2.0.0-m6": 1701993660
                     }
                 }
             },
@@ -490,7 +490,7 @@
                     "upTimePercent": 100,
                     "avgPreParams": 1000,
                     "version": {
-                        "v2.0.0-m2": 1701993720
+                        "v2.0.0-m2": 1701993660
                     }
                 }
             },
@@ -514,7 +514,7 @@
                     "upTimePercent": 100,
                     "avgPreParams": 1000,
                     "version": {
-                        "v2.0.0-m6": 1701993720
+                        "v2.0.0-m6": 1701993660
                     }
                 }
             },
@@ -538,7 +538,7 @@
                     "upTimePercent": 100,
                     "avgPreParams": 1000,
                     "version": {
-                        "v2.0.0-m6": 1701993720
+                        "v2.0.0-m6": 1701993660
                     }
                 }
             },
@@ -562,7 +562,7 @@
                     "upTimePercent": 100,
                     "avgPreParams": 1000,
                     "version": {
-                        "v2.0.0-m6": 1701993780
+                        "v2.0.0-m6": 1701993720
                     }
                 }
             },
@@ -583,10 +583,10 @@
             },
             "instances": {
                 "34.16.38.17:9604": {
-                    "upTimePercent": 99.8412068281064,
+                    "upTimePercent": 99.84122258608713,
                     "avgPreParams": 1000,
                     "version": {
-                        "v2.0.0-m6": 1701993780
+                        "v2.0.0-m6": 1701993720
                     }
                 }
             },
@@ -607,10 +607,10 @@
             },
             "instances": {
                 "keep-validator-6.prod-eks-eu-north-1.staked.cloud:9601": {
-                    "upTimePercent": 99.73203652242954,
+                    "upTimePercent": 99.73206311402203,
                     "avgPreParams": 999,
                     "version": {
-                        "v2.0.0-m6": 1701993780
+                        "v2.0.0-m6": 1701993720
                     }
                 }
             },
@@ -631,10 +631,10 @@
             },
             "instances": {
                 "keep-validator-9.prod-eks-ca-central-1.staked.cloud:9601": {
-                    "upTimePercent": 99.93052798729654,
+                    "upTimePercent": 99.93053488141312,
                     "avgPreParams": 1000,
                     "version": {
-                        "v2.0.0-m6": 1701993780
+                        "v2.0.0-m6": 1701993720
                     }
                 }
             },
@@ -655,10 +655,10 @@
             },
             "instances": {
                 "34.16.38.17:9614": {
-                    "upTimePercent": 99.97022628026994,
+                    "upTimePercent": 99.97022923489133,
                     "avgPreParams": 999,
                     "version": {
-                        "v2.0.0-m6": 1701993780
+                        "v2.0.0-m6": 1701993720
                     }
                 }
             },
@@ -682,7 +682,7 @@
                     "upTimePercent": 100,
                     "avgPreParams": 1000,
                     "version": {
-                        "v2.0.0-m6": 1701993780
+                        "v2.0.0-m6": 1701993720
                     }
                 }
             },
@@ -703,10 +703,10 @@
             },
             "instances": {
                 "35.204.90.94:9601": {
-                    "upTimePercent": 99.93052798729654,
+                    "upTimePercent": 99.93053488141312,
                     "avgPreParams": 999,
                     "version": {
-                        "v2.0.0-m6": 1701993780
+                        "v2.0.0-m6": 1701993720
                     }
                 }
             },
@@ -730,7 +730,7 @@
                     "upTimePercent": 100,
                     "avgPreParams": 1000,
                     "version": {
-                        "v2.0.0-m6": 1701993780
+                        "v2.0.0-m6": 1701993720
                     }
                 }
             },
@@ -754,7 +754,7 @@
                     "upTimePercent": 100,
                     "avgPreParams": 1000,
                     "version": {
-                        "v2.0.0-m6": 1701993780
+                        "v2.0.0-m6": 1701993720
                     }
                 }
             },
@@ -775,10 +775,10 @@
             },
             "instances": {
                 "34.27.186.169:9605": {
-                    "upTimePercent": 99.93052798729654,
+                    "upTimePercent": 99.93053488141312,
                     "avgPreParams": 1000,
                     "version": {
-                        "v2.0.0-m6": 1701993780
+                        "v2.0.0-m6": 1701993720
                     }
                 }
             },
@@ -799,10 +799,10 @@
             },
             "instances": {
                 "tbtcv2.timoklein.info:9601": {
-                    "upTimePercent": 99.62286621675268,
+                    "upTimePercent": 99.62290364195692,
                     "avgPreParams": 1000,
                     "version": {
-                        "v2.0.0-m6": 1701993780
+                        "v2.0.0-m6": 1701993720
                     }
                 }
             },
@@ -823,10 +823,10 @@
             },
             "instances": {
                 "173.219.176.6:9601": {
-                    "upTimePercent": 99.82135768161969,
+                    "upTimePercent": 99.82137540934802,
                     "avgPreParams": 1000,
                     "version": {
-                        "v2.0.0-m6": 1701993780
+                        "v2.0.0-m6": 1701993720
                     }
                 }
             },
@@ -850,7 +850,7 @@
                     "upTimePercent": 100,
                     "avgPreParams": 1000,
                     "version": {
-                        "v2.0.0-m3": 1701993840
+                        "v2.0.0-m3": 1701993720
                     }
                 }
             },
@@ -871,10 +871,10 @@
             },
             "instances": {
                 "keep-validator-8.prod-eks-eu-west-1.staked.cloud:9601": {
-                    "upTimePercent": 99.89081885856079,
+                    "upTimePercent": 99.8908405279349,
                     "avgPreParams": 999,
                     "version": {
-                        "v2.0.0-m6": 1701993840
+                        "v2.0.0-m6": 1701993720
                     }
                 }
             },
@@ -895,10 +895,10 @@
             },
             "instances": {
                 "34.27.186.169:9611": {
-                    "upTimePercent": 98.42183622828784,
+                    "upTimePercent": 98.42214944924085,
                     "avgPreParams": 1000,
                     "version": {
-                        "v2.0.0-m6": 1701993840
+                        "v2.0.0-m6": 1701993720
                     }
                 }
             },
@@ -922,7 +922,7 @@
                     "upTimePercent": 100,
                     "avgPreParams": 1000,
                     "version": {
-                        "v2.0.0-m6": 1701993840
+                        "v2.0.0-m6": 1701993780
                     }
                 }
             },
@@ -943,10 +943,10 @@
             },
             "instances": {
                 "24.4.137.124:9601": {
-                    "upTimePercent": 99.79156327543424,
+                    "upTimePercent": 99.79158396188964,
                     "avgPreParams": 1000,
                     "version": {
-                        "v2.0.0-m6": 1701993840
+                        "v2.0.0-m6": 1701993780
                     }
                 }
             },
@@ -970,7 +970,7 @@
                     "upTimePercent": 100,
                     "avgPreParams": 1000,
                     "version": {
-                        "v2.0.0-m6": 1701993840
+                        "v2.0.0-m6": 1701993780
                     }
                 }
             },
@@ -994,7 +994,7 @@
                     "upTimePercent": 100,
                     "avgPreParams": 1000,
                     "version": {
-                        "v2.0.0-m6": 1701993840
+                        "v2.0.0-m6": 1701993780
                     }
                 }
             },
@@ -1018,7 +1018,7 @@
                     "upTimePercent": 100,
                     "avgPreParams": 1000,
                     "version": {
-                        "v2.0.0-m2": 1701993840
+                        "v2.0.0-m2": 1701993780
                     }
                 }
             },
@@ -1042,7 +1042,7 @@
                     "upTimePercent": 100,
                     "avgPreParams": 1000,
                     "version": {
-                        "v2.0.0-m6": 1701993840
+                        "v2.0.0-m6": 1701993780
                     }
                 }
             },
@@ -1063,10 +1063,10 @@
             },
             "instances": {
                 "64.225.89.235:9601": {
-                    "upTimePercent": 99.95037220843672,
+                    "upTimePercent": 99.95037713378325,
                     "avgPreParams": 1000,
                     "version": {
-                        "v2.0.0-m6": 1701993840
+                        "v2.0.0-m6": 1701993780
                     }
                 }
             },
@@ -1090,7 +1090,7 @@
                     "upTimePercent": 100,
                     "avgPreParams": 1000,
                     "version": {
-                        "v2.0.0-m6": 1701993840
+                        "v2.0.0-m6": 1701993780
                     }
                 }
             },
@@ -1114,7 +1114,7 @@
                     "upTimePercent": 100,
                     "avgPreParams": 1000,
                     "version": {
-                        "v2.0.0-m6": 1701993900
+                        "v2.0.0-m6": 1701993780
                     }
                 }
             },
@@ -1135,10 +1135,10 @@
             },
             "instances": {
                 "34.27.186.169:9612": {
-                    "upTimePercent": 99.93051419495733,
+                    "upTimePercent": 99.93052798729654,
                     "avgPreParams": 999,
                     "version": {
-                        "v2.0.0-m6": 1701993900
+                        "v2.0.0-m6": 1701993780
                     }
                 }
             },
@@ -1162,7 +1162,7 @@
                     "upTimePercent": 100,
                     "avgPreParams": 1000,
                     "version": {
-                        "v2.0.0-m6": 1701993900
+                        "v2.0.0-m6": 1701993780
                     }
                 }
             },
@@ -1183,10 +1183,10 @@
             },
             "instances": {
                 "54.183.240.12:9601": {
-                    "upTimePercent": 99.89080802064721,
+                    "upTimePercent": 99.89082969432314,
                     "avgPreParams": 1000,
                     "version": {
-                        "v2.0.0-m6": 1701993900
+                        "v2.0.0-m6": 1701993780
                     }
                 }
             },
@@ -1207,10 +1207,10 @@
             },
             "instances": {
                 "51.81.201.161:9601": {
-                    "upTimePercent": 99.85110184633712,
+                    "upTimePercent": 99.85113140134975,
                     "avgPreParams": 1000,
                     "version": {
-                        "v2.0.0-m5": 1701993900
+                        "v2.0.0-m5": 1701993780
                     }
                 }
             },
@@ -1231,10 +1231,10 @@
             },
             "instances": {
                 "keep-validator-10.prod-eks-ca-central-1.staked.cloud:9601": {
-                    "upTimePercent": 99.93051419495733,
+                    "upTimePercent": 99.93052798729654,
                     "avgPreParams": 1000,
                     "version": {
-                        "v2.0.0-m6": 1701993900
+                        "v2.0.0-m6": 1701993780
                     }
                 }
             },
@@ -1258,7 +1258,7 @@
                     "upTimePercent": 100,
                     "avgPreParams": 1000,
                     "version": {
-                        "v2.0.0-m6": 1701993900
+                        "v2.0.0-m6": 1701993840
                     }
                 }
             },
@@ -1279,10 +1279,10 @@
             },
             "instances": {
                 "keep-validator-4.prod-eks-ap-northeast-2.staked.cloud:9601": {
-                    "upTimePercent": 99.84117530275958,
+                    "upTimePercent": 99.84119106699751,
                     "avgPreParams": 999,
                     "version": {
-                        "v2.0.0-m6": 1701993900
+                        "v2.0.0-m6": 1701993840
                     }
                 }
             },
@@ -1306,7 +1306,7 @@
                     "upTimePercent": 100,
                     "avgPreParams": 1000,
                     "version": {
-                        "v2.0.0-m6": 1701993900
+                        "v2.0.0-m6": 1701993840
                     }
                 }
             },
@@ -1330,7 +1330,7 @@
                     "upTimePercent": 100,
                     "avgPreParams": 1000,
                     "version": {
-                        "v2.0.0-m6": 1701993900
+                        "v2.0.0-m6": 1701993840
                     }
                 }
             },
@@ -1354,7 +1354,7 @@
                     "upTimePercent": 100,
                     "avgPreParams": 1000,
                     "version": {
-                        "v2.0.0-m6": 1701993960
+                        "v2.0.0-m6": 1701993840
                     }
                 }
             },
@@ -1378,7 +1378,7 @@
                     "upTimePercent": 99.92432432432432,
                     "avgPreParams": 976,
                     "version": {
-                        "v2.0.0-m6": 1701993960
+                        "v2.0.0-m6": 1701993840
                     }
                 }
             },
@@ -1402,7 +1402,7 @@
                     "upTimePercent": 100,
                     "avgPreParams": 999,
                     "version": {
-                        "v2.0.0-m6": 1701993960
+                        "v2.0.0-m6": 1701993840
                     }
                 }
             },
@@ -1426,7 +1426,7 @@
                     "upTimePercent": 100,
                     "avgPreParams": 999,
                     "version": {
-                        "v2.0.0-m6": 1701993960
+                        "v2.0.0-m6": 1701993840
                     }
                 }
             },
@@ -1450,7 +1450,7 @@
                     "upTimePercent": 100,
                     "avgPreParams": 999,
                     "version": {
-                        "v2.0.0-m6": 1701993960
+                        "v2.0.0-m6": 1701993840
                     }
                 }
             },
@@ -1471,10 +1471,10 @@
             },
             "instances": {
                 "klimah.venndo.com:9601": {
-                    "upTimePercent": 99.75181177404944,
+                    "upTimePercent": 99.75186104218362,
                     "avgPreParams": 1000,
                     "version": {
-                        "v2.0.0-m6": 1701993960
+                        "v2.0.0-m6": 1701993840
                     }
                 }
             },
@@ -1495,10 +1495,10 @@
             },
             "instances": {
                 "206.189.2.21:9601": {
-                    "upTimePercent": 99.9602898838479,
+                    "upTimePercent": 99.96029776674938,
                     "avgPreParams": 1000,
                     "version": {
-                        "v2.0.0-m6": 1701993960
+                        "v2.0.0-m6": 1701993840
                     }
                 }
             },
@@ -1522,7 +1522,7 @@
                     "upTimePercent": 100,
                     "avgPreParams": 1000,
                     "version": {
-                        "v2.0.0-m6": 1701993960
+                        "v2.0.0-m6": 1701993840
                     }
                 }
             },
@@ -1546,7 +1546,7 @@
                     "upTimePercent": 100,
                     "avgPreParams": 1000,
                     "version": {
-                        "v2.0.0-m6": 1701993960
+                        "v2.0.0-m6": 1701993840
                     }
                 }
             },
@@ -1567,10 +1567,10 @@
             },
             "instances": {
                 "104.198.242.102:9621": {
-                    "upTimePercent": 99.92057188244638,
+                    "upTimePercent": 99.92058765137979,
                     "avgPreParams": 999,
                     "version": {
-                        "v2.0.0-m6": 1701994020
+                        "v2.0.0-m6": 1701993900
                     }
                 }
             },
@@ -1594,7 +1594,7 @@
                     "upTimePercent": 100,
                     "avgPreParams": 1000,
                     "version": {
-                        "v2.0.0-m6": 1701994020
+                        "v2.0.0-m6": 1701993900
                     }
                 }
             },
@@ -1618,7 +1618,7 @@
                     "upTimePercent": 100,
                     "avgPreParams": 1000,
                     "version": {
-                        "v2.0.0-m6": 1701994020
+                        "v2.0.0-m6": 1701993900
                     }
                 }
             },
@@ -1639,10 +1639,10 @@
             },
             "instances": {
                 "104.155.21.41:9601": {
-                    "upTimePercent": 99.76171564733916,
+                    "upTimePercent": 99.76176295413937,
                     "avgPreParams": 999,
                     "version": {
-                        "v2.0.0-m6": 1701994020
+                        "v2.0.0-m6": 1701993900
                     }
                 }
             },
@@ -1663,10 +1663,10 @@
             },
             "instances": {
                 "34.79.213.0:9601": {
-                    "upTimePercent": 99.90071485305798,
+                    "upTimePercent": 99.90073456422473,
                     "avgPreParams": 999,
                     "version": {
-                        "v2.0.0-m6": 1701994020
+                        "v2.0.0-m6": 1701993900
                     }
                 }
             },
@@ -1687,10 +1687,10 @@
             },
             "instances": {
                 "34.72.138.93:9601": {
-                    "upTimePercent": 99.9702144559174,
+                    "upTimePercent": 99.97022036926742,
                     "avgPreParams": 1000,
                     "version": {
-                        "v2.0.0-m6": 1701994020
+                        "v2.0.0-m6": 1701993900
                     }
                 }
             },
@@ -1714,7 +1714,7 @@
                     "upTimePercent": 100,
                     "avgPreParams": 999,
                     "version": {
-                        "v2.0.0-m6": 1701994020
+                        "v2.0.0-m6": 1701993900
                     }
                 }
             },
@@ -1738,7 +1738,7 @@
                     "upTimePercent": 100,
                     "avgPreParams": 1000,
                     "version": {
-                        "v2.0.0-m6": 1701994020
+                        "v2.0.0-m6": 1701993900
                     }
                 }
             },
@@ -1762,7 +1762,7 @@
                     "upTimePercent": 100,
                     "avgPreParams": 1000,
                     "version": {
-                        "v2.0.0-m2": 1701994020
+                        "v2.0.0-m2": 1701993900
                     }
                 }
             },
@@ -1783,10 +1783,10 @@
             },
             "instances": {
                 "167.99.228.64:9601": {
-                    "upTimePercent": 99.88085782366957,
+                    "upTimePercent": 99.88088147706968,
                     "avgPreParams": 1000,
                     "version": {
-                        "v2.0.0-m6": 1701994020
+                        "v2.0.0-m6": 1701993900
                     }
                 }
             },
@@ -1807,10 +1807,10 @@
             },
             "instances": {
                 "34.27.186.169:9614": {
-                    "upTimePercent": 99.84114376489276,
+                    "upTimePercent": 99.84117530275958,
                     "avgPreParams": 1000,
                     "version": {
-                        "v2.0.0-m6": 1701994020
+                        "v2.0.0-m6": 1701993900
                     }
                 }
             },
@@ -1831,7 +1831,7 @@
             },
             "instances": {
                 "104.198.242.102:9608": {
-                    "upTimePercent": 9.243447180301827,
+                    "upTimePercent": 9.262384592474932,
                     "avgPreParams": 1000,
                     "version": {
                         "v2.0.0-m6": 1701445560
@@ -1855,10 +1855,10 @@
             },
             "instances": {
                 "34.27.186.169:9615": {
-                    "upTimePercent": 99.84114376489276,
+                    "upTimePercent": 99.84115953539164,
                     "avgPreParams": 1000,
                     "version": {
-                        "v2.0.0-m6": 1701994020
+                        "v2.0.0-m6": 1701993960
                     }
                 }
             },
@@ -1879,10 +1879,10 @@
             },
             "instances": {
                 "104.198.242.102:9619": {
-                    "upTimePercent": 99.85107227958697,
+                    "upTimePercent": 99.85108706442966,
                     "avgPreParams": 1000,
                     "version": {
-                        "v2.0.0-m6": 1701994020
+                        "v2.0.0-m6": 1701993960
                     }
                 }
             },
@@ -1906,7 +1906,7 @@
                     "upTimePercent": 100,
                     "avgPreParams": 1000,
                     "version": {
-                        "v2.0.0-m6": 1701994080
+                        "v2.0.0-m6": 1701993960
                     }
                 }
             },
@@ -1927,10 +1927,10 @@
             },
             "instances": {
                 "104.198.242.102:9618": {
-                    "upTimePercent": 99.95035249726939,
+                    "upTimePercent": 99.95036235480988,
                     "avgPreParams": 1000,
                     "version": {
-                        "v2.0.0-m6": 1701994080
+                        "v2.0.0-m6": 1701993960
                     }
                 }
             },
@@ -1954,7 +1954,7 @@
                     "upTimePercent": 100,
                     "avgPreParams": 1000,
                     "version": {
-                        "v2.0.0-m6": 1701994080
+                        "v2.0.0-m6": 1701993960
                     }
                 }
             },
@@ -1978,7 +1978,7 @@
                     "upTimePercent": 100,
                     "avgPreParams": 1000,
                     "version": {
-                        "v2.0.0-m6": 1701994080
+                        "v2.0.0-m6": 1701993960
                     }
                 }
             },
@@ -1999,10 +1999,10 @@
             },
             "instances": {
                 "104.198.242.102:9612": {
-                    "upTimePercent": 99.74183298580081,
+                    "upTimePercent": 99.74188424501142,
                     "avgPreParams": 1000,
                     "version": {
-                        "v2.0.0-m6": 1701994080
+                        "v2.0.0-m6": 1701993960
                     }
                 }
             },
@@ -2023,10 +2023,10 @@
             },
             "instances": {
                 "146.70.34.18:9601": {
-                    "upTimePercent": 99.77162148743918,
+                    "upTimePercent": 99.77166683212548,
                     "avgPreParams": 1000,
                     "version": {
-                        "v2.0.0-m6": 1701994080
+                        "v2.0.0-m6": 1701993960
                     }
                 }
             },
@@ -2050,7 +2050,7 @@
                     "upTimePercent": 100,
                     "avgPreParams": 1000,
                     "version": {
-                        "v2.0.0-m6": 1701994080
+                        "v2.0.0-m6": 1701993960
                     }
                 }
             },
@@ -2071,10 +2071,10 @@
             },
             "instances": {
                 "gazer.ydns.eu:9601": {
-                    "upTimePercent": 99.8212689901698,
+                    "upTimePercent": 99.82130447731559,
                     "avgPreParams": 1000,
                     "version": {
-                        "v2.0.0-m6": 1701994080
+                        "v2.0.0-m6": 1701993960
                     }
                 }
             },
@@ -2095,10 +2095,10 @@
             },
             "instances": {
                 "34.27.186.169:9608": {
-                    "upTimePercent": 99.7815509879853,
+                    "upTimePercent": 99.7815943611635,
                     "avgPreParams": 1000,
                     "version": {
-                        "v2.0.0-m6": 1701994080
+                        "v2.0.0-m6": 1701993960
                     }
                 }
             },
@@ -2122,7 +2122,7 @@
                     "upTimePercent": 100,
                     "avgPreParams": 999,
                     "version": {
-                        "v2.0.0-m6": 1701994080
+                        "v2.0.0-m6": 1701993960
                     }
                 }
             },
@@ -2143,10 +2143,10 @@
             },
             "instances": {
                 "3.144.89.106:9601": {
-                    "upTimePercent": 99.97021149836162,
+                    "upTimePercent": 99.97021741288593,
                     "avgPreParams": 1000,
                     "version": {
-                        "v2.0.0-m6": 1701994080
+                        "v2.0.0-m6": 1701993960
                     }
                 }
             },
@@ -2167,10 +2167,10 @@
             },
             "instances": {
                 "46.101.2.173:9601": {
-                    "upTimePercent": 99.7815509879853,
+                    "upTimePercent": 99.7815943611635,
                     "avgPreParams": 1000,
                     "version": {
-                        "v2.0.0-m6": 1701994080
+                        "v2.0.0-m6": 1701993960
                     }
                 }
             },
@@ -2191,10 +2191,10 @@
             },
             "instances": {
                 "164.90.158.31:9601": {
-                    "upTimePercent": 99.80140998907756,
+                    "upTimePercent": 99.80142970611597,
                     "avgPreParams": 1000,
                     "version": {
-                        "v2.0.0-m6": 1701994080
+                        "v2.0.0-m6": 1701994020
                     }
                 }
             },
@@ -2215,10 +2215,10 @@
             },
             "instances": {
                 "keep-validator-7.prod-eks-eu-west-1.staked.cloud:9601": {
-                    "upTimePercent": 99.96027805362463,
+                    "upTimePercent": 99.96028594122319,
                     "avgPreParams": 999,
                     "version": {
-                        "v2.0.0-m6": 1701994140
+                        "v2.0.0-m6": 1701994020
                     }
                 }
             },
@@ -2242,7 +2242,7 @@
                     "upTimePercent": 100,
                     "avgPreParams": 1000,
                     "version": {
-                        "v2.0.0-m6": 1701994140
+                        "v2.0.0-m6": 1701994020
                     }
                 }
             },
@@ -2263,10 +2263,10 @@
             },
             "instances": {
                 "34.27.186.169:9606": {
-                    "upTimePercent": 99.36444885799403,
+                    "upTimePercent": 99.3645750595711,
                     "avgPreParams": 1000,
                     "version": {
-                        "v2.0.0-m6": 1701994140
+                        "v2.0.0-m6": 1701994020
                     }
                 }
             },
@@ -2287,10 +2287,10 @@
             },
             "instances": {
                 "159.223.90.239:9601": {
-                    "upTimePercent": 99.85104270109235,
+                    "upTimePercent": 99.85107227958697,
                     "avgPreParams": 1000,
                     "version": {
-                        "v2.0.0-m6": 1701994140
+                        "v2.0.0-m6": 1701994020
                     }
                 }
             },
@@ -2311,10 +2311,10 @@
             },
             "instances": {
                 "135.181.117.8:9601": {
-                    "upTimePercent": 99.89076464746772,
+                    "upTimePercent": 99.89078633836378,
                     "avgPreParams": 1000,
                     "version": {
-                        "v2.0.0-m4": 1701994140
+                        "v2.0.0-m4": 1701994020
                     }
                 }
             },
@@ -2335,10 +2335,10 @@
             },
             "instances": {
                 "67.205.173.104:9601": {
-                    "upTimePercent": 99.92055610724925,
+                    "upTimePercent": 99.92057188244638,
                     "avgPreParams": 1000,
                     "version": {
-                        "v2.0.0-m6": 1701994140
+                        "v2.0.0-m6": 1701994020
                     }
                 }
             },
@@ -2362,7 +2362,7 @@
                     "upTimePercent": 100,
                     "avgPreParams": 1000,
                     "version": {
-                        "v2.0.0-m6": 1701994140
+                        "v2.0.0-m6": 1701994020
                     }
                 }
             },
@@ -2386,7 +2386,7 @@
                     "upTimePercent": 100,
                     "avgPreParams": 1000,
                     "version": {
-                        "v2.0.0-m6": 1701994140
+                        "v2.0.0-m6": 1701994020
                     }
                 }
             },
@@ -2407,10 +2407,10 @@
             },
             "instances": {
                 "172.104.253.16:9601": {
-                    "upTimePercent": 99.96027805362463,
+                    "upTimePercent": 99.96028594122319,
                     "avgPreParams": 1000,
                     "version": {
-                        "v2.0.0-m6": 1701994140
+                        "v2.0.0-m6": 1701994020
                     }
                 }
             },
@@ -2431,10 +2431,10 @@
             },
             "instances": {
                 "34.88.169.140:9601": {
-                    "upTimePercent": 99.79145978152928,
+                    "upTimePercent": 99.79150119142176,
                     "avgPreParams": 999,
                     "version": {
-                        "v2.0.0-m6": 1701994140
+                        "v2.0.0-m6": 1701994020
                     }
                 }
             },
@@ -2455,10 +2455,10 @@
             },
             "instances": {
                 "104.198.242.102:9605": {
-                    "upTimePercent": 99.16583912611718,
+                    "upTimePercent": 99.16600476568705,
                     "avgPreParams": 1000,
                     "version": {
-                        "v2.0.0-m6": 1701994140
+                        "v2.0.0-m6": 1701994020
                     }
                 }
             },
@@ -2479,10 +2479,10 @@
             },
             "instances": {
                 "34.16.38.17:9605": {
-                    "upTimePercent": 99.8609731876862,
+                    "upTimePercent": 99.86098699235428,
                     "avgPreParams": 1000,
                     "version": {
-                        "v2.0.0-m6": 1701994140
+                        "v2.0.0-m6": 1701994080
                     }
                 }
             },
@@ -2506,7 +2506,7 @@
                     "upTimePercent": 100,
                     "avgPreParams": 1000,
                     "version": {
-                        "v2.0.0-m6": 1701994200
+                        "v2.0.0-m6": 1701994080
                     }
                 }
             },
@@ -2530,7 +2530,7 @@
                     "upTimePercent": 100,
                     "avgPreParams": 1000,
                     "version": {
-                        "v2.0.0-m6": 1701994200
+                        "v2.0.0-m6": 1701994080
                     }
                 }
             },
@@ -2551,10 +2551,10 @@
             },
             "instances": {
                 "34.16.38.17:9608": {
-                    "upTimePercent": 99.4140431025921,
+                    "upTimePercent": 99.39430046668653,
                     "avgPreParams": 1000,
                     "version": {
-                        "v2.0.0-m6": 1701994200
+                        "v2.0.0-m6": 1701994080
                     }
                 }
             },
@@ -2575,10 +2575,10 @@
             },
             "instances": {
                 "keep-validator-5.prod-eks-eu-north-1.staked.cloud:9601": {
-                    "upTimePercent": 99.74178170622703,
+                    "upTimePercent": 99.74183298580081,
                     "avgPreParams": 999,
                     "version": {
-                        "v2.0.0-m6": 1701994200
+                        "v2.0.0-m6": 1701994080
                     }
                 }
             },
@@ -2599,10 +2599,10 @@
             },
             "instances": {
                 "keep-validator-3.prod-eks-ap-northeast-2.staked.cloud:9601": {
-                    "upTimePercent": 99.92054821730063,
+                    "upTimePercent": 99.92056399563101,
                     "avgPreParams": 999,
                     "version": {
-                        "v2.0.0-m6": 1701994200
+                        "v2.0.0-m6": 1701994080
                     }
                 }
             },
@@ -2623,10 +2623,10 @@
             },
             "instances": {
                 "34.27.186.169:9603": {
-                    "upTimePercent": 99.98013705432516,
+                    "upTimePercent": 99.98014099890776,
                     "avgPreParams": 1000,
                     "version": {
-                        "v2.0.0-m6": 1701994200
+                        "v2.0.0-m6": 1701994080
                     }
                 }
             },
@@ -2650,7 +2650,7 @@
                     "upTimePercent": 100,
                     "avgPreParams": 1000,
                     "version": {
-                        "v2.0.0-m6": 1701994200
+                        "v2.0.0-m6": 1701994080
                     }
                 }
             },
@@ -2671,10 +2671,10 @@
             },
             "instances": {
                 "104.198.242.102:9614": {
-                    "upTimePercent": 99.07637302611977,
+                    "upTimePercent": 99.07655644921061,
                     "avgPreParams": 1000,
                     "version": {
-                        "v2.0.0-m6": 1701994200
+                        "v2.0.0-m6": 1701994080
                     }
                 }
             },
@@ -2695,10 +2695,10 @@
             },
             "instances": {
                 "34.27.186.169:9613": {
-                    "upTimePercent": 99.61267255934055,
+                    "upTimePercent": 99.61274947870122,
                     "avgPreParams": 999,
                     "version": {
-                        "v2.0.0-m6": 1701994200
+                        "v2.0.0-m6": 1701994080
                     }
                 }
             },
@@ -2722,7 +2722,7 @@
                     "upTimePercent": 100,
                     "avgPreParams": 1000,
                     "version": {
-                        "v2.0.0-m6": 1701994200
+                        "v2.0.0-m6": 1701994080
                     }
                 }
             },
