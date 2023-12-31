@@ -43,6 +43,8 @@ async function getOperatorConfirmedEvent(stakingProvider) {
 }
 
 // Return the TACo operators confirmed before provided timestamp
+// Note: each returned operator object will contain the timestamp of the oldest
+// operator confirmed but the address of the most recent operator.
 async function getOperatorsConfirmed(timestamp) {
   if (!timestamp) {
     timestamp = Math.floor(Date.now() / 1000)
@@ -61,37 +63,34 @@ async function getOperatorsConfirmed(timestamp) {
     fromBlock: 50223997,
   })
 
-  // Take the most recent confirmed operator event for each staking provider
-  const filtRawLogs = []
-  rawLogs.forEach((log) => {
-    const lastLog = rawLogs.findLast((elem) => elem.topics[1] === log.topics[1])
-    if (lastLog.transactionHash === log.transactionHash) {
-      filtRawLogs.push(log)
-    }
-  })
-
-  const parsedLogs = filtRawLogs.map((log) => eventIntrfc.parseLog(log))
-
+  // Get the timestamps for each operator confirmed event
   const logsTimestamps = {}
-  const promises = filtRawLogs.map((log, logIndex) => {
+  const promises = rawLogs.map((log) => {
     return provider.getBlock(log.blockHash).then((block) => {
-      const stProv = parsedLogs[logIndex].args.stakingProvider
-      logsTimestamps[stProv] = block.timestamp
+      logsTimestamps[block.number] = block.timestamp
     })
   })
   await Promise.all(promises)
 
   // Check if events were confirmed before provided timestamp
-  const filtParsedLogs = parsedLogs.filter(
-    (log) => logsTimestamps[log.args.stakingProvider] <= timestamp
-  )
+  const filtRawLogs = rawLogs.filter((log) => {
+    return logsTimestamps[log.blockNumber] <= timestamp
+  })
 
   const opsConfirmed = {}
-  filtParsedLogs.map((log) => {
-    const stProv = log.args.stakingProvider
+  filtRawLogs.map((filtRawLog) => {
+    const stProvLogs = filtRawLogs.filter(
+      (log) => log.topics[1] === filtRawLog.topics[1]
+    )
+    const firstStProvLog = stProvLogs[0]
+    const latestStProvLog = stProvLogs[stProvLogs.length - 1]
+
+    const latestStProvLogParsed = eventIntrfc.parseLog(latestStProvLog)
+    const stProv = latestStProvLogParsed.args.stakingProvider
+
     opsConfirmed[stProv] = {
-      confirmedTimestamp: logsTimestamps[stProv],
-      operator: log.args.operator,
+      confirmedTimestamp: logsTimestamps[firstStProvLog.blockNumber],
+      operator: latestStProvLogParsed.args.operator,
     }
   })
 
