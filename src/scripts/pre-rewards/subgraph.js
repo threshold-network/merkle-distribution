@@ -567,19 +567,22 @@ exports.getStakingInfo = async function (gqlUrl, stakingProvider) {
  * @param {string}  gqlUrl            Subgraph's GraphQL API URL
  * @param {string}  stakingProvider   Staking providers address
  * @param {Number}  [startTimestamp]  Will show only events after this time
+ * @param {Number}  [endTimestamp]    Will show only events before this time
  * @return {Object}                   The stake's data
  */
 exports.getStakingHistory = async function (
   gqlUrl,
   stakingProvider,
-  startTimestamp
+  startTimestamp,
+  endTimestamp
 ) {
   if (!ethers.utils.isAddress(stakingProvider)) {
     console.error("Error: Invalid Staking Provider address")
     return
   }
 
-  const timestamp = startTimestamp ? startTimestamp : 0
+  const startTime = startTimestamp ? startTimestamp : 0
+  const endTime = endTimestamp ? endTimestamp : Math.floor(Date.now() / 1000)
 
   let lastId = ""
   let recvEpochStakes = []
@@ -638,11 +641,11 @@ exports.getStakingHistory = async function (
     return parseInt(epochA.epoch.id) - parseInt(epochB.epoch.id)
   })
 
-  let stakedAmount = 0
+  let stakedAmount = BigNumber(0)
   let stakingHistory = epochStakes.map((epoch, index) => {
-    const epochAmount = parseInt(epoch.amount)
+    const epochAmount = BigNumber(epoch.amount)
 
-    if (epoch.epoch.timestamp <= timestamp || epochAmount === stakedAmount) {
+    if (epochAmount.eq(stakedAmount)) {
       return null
     }
 
@@ -650,14 +653,16 @@ exports.getStakingHistory = async function (
     if (index === 0) {
       historyElement.event = "staked"
     } else {
-      historyElement.event =
-        epochAmount > stakedAmount ? "topped-up" : "unstaked"
+      historyElement.event = epochAmount.gt(stakedAmount)
+        ? "topped-up"
+        : "unstaked"
     }
-    historyElement.prevAmountStaked = (stakedAmount / 10 ** 18).toFixed()
-    historyElement.currAmountStaked = (epochAmount / 10 ** 18).toFixed()
+    historyElement.prevAmountStaked = stakedAmount.toFixed()
+    historyElement.currAmountStaked = epochAmount.toFixed()
     historyElement.timestamp = new Date(
       epoch.epoch.timestamp * 1000
     ).toISOString()
+    historyElement.unixTimestamp = epoch.epoch.timestamp
     stakedAmount = epochAmount
 
     return historyElement
@@ -667,7 +672,198 @@ exports.getStakingHistory = async function (
     (historyElement) => historyElement !== null
   )
 
+  stakingHistory = stakingHistory.filter(
+    (historyElement) =>
+      parseInt(historyElement.unixTimestamp) > startTime &&
+      parseInt(historyElement.unixTimestamp) <= endTime
+  )
+
   return stakingHistory
+}
+
+/**
+ * Return the rewards of those legacy Nu stakes that completed the transition,
+ * i.e they restaked the nuInT amount.
+ * See https://forum.threshold.network/t/transition-guide-for-legacy-stakers/719
+ * @param {string} gqlUrl       Subgraph's GraphQL API URL
+ * @returns {Object[]}          Stakes rewards
+ */
+exports.getLegacyNuRewards = async function (gqlUrl) {
+  const deactivationBlock = 18624792
+  const deactivationTimestamp = 1700625971 // Nov 22nd 2023 04:06:11
+  const dec1Timestamp = 1701388800 // Dec 1st 2023 00:00 UTC
+  const legacyNuDeadlineTimestamp = 1701993600 // Dec 8th 2023 00:00 UTC
+  const secondsInYear = 31536000
+
+  // Get the legacy Nu stakes
+  const legacyNuStakesQuery = gql`
+    query legacyNuStakesQuery($blockNumber: Int) {
+      accounts(
+        first: 1000
+        block: { number: $blockNumber }
+        where: { stakes_: { nuInTStake_gt: "0" } }
+      ) {
+        id
+        stakes {
+          id
+          nuInTStake
+          tStake
+        }
+      }
+    }
+  `
+
+  const gqlClient = createClient({ url: gqlUrl, maskTypename: true })
+
+  const response = await gqlClient
+    .query(legacyNuStakesQuery, { blockNumber: deactivationBlock - 1 })
+    .toPromise()
+
+  if (response.error) {
+    console.error(`Error in getLegacyNuRewards: ${response.error.message}`)
+    return null
+  }
+
+  if (!response.data) {
+    console.error("getLegacyNuRewards: No data found")
+    return null
+  }
+
+  const accounts = response.data["accounts"]
+
+  // Filter the stakes and reformat them
+  let stakes = {}
+  accounts.map((account) => {
+    account.stakes.map((stake) => {
+      if (stake.nuInTStake === "0") {
+        return
+      }
+      stakes[stake.id] = {
+        owner: account.id,
+        nuInTStake: stake.nuInTStake,
+        tStake: stake.tStake,
+      }
+    })
+  })
+
+  const stakesWithHistory = {}
+  const stakesHistoryPromises = []
+  Object.keys(stakes).map((stake) => {
+    const promise = this.getStakingHistory(
+      gqlUrl,
+      stake,
+      deactivationTimestamp,
+      legacyNuDeadlineTimestamp
+    ).then((history) => {
+      stakesWithHistory[stake] = {
+        owner: stakes[stake].owner,
+        nuInTStake: stakes[stake].nuInTStake,
+        tStake: stakes[stake].tStake,
+        history: history,
+      }
+    })
+    stakesHistoryPromises.push(promise)
+  })
+  await Promise.all(stakesHistoryPromises)
+
+  stakes = stakesWithHistory
+
+  // noTransitionTStakes are those stakes that had tStake before the
+  // deactivation and that didn't complete the transition. These won't receive
+  // nuInT rewards, but they will receive rewards for tStake during Nov 22 to
+  // Dec 1 period.
+  const noTransitionTStakes = {}
+
+  // Filter stakes that had topped-up events in the transition period
+  Object.keys(stakes).map((stake) => {
+    stakes[stake].history = stakes[stake].history.filter(
+      (event) => event.event === "topped-up"
+    )
+    if (stakes[stake].history.length === 0) {
+      if (stakes[stake].tStake !== "0") {
+        noTransitionTStakes[stake] = stakes[stake]
+      }
+      delete stakes[stake]
+    }
+  })
+
+  // Calculate how much rewards each stake earned for the period between
+  // deactivation (Nov 22nd) and the moment of the restake.
+  const rewards = {}
+  Object.keys(stakes).map((stake) => {
+    const nuInTStaked = BigNumber(stakes[stake].nuInTStake)
+    const lastEventIndex = stakes[stake].history.length - 1
+    const prevAmount = BigNumber(stakes[stake].history[0].prevAmountStaked)
+
+    const lastAmount = BigNumber(
+      stakes[stake].history[lastEventIndex].currAmountStaked
+    )
+
+    // The moment in which restake was made. We are considering that few top-up
+    // events were emitted and that time between them is not significant
+    const restakeTimestamp = parseInt(
+      stakes[stake].history[lastEventIndex].unixTimestamp
+    )
+
+    const tIncreased = lastAmount.minus(prevAmount)
+
+    // nuInT rewards calculation
+    const nuInTRestaked = tIncreased.gt(nuInTStaked) ? nuInTStaked : tIncreased
+    const nuInTDuration = restakeTimestamp - deactivationTimestamp
+    let nuInTReward = nuInTRestaked
+      .times(15)
+      .times(nuInTDuration)
+      .div(secondsInYear * 100)
+    // Reward allocation for PRE at this moment: 25%
+
+    // Rewards leftovers: amount which wasn't distributed in Dec 1st
+    let tStakeReward = BigNumber(0)
+    let tRestakeReward = BigNumber(0)
+    if (restakeTimestamp < dec1Timestamp) {
+      // tStake: t staked amount before restaking event
+      const tStakeDuration = restakeTimestamp - deactivationTimestamp
+      const tStake = BigNumber(stakes[stake].tStake)
+      tStakeReward = tStake
+        .times(15)
+        .times(tStakeDuration)
+        .div(secondsInYear * 100)
+
+      // tStake: t staked amount after restaking event
+      const tRestakeDuration = dec1Timestamp - restakeTimestamp
+      const tRestake = BigNumber(stakes[stake].tStake).plus(tIncreased)
+      tRestakeReward = tRestake
+        .times(15)
+        .times(tRestakeDuration)
+        .div(secondsInYear * 100)
+      // Calculate the tStake from 22nov to Dec 1st
+    } else {
+      // tStake: t staked amount before restaking event
+      const tStakeDuration = dec1Timestamp - deactivationTimestamp
+      const tStake = BigNumber(stakes[stake].tStake)
+      tStakeReward = tStake
+        .times(15)
+        .times(tStakeDuration)
+        .div(secondsInYear * 100)
+    }
+
+    const totalRewards = nuInTReward.plus(tStakeReward).plus(tRestakeReward)
+    // Reward allocation for PRE at this moment: 25%
+    rewards[stake] = totalRewards.times(0.25).toFixed(0)
+  })
+
+  // Calculate the Rewards of T stakes that didn't do the transition.
+  // The rewards for the period Nov 22 to Dec 1 wasn't distributed
+  Object.keys(noTransitionTStakes).map((stake) => {
+    const tStake = BigNumber(noTransitionTStakes[stake].tStake)
+    const duration = dec1Timestamp - deactivationTimestamp
+    const reward = tStake
+      .times(15)
+      .times(duration)
+      .div(secondsInYear * 100)
+    rewards[stake] = reward.times(0.25).toFixed(0)
+  })
+
+  return rewards
 }
 
 /**
