@@ -2,6 +2,7 @@ require("isomorphic-unfetch")
 const { createClient, gql } = require("@urql/core")
 const { ethers } = require("ethers")
 const BigNumber = require("bignumber.js")
+const Taco = require("../taco-rewards/taco-rewards.js")
 
 // The Graph limits GraphQL queries to 1000 results max
 const RESULTS_PER_QUERY = 1000
@@ -270,11 +271,57 @@ exports.getPreStakes = async function (gqlUrl, startTimestamp, endTimestamp) {
   const currentTime = parseInt(Date.now() / 1000)
   const gqlClient = createClient({ url: gqlUrl })
 
-  // Get the list of operators confirmed between dates
-  const opsConfirmed = await getOperatorsConfirmedBeforeDate(
+  // Get the list of TACo operators confirmed
+  const tacoOpsConfirmed = await Taco.getOperatorsConfirmed(endTimestamp)
+
+  // Get the list of PRE operators confirmed between dates
+  const preOpsConfirmed = await getOperatorsConfirmedBeforeDate(
     gqlClient,
     endTimestamp
   )
+
+  // Special case Jan 1st distribution: during this rewards' period TACo nodes
+  // have been released. So, during this transition period, both PRE and TACo
+  // are valid to be rewards-eligible. So:
+  // - PRE operators which were confirmed before Jan 1st, are eligible for
+  //   rewards.
+  // - TACo operators which were confirmed before Jan 1st, are elibigle for
+  //   rewards.
+  // - Stakes that have confirmed both, PRE operator and TACo operator, will be
+  //   considered as eligible since the date in which the first operator
+  //   (either PRE or TACo) was confirmed.
+
+  const opsConfirmed = preOpsConfirmed.map((stake) => {
+    const op = {
+      id: stake.id,
+      operator: stake.operator,
+      confirmedTimestamp: stake.confirmedTimestamp,
+    }
+    const tacoOp = Object.keys(tacoOpsConfirmed).find(
+      (stProv) => stProv.toLowerCase() === stake.id
+    )
+    // If TACo operator was confirmed before PRE operator...
+    if (
+      tacoOp &&
+      tacoOpsConfirmed[tacoOp].confirmedTimestamp < stake.confirmedTimestamp
+    ) {
+      op.operator = tacoOpsConfirmed[tacoOp].operator.toLowerCase()
+      op.confirmedTimestamp = tacoOpsConfirmed[tacoOp].confirmedTimestamp
+    }
+    return op
+  })
+
+  // Look for stakes that have a confirmed TACo operator but not a PRE operator
+  Object.keys(tacoOpsConfirmed).map((tacoOp) => {
+    if (!preOpsConfirmed.find((preOp) => preOp.id === tacoOp.toLowerCase())) {
+      const op = {
+        id: tacoOp.toLowerCase(),
+        operator: tacoOpsConfirmed[tacoOp].operator.toLowerCase(),
+        confirmedTimestamp: tacoOpsConfirmed[tacoOp].confirmedTimestamp,
+      }
+      opsConfirmed.push(op)
+    }
+  })
 
   // Get the stakes information
   const stakeDatas = await getStakeDatasInfo(gqlClient)
