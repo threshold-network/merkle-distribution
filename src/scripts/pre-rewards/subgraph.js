@@ -921,15 +921,13 @@ exports.getLegacyNuRewards = async function (gqlUrl) {
  * @param {number} blockNumber  Block at which legacy stakes were deactivated
  * @returns {Object[]}          Stakes info
  */
-exports.getLegacyStakes = async function (gqlUrl, blockNumber) {
-  const legacyStakersQuery = gql`
-    query legacyStakersQuery($blockNumber: Int) {
+exports.getLegacyKeepStakes = async function (gqlUrl, blockNumber) {
+  const legacyKeepStakersQuery = gql`
+    query legacyKeepStakersQuery($blockNumber: Int) {
       accounts(
         first: 1000
         block: { number: $blockNumber }
-        where: {
-          stakes_: { or: [{ keepInTStake_gt: "0" }, { nuInTStake_gt: "0" }] }
-        }
+        where: { stakes_: { keepInTStake_gt: "0" } }
       ) {
         id
         stakes {
@@ -946,11 +944,11 @@ exports.getLegacyStakes = async function (gqlUrl, blockNumber) {
   const gqlClient = createClient({ url: gqlUrl, maskTypename: true })
 
   const response = await gqlClient
-    .query(legacyStakersQuery, { blockNumber: blockNumber })
+    .query(legacyKeepStakersQuery, { blockNumber: blockNumber })
     .toPromise()
 
   if (response.error) {
-    console.error(`Error in getLegacyStakes: ${response.error.message}`)
+    console.error(`Error in getLegacyKeepStakes: ${response.error.message}`)
     return null
   }
 

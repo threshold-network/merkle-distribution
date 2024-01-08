@@ -80,7 +80,7 @@ async function main() {
 
   // We need the legacy stakes to delete the Keep legacy stakes
   const blockNumber = 18624792 // Block height in which legacy stakes were deac
-  const legacyStakes = await Subgraph.getLegacyStakes(
+  const legacyStakes = await Subgraph.getLegacyKeepStakes(
     graphqlApi,
     blockNumber - 1
   )
