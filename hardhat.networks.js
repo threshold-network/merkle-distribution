@@ -43,15 +43,6 @@ register(
   process.env.ETHERSCAN_TOKEN
 )
 register(
-  "goerli",
-  ["deploy"],
-  3,
-  process.env.GOERLI_RPC_URL,
-  process.env.GOERLI_PRIVATE_KEY,
-  "goerli",
-  process.env.ETHERSCAN_TOKEN
-)
-register(
   "sepolia",
   ["deploy"],
   11155111,
