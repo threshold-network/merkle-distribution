@@ -106,7 +106,7 @@ async function main() {
 
   // Delete the Keep legacy stakes in rewards details file
   const rewardsDetailsPath =
-    "distributions/2023-12-08/tBTCv2-rewards-details/1701388800-1701993600.json"
+    "distributions/2024-01-01/tBTCv2-rewards-details/1701993600-1704067200.json"
   const rewardsDetails = JSON.parse(fs.readFileSync(rewardsDetailsPath))
 
   const rewardsDetailsFiltered = rewardsDetails.filter((rewardDetail) => {
