@@ -19,16 +19,11 @@ const endTime = new Date("2024-01-01T00:00:00+00:00").getTime() / 1000
 const lastDistribution = "2023-12-08"
 
 const etherscanApiKey = process.env.ETHERSCAN_TOKEN
-const subgraphApiKey = process.env.SUBGRAPH_API_KEY
 const tbtcv2ScriptPath = "src/scripts/tbtcv2-rewards/"
-const subgraphId = "8iv4pFv7UL3vMjYeetmFCKD9Mg2V4d1S2rapQXo8fRq5"
-const graphqlApi = `https://gateway.thegraph.com/api/${subgraphApiKey}/subgraphs/id/${subgraphId}`
+const graphqlApi =
+  "https://api.studio.thegraph.com/query/24143/main-threshold-subgraph/0.0.7"
 
 async function main() {
-  if (!subgraphApiKey) {
-    console.error("Error: no SUBGRAPH_API_KEY in environment variables")
-    return
-  }
   if (!etherscanApiKey) {
     console.error("Error: no ETHERSCAN_TOKEN in environment variables")
     return
@@ -106,7 +101,7 @@ async function main() {
 
   // Delete the Keep legacy stakes in rewards details file
   const rewardsDetailsPath =
-    "distributions/2023-12-08/tBTCv2-rewards-details/1701388800-1701993600.json"
+    distPath + "/tBTCv2-rewards-details/" + startTime + "-" + endTime + ".json"
   const rewardsDetails = JSON.parse(fs.readFileSync(rewardsDetailsPath))
 
   const rewardsDetailsFiltered = rewardsDetails.filter((rewardDetail) => {
