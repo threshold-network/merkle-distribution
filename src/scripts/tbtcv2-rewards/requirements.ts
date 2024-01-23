@@ -91,7 +91,7 @@ type InstanceParams = {
   version: any
 }
 
-export async function calculateRewards() {
+export async function calculateRequirements() {
   if (Date.now() / 1000 < endRewardsTimestamp) {
     console.log("End time interval must be in the past")
     return "End time interval must be in the past"
@@ -447,6 +447,16 @@ export async function calculateRewards() {
     operatorsData.push(operatorData)
   }
 
+  // insert params for requirements calculation as first element
+  operatorsData.unshift({
+    requiredUptime: requiredUptime,
+    operatorAddress: operatorAddress,
+    startRewardsBlock: startRewardsBlock,
+    endRewardsBlock: endRewardsBlock,
+    startRewardsTimestamp: startRewardsTimestamp,
+    endRewardsTimestamp: endRewardsTimestamp,
+  })
+
   fs.writeFileSync(outputFile, JSON.stringify(operatorsData, null, 4))
 }
 
@@ -800,4 +810,4 @@ async function queryPrometheus(url: string, params: any): Promise<any> {
 //   return legacyEvents
 // }
 
-calculateRewards()
+calculateRequirements()
