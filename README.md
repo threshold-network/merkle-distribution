@@ -121,14 +121,6 @@ npx hardhat claim-rewards \
 This script calculates the Threshold Network rewards earned during a specific period, adds them to
 the previous distributions, and generates a new distribution that contains the cumulative rewards.
 
-A Subgraph API key is necessary to use this script. Nowadays The Graph protocol rewards with 1000
-free queries if they [create a new API key](https://thegraph.com/studio/apikeys/). The amount of
-queries made in each script's execution is under 40. The API key must be set in `.env` file:
-
-```
-SUBGRAPH_API_KEY=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-```
-
 Note that some script's parameters (rewards weights, start time, end time, last distribution path...) must be changed in the script before running it.
 
 ```bash
