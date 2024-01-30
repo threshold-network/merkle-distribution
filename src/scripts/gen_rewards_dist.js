@@ -3,15 +3,16 @@
 // Use: node src/scripts/gen_merkle_dist.js
 
 require("dotenv").config()
+const { createClient } = require("@urql/core")
 const fs = require("fs")
 const shell = require("shelljs")
 const ethers = require("ethers")
 const Subgraph = require("./pre-rewards/subgraph.js")
 const Rewards = require("./pre-rewards/rewards.js")
+const { getCommitmentBonus } = require("./taco-rewards/taco-rewards.js")
 const MerkleDist = require("./merkle_dist/merkle_dist.js")
 
 // The following parameters must be modified for each distribution
-const bonusWeight = 0.0
 const preWeight = 0.25
 const tbtcv2Weight = 0.75
 const startTime = new Date("2023-12-08T00:00:00+00:00").getTime() / 1000
@@ -22,6 +23,8 @@ const etherscanApiKey = process.env.ETHERSCAN_TOKEN
 const tbtcv2ScriptPath = "src/scripts/tbtcv2-rewards/"
 const graphqlApi =
   "https://api.studio.thegraph.com/query/24143/main-threshold-subgraph/0.0.7"
+const mainnetStakingSubgraphApi =
+  "https://subgraph.satsuma-prod.com/276a55924ce0/nucypher--102994/mainnet-threshold-subgraph/api"
 
 async function main() {
   if (!etherscanApiKey) {
@@ -29,7 +32,6 @@ async function main() {
     return
   }
 
-  let earnedBonusRewards = {}
   let earnedPreRewards = {}
   let earnedTbtcv2Rewards = {}
   let bonusRewards = {}
@@ -55,12 +57,12 @@ async function main() {
     return
   }
 
+  const subgraphClient = createClient({ url: mainnetStakingSubgraphApi })
+
   // Bonus rewards calculation
-  if (bonusWeight > 0) {
-    console.log("Calculating bonus rewards...")
-    const bonusStakes = await Subgraph.getBonusStakes(graphqlApi)
-    earnedBonusRewards = Rewards.calculateBonusRewards(bonusStakes, bonusWeight)
-  }
+  // This is a one-off Commitment bonus for Feb 1st 24 distribution. More info:
+  // https://docs.threshold.network/staking-and-running-a-node/taco-node-setup/taco-authorization-and-operator-registration/one-off-commitment-bonus
+  const earnedBonusRewards = await getCommitmentBonus(subgraphClient)
 
   // PRE rewards calculation
   if (preWeight > 0) {
