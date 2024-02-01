@@ -4,14 +4,10 @@ const { ethers } = require("ethers")
 
 // The Graph limits GraphQL queries to 1000 results max
 const RESULTS_PER_QUERY = 1000
-const TACoChildApplicationAdd = "0xFa07aaB78062Fac4C36995bF28F6D677667973F5"
-const eventSignature = "OperatorConfirmed(address,address)"
-const eventTopic = ethers.utils.id(eventSignature)
-const eventAbi =
-  // eslint-disable-next-line quotes
-  '[{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"stakingProvider","type":"address"},{"indexed":true,"internalType":"address","name":"operator","type":"address"}],"name":"OperatorConfirmed","type":"event"}]'
+const SECONDS_IN_YEAR = 31536000
 
 // Return the history of TACo authorization changes until a given timestamp
+// The graphqlClient passed must be for Ethereum mainnet staking subgraph
 async function getTACoAuthHistoryUntil(graphqlClient, endTimestamp) {
   const authHistoryQuery = gql`
     query authHistoryQuery(
@@ -85,7 +81,170 @@ async function getTACoAuthHistoryUntil(graphqlClient, endTimestamp) {
   return authHistory
 }
 
-// Return all the TACo commitments made
+// Return the TACo operators that have been confirmed before a timestamp
+// The graphqlClient passed must be for Polygon staking subgraph
+async function getOpsConfirmedUntil(graphqlClient, endTimestamp) {
+  const opsConfirmedQuery = gql`
+    query tacoOperators($endTimestamp: Int) {
+      tacoOperators(
+        where: { confirmedTimestampFirstOperator_lte: $endTimestamp }
+      ) {
+        id
+        operator
+        confirmedTimestampFirstOperator
+      }
+    }
+  `
+
+  const queryResult = await graphqlClient
+    .query(opsConfirmedQuery, { endTimestamp: endTimestamp })
+    .toPromise()
+  if (queryResult.error || queryResult.data.length === 0) {
+    console.error("ERROR: No TACo operators retrieved\n" + queryResult.error)
+    return []
+  }
+
+  const opsConfirmed = queryResult.data.tacoOperators.reduce((acc, cur) => {
+    acc[cur.id] = {
+      operator: cur.operator,
+      confirmedTimestamp: cur.confirmedTimestampFirstOperator,
+    }
+    return acc
+  }, {})
+
+  return opsConfirmed
+}
+
+//
+// Return the TACo rewards calculated for a period of time
+//
+async function getTACoRewards(
+  mainnetClient,
+  polygonClient,
+  startPeriodTimestamp,
+  endPeriodTimestamp,
+  tacoWeight
+) {
+  const opsConfirmed = await getOpsConfirmedUntil(
+    polygonClient,
+    endPeriodTimestamp
+  )
+  const tacoAuthHistories = await getTACoAuthHistoryUntil(
+    mainnetClient,
+    endPeriodTimestamp
+  )
+
+  const confirmedAuthHistories = {}
+  // Filter those stakes that have not a confirmed operator and add the
+  // confirmed operator timestamp to every history event and it also adds
+  // which of these two timestamp is the greater
+  Object.keys(opsConfirmed).map((stProv) => {
+    if (tacoAuthHistories[stProv]) {
+      confirmedAuthHistories[stProv] = tacoAuthHistories[stProv].map(
+        (historyEvent) => {
+          const event = historyEvent
+          event.opConfirmedTimestamp = opsConfirmed[stProv].confirmedTimestamp
+          event.greatestTimestamp =
+            Number(event.timestamp) > Number(event.opConfirmedTimestamp)
+              ? Number(event.timestamp)
+              : Number(event.opConfirmedTimestamp)
+          return event
+        }
+      )
+    }
+  })
+
+  const rewards = {}
+  Object.keys(confirmedAuthHistories).map((stProv) => {
+    // Take the first event: this is, the event whose timestamp or
+    // opConfirmedTimestamp (the oldest of both) is closer to (and preferably
+    // lower than) start period time
+    const firstEvent = confirmedAuthHistories[stProv].reduce((acc, cur) => {
+      const accTimestamp = Number(acc.timestamp)
+      const curTimestamp = Number(cur.timestamp)
+
+      let event = curTimestamp < accTimestamp ? cur : acc
+
+      // if both events are previous to start period, take the later
+      if (
+        curTimestamp < startPeriodTimestamp &&
+        accTimestamp < startPeriodTimestamp
+      ) {
+        event = curTimestamp > accTimestamp ? cur : acc
+      }
+
+      return event
+    }, confirmedAuthHistories[stProv][0])
+
+    // discard the events previous to the first event
+    const filteredEvents = confirmedAuthHistories[stProv].filter(
+      (event) => Number(event.timestamp) >= Number(firstEvent.timestamp)
+    )
+
+    // sorting the events
+    const sortedEvents = filteredEvents.sort(
+      (a, b) => Number(a.timestamp) < Number(b.timestamp)
+    )
+
+    const epochs = []
+    // based on these auth events, let's create authorization epochs
+    for (let i = 0; i < sortedEvents.length; i++) {
+      let duration = 0
+      let epochStartTime = Number(sortedEvents[i].timestamp)
+      // first epoch start time has a special treatment
+      if (i === 0) {
+        // greatestTimestamp is the bigger value between event timestamp and
+        // operator confirmed timestamp
+        epochStartTime =
+          sortedEvents[i].greatestTimestamp < startPeriodTimestamp
+            ? startPeriodTimestamp
+            : sortedEvents[i].greatestTimestamp
+      }
+
+      if (sortedEvents[i + 1]) {
+        duration = Number(sortedEvents[i + 1].timestamp) - epochStartTime
+        // if no more events, the end timestamp is endPeriodTimestamp
+      } else {
+        duration = endPeriodTimestamp - epochStartTime
+      }
+
+      const epoch = {
+        amount: sortedEvents[i].amount,
+        startTime: epochStartTime,
+        duration: duration,
+        beneficiary: sortedEvents[i].beneficiary,
+      }
+      epochs.push(epoch)
+    }
+
+    const rewardsAPR = 0.15 * 100
+    const tacoAllocation = tacoWeight * 100
+    const conversion_denominator = 100 * 100
+
+    // Calculating the rewards for each epoch
+    const reward = epochs.reduce((total, cur) => {
+      const epochReward = BigNumber(cur.amount)
+        .times(rewardsAPR)
+        .times(tacoAllocation)
+        .times(cur.duration)
+        .div(SECONDS_IN_YEAR * conversion_denominator)
+      return total.plus(epochReward)
+    }, BigNumber(0))
+
+    const stProvCheckSum = ethers.utils.getAddress(stProv)
+    const beneficiaryCheckSum = ethers.utils.getAddress(epochs[0].beneficiary)
+
+    rewards[stProvCheckSum] = {
+      beneficiary: beneficiaryCheckSum,
+      amount: reward.toFixed(0),
+    }
+  })
+
+  return rewards
+}
+
+// Return all the TACo commitments done
+// The graphqlClient passed must be for Ethereum mainnet staking subgraph
 async function getTACoCommitments(graphqlClient) {
   const tacoCommitsQuery = gql`
     query TacoCommitments {
@@ -117,6 +276,7 @@ async function getTACoCommitments(graphqlClient) {
 }
 
 // Return all the rewards earned by stakes that did the TACo commitment
+// The graphqlClient passed must be for Ethereum mainnet staking subgraph
 async function getCommitmentBonus(subgraphClient) {
   const commitmentDeadline = 1705363199
   const tacoCommits = await getTACoCommitments(subgraphClient)
@@ -132,6 +292,9 @@ async function getCommitmentBonus(subgraphClient) {
       tacoAuthHistories[stProv][0].beneficiary
     )
     const duration = tacoCommits[stProv].duration
+    // taking the greater amount of authorization because the authorization
+    // could be increased since the beginning but not decreased (it requires 6
+    // month period to approve the decrease)
     const authorized = tacoAuthHistories[stProv].reduce((prev, elem) => {
       const authorized = BigNumber(elem.amount)
       return authorized.gt(prev) ? authorized : prev
@@ -157,98 +320,7 @@ async function getCommitmentBonus(subgraphClient) {
   return rewards
 }
 
-// Return the operator confirmed event for the provided staking provider
-async function getOperatorConfirmedEvent(stakingProvider) {
-  const eventIntrfc = new ethers.utils.Interface(eventAbi)
-  const provider = new ethers.providers.JsonRpcProvider(
-    process.env.POLYGON_RPC_URL
-  )
-
-  const rawLogs = await provider.getLogs({
-    address: TACoChildApplicationAdd,
-    topics: [
-      eventTopic,
-      ethers.utils.hexZeroPad(stakingProvider.toLowerCase(), 32),
-    ],
-    fromBlock: 50223997,
-  })
-
-  if (rawLogs.length === 0) {
-    return undefined
-  }
-
-  // Take the most recent Operator confirmed event
-  const log = rawLogs.reduce((acc, val) => {
-    return acc > val ? acc : val
-  })
-  const parsedLog = eventIntrfc.parseLog(log)
-
-  const operatorInfo = {
-    stakingProvider: stakingProvider,
-    operator: parsedLog.args.operator,
-    blockNumber: log.blockNumber,
-  }
-
-  return operatorInfo
-}
-
-// Return the TACo operators confirmed before provided timestamp
-// Note: each returned operator object will contain the timestamp of the oldest
-// operator confirmed but the address of the most recent operator.
-async function getOperatorsConfirmed(timestamp) {
-  if (!timestamp) {
-    timestamp = Math.floor(Date.now() / 1000)
-  }
-
-  const eventIntrfc = new ethers.utils.Interface(eventAbi)
-  const provider = new ethers.providers.JsonRpcProvider(
-    process.env.POLYGON_RPC_URL
-  )
-
-  // TODO: as stated in ethers.js docs, many backends will discard old events.
-  // Use subgraph instead
-  const rawLogs = await provider.getLogs({
-    address: TACoChildApplicationAdd,
-    topics: [eventTopic],
-    fromBlock: 50223997,
-  })
-
-  // Get the timestamps for each operator confirmed event
-  const logsTimestamps = {}
-  const promises = rawLogs.map((log) => {
-    return provider.getBlock(log.blockHash).then((block) => {
-      logsTimestamps[block.number] = block.timestamp
-    })
-  })
-  await Promise.all(promises)
-
-  // Check if events were confirmed before provided timestamp
-  const filtRawLogs = rawLogs.filter((log) => {
-    return logsTimestamps[log.blockNumber] <= timestamp
-  })
-
-  const opsConfirmed = {}
-  filtRawLogs.map((filtRawLog) => {
-    const stProvLogs = filtRawLogs.filter(
-      (log) => log.topics[1] === filtRawLog.topics[1]
-    )
-    const firstStProvLog = stProvLogs[0]
-    const latestStProvLog = stProvLogs[stProvLogs.length - 1]
-
-    const latestStProvLogParsed = eventIntrfc.parseLog(latestStProvLog)
-    const stProv = latestStProvLogParsed.args.stakingProvider
-
-    opsConfirmed[stProv] = {
-      confirmedTimestamp: logsTimestamps[firstStProvLog.blockNumber],
-      operator: latestStProvLogParsed.args.operator,
-    }
-  })
-
-  return opsConfirmed
-}
-
 module.exports = {
+  getTACoRewards,
   getCommitmentBonus,
-  getOperatorConfirmedEvent,
-  getOperatorsConfirmed,
 }

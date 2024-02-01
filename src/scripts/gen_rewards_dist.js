@@ -9,11 +9,14 @@ const shell = require("shelljs")
 const ethers = require("ethers")
 const Subgraph = require("./pre-rewards/subgraph.js")
 const Rewards = require("./pre-rewards/rewards.js")
-const { getCommitmentBonus } = require("./taco-rewards/taco-rewards.js")
 const MerkleDist = require("./merkle_dist/merkle_dist.js")
+const {
+  getCommitmentBonus,
+  getTACoRewards,
+} = require("./taco-rewards/taco-rewards.js")
 
 // The following parameters must be modified for each distribution
-const preWeight = 0.25
+const tacoWeight = 0.25
 const tbtcv2Weight = 0.75
 const startTime = new Date("2023-12-08T00:00:00+00:00").getTime() / 1000
 const endTime = new Date("2024-01-01T00:00:00+00:00").getTime() / 1000
@@ -23,8 +26,10 @@ const etherscanApiKey = process.env.ETHERSCAN_TOKEN
 const tbtcv2ScriptPath = "src/scripts/tbtcv2-rewards/"
 const graphqlApi =
   "https://api.studio.thegraph.com/query/24143/main-threshold-subgraph/0.0.7"
-const mainnetStakingSubgraphApi =
-  "https://subgraph.satsuma-prod.com/276a55924ce0/nucypher--102994/mainnet-threshold-subgraph/api"
+const mainnetSubgraphApi =
+  "https://api.studio.thegraph.com/query/24143/development-threshold-subgraph/0.9.7"
+const polygonSubgraphApi =
+  "https://api.studio.thegraph.com/query/24143/threshold-staking-polygon/0.1.1"
 
 async function main() {
   if (!etherscanApiKey) {
@@ -32,10 +37,10 @@ async function main() {
     return
   }
 
-  let earnedPreRewards = {}
+  let earnedTACoRewards = {}
   let earnedTbtcv2Rewards = {}
   let bonusRewards = {}
-  let preRewards = {}
+  let tacoRewards = {}
   let tbtcv2Rewards = {}
   const endDate = new Date(endTime * 1000).toISOString().slice(0, 10)
   const distPath = `distributions/${endDate}`
@@ -57,22 +62,23 @@ async function main() {
     return
   }
 
-  const subgraphClient = createClient({ url: mainnetStakingSubgraphApi })
+  const mainnetSubgraphClient = createClient({ url: mainnetSubgraphApi })
+  const polygonSubgraphClient = createClient({ url: polygonSubgraphApi })
 
   // Bonus rewards calculation
   // This is a one-off Commitment bonus for Feb 1st 24 distribution. More info:
   // https://docs.threshold.network/staking-and-running-a-node/taco-node-setup/taco-authorization-and-operator-registration/one-off-commitment-bonus
-  const earnedBonusRewards = await getCommitmentBonus(subgraphClient)
+  const earnedBonusRewards = await getCommitmentBonus(mainnetSubgraphClient)
 
   // PRE rewards calculation
-  if (preWeight > 0) {
-    console.log("Calculating PRE rewards...")
-    const preStakes = await Subgraph.getPreStakes(
-      graphqlApi,
+  if (tacoWeight > 0) {
+    earnedTACoRewards = await getTACoRewards(
+      mainnetSubgraphClient,
+      polygonSubgraphClient,
       startTime,
-      endTime
+      endTime,
+      tacoWeight
     )
-    earnedPreRewards = Rewards.calculatePreRewards(preStakes, preWeight)
   }
 
   // We need the legacy stakes to delete the Keep legacy stakes
@@ -131,13 +137,13 @@ async function main() {
       distPath + "/MerkleInputBonusRewards.json",
       JSON.stringify(bonusRewards, null, 4)
     )
-    preRewards = JSON.parse(
+    tacoRewards = JSON.parse(
       fs.readFileSync(`${lastDistPath}/MerkleInputPreRewards.json`)
     )
-    preRewards = MerkleDist.combineMerkleInputs(preRewards, earnedPreRewards)
+    tacoRewards = MerkleDist.combineMerkleInputs(tacoRewards, earnedTACoRewards)
     fs.writeFileSync(
-      distPath + "/MerkleInputPreRewards.json",
-      JSON.stringify(preRewards, null, 4)
+      distPath + "/MerkleInputTACoRewards.json",
+      JSON.stringify(tacoRewards, null, 4)
     )
     if (fs.existsSync(`${lastDistPath}/MerkleInputTbtcv2Rewards.json`)) {
       tbtcv2Rewards = JSON.parse(
@@ -159,7 +165,7 @@ async function main() {
     return
   }
 
-  let merkleInput = MerkleDist.combineMerkleInputs(bonusRewards, preRewards)
+  let merkleInput = MerkleDist.combineMerkleInputs(bonusRewards, tacoRewards)
   merkleInput = MerkleDist.combineMerkleInputs(merkleInput, tbtcv2Rewards)
 
   // Generate the Merkle distribution
@@ -188,8 +194,6 @@ async function main() {
     distributionsFilePath,
     JSON.stringify(distributions, null, 4)
   )
-
-  console.log("Total accumulated amount of rewards: ", merkleDist.totalAmount)
 }
 
 main()
