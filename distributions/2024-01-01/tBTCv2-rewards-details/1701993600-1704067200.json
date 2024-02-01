@@ -24,30 +24,6 @@
         }
     },
     {
-        "0xDcd4199e22d09248cA2583cBDD2759b2acD22381": {
-            "applications": {
-                "beaconAuthorization": "0",
-                "tbtcAuthorization": "0"
-            },
-            "instances": {
-                "34.27.186.169:9607": {
-                    "upTimePercent": 99.07694088370611,
-                    "avgPreParams": 1000,
-                    "version": {
-                        "v2.0.0-m6": 1704067200
-                    }
-                }
-            },
-            "requirements": {
-                "isBeaconAuthorized": false,
-                "isTbtcAuthorized": false,
-                "isUptimeSatisfied": true,
-                "isPreParamsSatisfied": true,
-                "isVersionSatisfied": true
-            }
-        }
-    },
-    {
         "0xBe9D12fc853b67CFdaaE134e5B8178B9667bd2fB": {
             "applications": {
                 "beaconAuthorization": "11959253827836006134694153",
@@ -456,30 +432,6 @@
         }
     },
     {
-        "0x0Ace6419dbDAb7f9330568258B9dDB37A295b677": {
-            "applications": {
-                "beaconAuthorization": "5210200000000000000000000",
-                "tbtcAuthorization": "5210200000000000000000000"
-            },
-            "instances": {
-                "34.27.186.169:9604": {
-                    "upTimePercent": 99.8697841310261,
-                    "avgPreParams": 1000,
-                    "version": {
-                        "v2.0.0-m6": 1704067260
-                    }
-                }
-            },
-            "requirements": {
-                "isBeaconAuthorized": true,
-                "isTbtcAuthorized": true,
-                "isUptimeSatisfied": true,
-                "isPreParamsSatisfied": true,
-                "isVersionSatisfied": true
-            }
-        }
-    },
-    {
         "0x735dcf0cAf62cd1bC8E763e43Bb1aA11DBC56025": {
             "applications": {
                 "beaconAuthorization": "14968544128465524793162480",
@@ -800,30 +752,6 @@
             "instances": {
                 "34.72.198.65:9601": {
                     "upTimePercent": 100,
-                    "avgPreParams": 1000,
-                    "version": {
-                        "v2.0.0-m6": 1704067320
-                    }
-                }
-            },
-            "requirements": {
-                "isBeaconAuthorized": true,
-                "isTbtcAuthorized": true,
-                "isUptimeSatisfied": true,
-                "isPreParamsSatisfied": true,
-                "isVersionSatisfied": true
-            }
-        }
-    },
-    {
-        "0xd977144724Bc77FaeFAe219F958AE3947205d0b5": {
-            "applications": {
-                "beaconAuthorization": "32644083139980937843858650",
-                "tbtcAuthorization": "32644083139980937843858650"
-            },
-            "instances": {
-                "34.16.38.17:9613": {
-                    "upTimePercent": 99.90161182973058,
                     "avgPreParams": 1000,
                     "version": {
                         "v2.0.0-m6": 1704067320
@@ -1272,30 +1200,6 @@
         }
     },
     {
-        "0x650A9eD18Df873cad98C88dcaC8170531cAD2399": {
-            "applications": {
-                "beaconAuthorization": "0",
-                "tbtcAuthorization": "0"
-            },
-            "instances": {
-                "34.16.38.17:9610": {
-                    "upTimePercent": 99.20419029980322,
-                    "avgPreParams": 1000,
-                    "version": {
-                        "v2.0.0-m6": 1704067380
-                    }
-                }
-            },
-            "requirements": {
-                "isBeaconAuthorized": false,
-                "isTbtcAuthorized": false,
-                "isUptimeSatisfied": true,
-                "isPreParamsSatisfied": true,
-                "isVersionSatisfied": true
-            }
-        }
-    },
-    {
         "0x3070f20f86fDa706Ac380F5060D256028a46eC29": {
             "applications": {
                 "beaconAuthorization": "100711858306284501543914",
@@ -1376,30 +1280,6 @@
             "instances": {
                 "64.225.89.235:9601": {
                     "upTimePercent": 99.91896975835624,
-                    "avgPreParams": 1000,
-                    "version": {
-                        "v2.0.0-m6": 1704067440
-                    }
-                }
-            },
-            "requirements": {
-                "isBeaconAuthorized": true,
-                "isTbtcAuthorized": true,
-                "isUptimeSatisfied": true,
-                "isPreParamsSatisfied": true,
-                "isVersionSatisfied": true
-            }
-        }
-    },
-    {
-        "0x07C9a8f8264221906b7b8958951Ce4753D39628B": {
-            "applications": {
-                "beaconAuthorization": "2935254344501486849380158",
-                "tbtcAuthorization": "2935254344501486849380158"
-            },
-            "instances": {
-                "104.198.242.102:9607": {
-                    "upTimePercent": 99.79163652148748,
                     "avgPreParams": 1000,
                     "version": {
                         "v2.0.0-m6": 1704067440
@@ -1505,30 +1385,6 @@
             "requirements": {
                 "isBeaconAuthorized": true,
                 "isTbtcAuthorized": true,
-                "isUptimeSatisfied": true,
-                "isPreParamsSatisfied": true,
-                "isVersionSatisfied": true
-            }
-        }
-    },
-    {
-        "0xfc97a906c715587b56c2c65a07ce731ba80339de": {
-            "applications": {
-                "beaconAuthorization": "0",
-                "tbtcAuthorization": "0"
-            },
-            "instances": {
-                "34.16.38.17:9611": {
-                    "upTimePercent": 100,
-                    "avgPreParams": 1000,
-                    "version": {
-                        "v2.0.0-m6": 1704067440
-                    }
-                }
-            },
-            "requirements": {
-                "isBeaconAuthorized": false,
-                "isTbtcAuthorized": false,
                 "isUptimeSatisfied": true,
                 "isPreParamsSatisfied": true,
                 "isVersionSatisfied": true
@@ -1800,30 +1656,6 @@
         }
     },
     {
-        "0xe26E2d93Bbc8fde0e1E3B290Fc927Fb374E7e34e": {
-            "applications": {
-                "beaconAuthorization": "10000000000000000000000000",
-                "tbtcAuthorization": "10000000000000000000000000"
-            },
-            "instances": {
-                "104.198.242.102:9615": {
-                    "upTimePercent": 99.29096486658563,
-                    "avgPreParams": 1000,
-                    "version": {
-                        "v2.0.0-m6": 1704067500
-                    }
-                }
-            },
-            "requirements": {
-                "isBeaconAuthorized": true,
-                "isTbtcAuthorized": true,
-                "isUptimeSatisfied": true,
-                "isPreParamsSatisfied": true,
-                "isVersionSatisfied": true
-            }
-        }
-    },
-    {
         "0xC0B851DCBf00bA59D8B1f490aF93dEC4275cFFcC": {
             "applications": {
                 "beaconAuthorization": "36000000000000000000000000",
@@ -1979,54 +1811,6 @@
                     "avgPreParams": 1000,
                     "version": {
                         "v2.0.0-m6": 1704067500
-                    }
-                }
-            },
-            "requirements": {
-                "isBeaconAuthorized": false,
-                "isTbtcAuthorized": false,
-                "isUptimeSatisfied": true,
-                "isPreParamsSatisfied": true,
-                "isVersionSatisfied": true
-            }
-        }
-    },
-    {
-        "0x045E511f53DeBF55c9C0B4522f14F602f7C7cA81": {
-            "applications": {
-                "beaconAuthorization": "0",
-                "tbtcAuthorization": "0"
-            },
-            "instances": {
-                "34.16.38.17:9607": {
-                    "upTimePercent": 99.66717795849854,
-                    "avgPreParams": 1000,
-                    "version": {
-                        "v2.0.0-m6": 1704067560
-                    }
-                }
-            },
-            "requirements": {
-                "isBeaconAuthorized": false,
-                "isTbtcAuthorized": false,
-                "isUptimeSatisfied": true,
-                "isPreParamsSatisfied": true,
-                "isVersionSatisfied": true
-            }
-        }
-    },
-    {
-        "0xA5f6822ef1A7DF72628259f9D1dc17eb2BCb2385": {
-            "applications": {
-                "beaconAuthorization": "334600000000000000000000",
-                "tbtcAuthorization": "334600000000000000000000"
-            },
-            "instances": {
-                "34.16.38.17:9618": {
-                    "upTimePercent": 99.47327294301508,
-                    "avgPreParams": 1000,
-                    "version": {
-                        "v2.0.0-m6": 1704067560
                     }
                 }
             },
