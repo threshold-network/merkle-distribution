@@ -18,9 +18,9 @@ const {
 // The following parameters must be modified for each distribution
 const tacoWeight = 0.25
 const tbtcv2Weight = 0.75
-const startTime = new Date("2023-12-08T00:00:00+00:00").getTime() / 1000
-const endTime = new Date("2024-01-01T00:00:00+00:00").getTime() / 1000
-const lastDistribution = "2023-12-08"
+const startTime = new Date("2024-01-01T00:00:00+00:00").getTime() / 1000
+const endTime = new Date("2024-02-01T00:00:00+00:00").getTime() / 1000
+const lastDistribution = "2024-01-01"
 
 const etherscanApiKey = process.env.ETHERSCAN_TOKEN
 const tbtcv2ScriptPath = "src/scripts/tbtcv2-rewards/"
