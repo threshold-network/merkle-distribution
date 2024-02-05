@@ -6,8 +6,10 @@ const { ethers } = require("ethers")
 const RESULTS_PER_QUERY = 1000
 const SECONDS_IN_YEAR = 31536000
 
+//
 // Return the history of TACo authorization changes until a given timestamp
 // The graphqlClient passed must be for Ethereum mainnet staking subgraph
+//
 async function getTACoAuthHistoryUntil(graphqlClient, endTimestamp) {
   const authHistoryQuery = gql`
     query authHistoryQuery(
@@ -81,8 +83,10 @@ async function getTACoAuthHistoryUntil(graphqlClient, endTimestamp) {
   return authHistory
 }
 
+//
 // Return the TACo operators that have been confirmed before a timestamp
 // The graphqlClient passed must be for Polygon staking subgraph
+//
 async function getOpsConfirmedUntil(graphqlClient, endTimestamp) {
   const opsConfirmedQuery = gql`
     query tacoOperators($endTimestamp: Int) {
@@ -243,84 +247,6 @@ async function getTACoRewards(
   return rewards
 }
 
-// Return all the TACo commitments done
-// The graphqlClient passed must be for Ethereum mainnet staking subgraph
-async function getTACoCommitments(graphqlClient) {
-  const tacoCommitsQuery = gql`
-    query TacoCommitments {
-      tacoCommitments(first: 1000) {
-        id
-        endCommitment
-        duration
-      }
-    }
-  `
-
-  const queryResult = await graphqlClient.query(tacoCommitsQuery).toPromise()
-  if (queryResult.error || queryResult.data.length === 0) {
-    console.error("ERROR: No TACo commitments retrieved\n" + queryResult.error)
-    return []
-  }
-
-  const commitments = queryResult.data.tacoCommitments.reduce((acc, curr) => {
-    const stakingProvider = curr.id
-    const commitElement = {
-      endCommitment: curr.endCommitment,
-      duration: curr.duration,
-    }
-    acc[stakingProvider] = commitElement
-    return acc
-  }, {})
-
-  return commitments
-}
-
-// Return all the rewards earned by stakes that did the TACo commitment
-// The graphqlClient passed must be for Ethereum mainnet staking subgraph
-async function getCommitmentBonus(subgraphClient) {
-  const commitmentDeadline = 1705363199
-  const tacoCommits = await getTACoCommitments(subgraphClient)
-  const tacoAuthHistories = await getTACoAuthHistoryUntil(
-    subgraphClient,
-    commitmentDeadline
-  )
-
-  const rewards = {}
-  Object.keys(tacoCommits).map((stProv) => {
-    const stProvCheckSum = ethers.utils.getAddress(stProv)
-    const beneficiaryCheckSum = ethers.utils.getAddress(
-      tacoAuthHistories[stProv][0].beneficiary
-    )
-    const duration = tacoCommits[stProv].duration
-    // taking the greater amount of authorization because the authorization
-    // could be increased since the beginning but not decreased (it requires 6
-    // month period to approve the decrease)
-    const authorized = tacoAuthHistories[stProv].reduce((prev, elem) => {
-      const authorized = BigNumber(elem.amount)
-      return authorized.gt(prev) ? authorized : prev
-    }, BigNumber(0))
-
-    let reward = BigNumber(0)
-    if (duration === 3) {
-      reward = authorized.times(0.005)
-    } else if (duration === 6) {
-      reward = authorized.times(0.01)
-    } else if (duration === 12) {
-      reward = authorized.times(0.02)
-    } else if (duration === 18) {
-      reward = authorized.times(0.03)
-    }
-
-    rewards[stProvCheckSum] = {
-      amount: reward.toFixed(0),
-      beneficiary: beneficiaryCheckSum,
-    }
-  })
-
-  return rewards
-}
-
 module.exports = {
   getTACoRewards,
-  getCommitmentBonus,
 }
