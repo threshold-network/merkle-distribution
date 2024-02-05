@@ -10,10 +10,7 @@ const ethers = require("ethers")
 const Subgraph = require("./pre-rewards/subgraph.js")
 const Rewards = require("./pre-rewards/rewards.js")
 const MerkleDist = require("./merkle_dist/merkle_dist.js")
-const {
-  getCommitmentBonus,
-  getTACoRewards,
-} = require("./taco-rewards/taco-rewards.js")
+const { getTACoRewards } = require("./taco-rewards/taco-rewards.js")
 
 // The following parameters must be modified for each distribution
 const tacoWeight = 0.25
@@ -64,11 +61,6 @@ async function main() {
 
   const mainnetSubgraphClient = createClient({ url: mainnetSubgraphApi })
   const polygonSubgraphClient = createClient({ url: polygonSubgraphApi })
-
-  // Bonus rewards calculation
-  // This is a one-off Commitment bonus for Feb 1st 24 distribution. More info:
-  // https://docs.threshold.network/staking-and-running-a-node/taco-node-setup/taco-authorization-and-operator-registration/one-off-commitment-bonus
-  const earnedBonusRewards = await getCommitmentBonus(mainnetSubgraphClient)
 
   // PRE rewards calculation
   if (tacoWeight > 0) {
@@ -128,10 +120,6 @@ async function main() {
   try {
     bonusRewards = JSON.parse(
       fs.readFileSync(`${lastDistPath}/MerkleInputBonusRewards.json`)
-    )
-    bonusRewards = MerkleDist.combineMerkleInputs(
-      bonusRewards,
-      earnedBonusRewards
     )
     fs.writeFileSync(
       distPath + "/MerkleInputBonusRewards.json",
