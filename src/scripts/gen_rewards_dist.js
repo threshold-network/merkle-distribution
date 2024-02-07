@@ -62,7 +62,7 @@ async function main() {
   const mainnetSubgraphClient = createClient({ url: mainnetSubgraphApi })
   const polygonSubgraphClient = createClient({ url: polygonSubgraphApi })
 
-  // PRE rewards calculation
+  // TACo rewards calculation
   if (tacoWeight > 0) {
     earnedTACoRewards = await getTACoRewards(
       mainnetSubgraphClient,
