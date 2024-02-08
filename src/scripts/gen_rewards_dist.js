@@ -6,9 +6,9 @@ require("dotenv").config()
 const { createClient } = require("@urql/core")
 const fs = require("fs")
 const shell = require("shelljs")
+const BigNumber = require("bignumber.js")
 const ethers = require("ethers")
-const Subgraph = require("./pre-rewards/subgraph.js")
-const Rewards = require("./pre-rewards/rewards.js")
+const { getLegacyKeepStakes } = require("./tbtcv2-rewards/tbtc-subgraph.js")
 const MerkleDist = require("./merkle_dist/merkle_dist.js")
 const { getTACoRewards } = require("./taco-rewards/taco-rewards.js")
 
@@ -21,8 +21,6 @@ const lastDistribution = "2024-01-01"
 
 const etherscanApiKey = process.env.ETHERSCAN_TOKEN
 const tbtcv2ScriptPath = "src/scripts/tbtcv2-rewards/"
-const graphqlApi =
-  "https://api.studio.thegraph.com/query/24143/main-threshold-subgraph/0.0.7"
 const mainnetSubgraphApi =
   "https://api.studio.thegraph.com/query/24143/development-threshold-subgraph/0.9.7"
 const polygonSubgraphApi =
@@ -73,13 +71,28 @@ async function main() {
     )
   }
 
-  // We need the legacy stakes to delete the Keep legacy stakes
-  const blockNumber = 18624792 // Block height in which legacy stakes were deac
-  const legacyStakes = await Subgraph.getLegacyKeepStakes(
-    graphqlApi,
-    blockNumber - 1
-  )
+  // February 24th 2024 special case:
+  // February 23rd 2024 23:59:59 UTC is the deadline to complete the transition
+  // process for legacy Keep stakers.
+  //
+  // More info about transition period can be found:
+  // https://forum.threshold.network/t/transition-guide-for-legacy-stakers/719
+  //
+  // During the transition period (Nov 22nd 2023 to Feb 23rd 2024), the legacy
+  // Keep stakes haven't received any tBTC rewards.
+  // (see https://github.com/threshold-network/merkle-distribution/issues/112).
+  //
+  // So, Feb 24th 2024 distribution will distribute:
+  // 1. Rewards for the T tokens staked and authorized since Nov 22nd 23.
+  // 2. Rewards for the keepInT that has been migrated to T staking/authorizing:
+  // 2.1. In case that re-staking hasn't been completed, no keepInT rewards.
+  // 2.2. In case that re-staking has been completed, it will be considered that
+  //      it was staked the keepInT until re-staking time. After re-staking time,
+  //      the rewards were calculated over this re-staked amount.
+  //      TODO: check what happens if someone restaked a lower amount and to
+  //            think about what amount to choose as basis for the rewards.
 
+  // February 24th special case: calculate the rewards for non-legacy-stakes
   // tBTCv2 rewards calculation
   if (tbtcv2Weight > 0) {
     console.log("Calculating tBTCv2 rewards...")
@@ -87,11 +100,15 @@ async function main() {
     const tbtcv2RewardsRaw = JSON.parse(
       fs.readFileSync("./src/scripts/tbtcv2-rewards/rewards.json")
     )
-    earnedTbtcv2Rewards = Rewards.calculateTbtcv2Rewards(
-      tbtcv2RewardsRaw,
-      tbtcv2Weight
-    )
+    earnedTbtcv2Rewards = calculateTbtcv2Rewards(tbtcv2RewardsRaw, tbtcv2Weight)
   }
+
+  // Get the legacy Keep stakes
+  const blockNumber = 18624792 // Block height in which legacy stakes were deac
+  const legacyStakes = await getLegacyKeepStakes(
+    mainnetSubgraphClient,
+    blockNumber - 1
+  )
 
   // Delete the Keep legacy stakes in earned rewards
   Object.keys(legacyStakes).map((legacyStake) => {
@@ -115,6 +132,11 @@ async function main() {
     rewardsDetailsPath,
     JSON.stringify(rewardsDetailsFiltered, null, 4)
   )
+
+  // February 24th special case: calculate the rewards for Keep legacy stakes
+  // TODO: calculate the rewards
+
+  // TODO: add the keepInT rewards to tBTC rewards
 
   // Add rewards earned to cumulative totals
   try {
@@ -182,6 +204,18 @@ async function main() {
     distributionsFilePath,
     JSON.stringify(distributions, null, 4)
   )
+}
+
+//
+// Calculate the tBTCv2 weighted rewards earned by each stake
+//
+function calculateTbtcv2Rewards(stakes, weight) {
+  Object.keys(stakes).map((stakingProvider) => {
+    const amount = BigNumber(stakes[stakingProvider].amount)
+    const weightedReward = amount.times(weight)
+    stakes[stakingProvider].amount = weightedReward.toFixed(0)
+  })
+  return stakes
 }
 
 main()
