@@ -5,6 +5,7 @@ import type { YamlConfig } from '@graphql-mesh/types';
 import { MeshHTTPHandler } from '@graphql-mesh/http';
 import { ExecuteMeshFn, SubscribeMeshFn, MeshContext as BaseMeshContext, MeshInstance } from '@graphql-mesh/runtime';
 import type { DevelopmentThresholdSubgraphTypes } from './sources/development-threshold-subgraph/types';
+import type { ThresholdStakingPolygonTypes } from './sources/threshold-staking-polygon/types';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends {
@@ -33,6 +34,584 @@ export type Scalars = {
     Bytes: any;
     Int8: any;
 };
+export type Query = {
+    tacoOperator?: Maybe<TACoOperator>;
+    tacoOperators: Array<TACoOperator>;
+    /** Access to subgraph metadata */
+    _meta?: Maybe<_Meta_>;
+    account?: Maybe<Account>;
+    accounts: Array<Account>;
+    stakeData?: Maybe<StakeData>;
+    stakeDatas: Array<StakeData>;
+    epochStake?: Maybe<EpochStake>;
+    epochStakes: Array<EpochStake>;
+    epoch?: Maybe<Epoch>;
+    epoches: Array<Epoch>;
+    epochCounter?: Maybe<EpochCounter>;
+    epochCounters: Array<EpochCounter>;
+    appAuthorization?: Maybe<AppAuthorization>;
+    appAuthorizations: Array<AppAuthorization>;
+    appAuthHistory?: Maybe<AppAuthHistory>;
+    appAuthHistories: Array<AppAuthHistory>;
+    minStakeAmount?: Maybe<MinStakeAmount>;
+    minStakeAmounts: Array<MinStakeAmount>;
+    stakeDelegation?: Maybe<StakeDelegation>;
+    stakeDelegations: Array<StakeDelegation>;
+    tokenholderDelegation?: Maybe<TokenholderDelegation>;
+    tokenholderDelegations: Array<TokenholderDelegation>;
+    daometric?: Maybe<DAOMetric>;
+    daometrics: Array<DAOMetric>;
+    tacoCommitment?: Maybe<TACoCommitment>;
+    tacoCommitments: Array<TACoCommitment>;
+    delegation?: Maybe<Delegation>;
+    delegations: Array<Delegation>;
+};
+export type QuerytacoOperatorArgs = {
+    id: Scalars['ID'];
+    block?: InputMaybe<Block_height>;
+    subgraphError?: _SubgraphErrorPolicy_;
+};
+export type QuerytacoOperatorsArgs = {
+    skip?: InputMaybe<Scalars['Int']>;
+    first?: InputMaybe<Scalars['Int']>;
+    orderBy?: InputMaybe<TACoOperator_orderBy>;
+    orderDirection?: InputMaybe<OrderDirection>;
+    where?: InputMaybe<TACoOperator_filter>;
+    block?: InputMaybe<Block_height>;
+    subgraphError?: _SubgraphErrorPolicy_;
+};
+export type Query_metaArgs = {
+    block?: InputMaybe<Block_height>;
+};
+export type QueryaccountArgs = {
+    id: Scalars['ID'];
+    block?: InputMaybe<Block_height>;
+    subgraphError?: _SubgraphErrorPolicy_;
+};
+export type QueryaccountsArgs = {
+    skip?: InputMaybe<Scalars['Int']>;
+    first?: InputMaybe<Scalars['Int']>;
+    orderBy?: InputMaybe<Account_orderBy>;
+    orderDirection?: InputMaybe<OrderDirection>;
+    where?: InputMaybe<Account_filter>;
+    block?: InputMaybe<Block_height>;
+    subgraphError?: _SubgraphErrorPolicy_;
+};
+export type QuerystakeDataArgs = {
+    id: Scalars['ID'];
+    block?: InputMaybe<Block_height>;
+    subgraphError?: _SubgraphErrorPolicy_;
+};
+export type QuerystakeDatasArgs = {
+    skip?: InputMaybe<Scalars['Int']>;
+    first?: InputMaybe<Scalars['Int']>;
+    orderBy?: InputMaybe<StakeData_orderBy>;
+    orderDirection?: InputMaybe<OrderDirection>;
+    where?: InputMaybe<StakeData_filter>;
+    block?: InputMaybe<Block_height>;
+    subgraphError?: _SubgraphErrorPolicy_;
+};
+export type QueryepochStakeArgs = {
+    id: Scalars['ID'];
+    block?: InputMaybe<Block_height>;
+    subgraphError?: _SubgraphErrorPolicy_;
+};
+export type QueryepochStakesArgs = {
+    skip?: InputMaybe<Scalars['Int']>;
+    first?: InputMaybe<Scalars['Int']>;
+    orderBy?: InputMaybe<EpochStake_orderBy>;
+    orderDirection?: InputMaybe<OrderDirection>;
+    where?: InputMaybe<EpochStake_filter>;
+    block?: InputMaybe<Block_height>;
+    subgraphError?: _SubgraphErrorPolicy_;
+};
+export type QueryepochArgs = {
+    id: Scalars['ID'];
+    block?: InputMaybe<Block_height>;
+    subgraphError?: _SubgraphErrorPolicy_;
+};
+export type QueryepochesArgs = {
+    skip?: InputMaybe<Scalars['Int']>;
+    first?: InputMaybe<Scalars['Int']>;
+    orderBy?: InputMaybe<Epoch_orderBy>;
+    orderDirection?: InputMaybe<OrderDirection>;
+    where?: InputMaybe<Epoch_filter>;
+    block?: InputMaybe<Block_height>;
+    subgraphError?: _SubgraphErrorPolicy_;
+};
+export type QueryepochCounterArgs = {
+    id: Scalars['ID'];
+    block?: InputMaybe<Block_height>;
+    subgraphError?: _SubgraphErrorPolicy_;
+};
+export type QueryepochCountersArgs = {
+    skip?: InputMaybe<Scalars['Int']>;
+    first?: InputMaybe<Scalars['Int']>;
+    orderBy?: InputMaybe<EpochCounter_orderBy>;
+    orderDirection?: InputMaybe<OrderDirection>;
+    where?: InputMaybe<EpochCounter_filter>;
+    block?: InputMaybe<Block_height>;
+    subgraphError?: _SubgraphErrorPolicy_;
+};
+export type QueryappAuthorizationArgs = {
+    id: Scalars['ID'];
+    block?: InputMaybe<Block_height>;
+    subgraphError?: _SubgraphErrorPolicy_;
+};
+export type QueryappAuthorizationsArgs = {
+    skip?: InputMaybe<Scalars['Int']>;
+    first?: InputMaybe<Scalars['Int']>;
+    orderBy?: InputMaybe<AppAuthorization_orderBy>;
+    orderDirection?: InputMaybe<OrderDirection>;
+    where?: InputMaybe<AppAuthorization_filter>;
+    block?: InputMaybe<Block_height>;
+    subgraphError?: _SubgraphErrorPolicy_;
+};
+export type QueryappAuthHistoryArgs = {
+    id: Scalars['ID'];
+    block?: InputMaybe<Block_height>;
+    subgraphError?: _SubgraphErrorPolicy_;
+};
+export type QueryappAuthHistoriesArgs = {
+    skip?: InputMaybe<Scalars['Int']>;
+    first?: InputMaybe<Scalars['Int']>;
+    orderBy?: InputMaybe<AppAuthHistory_orderBy>;
+    orderDirection?: InputMaybe<OrderDirection>;
+    where?: InputMaybe<AppAuthHistory_filter>;
+    block?: InputMaybe<Block_height>;
+    subgraphError?: _SubgraphErrorPolicy_;
+};
+export type QueryminStakeAmountArgs = {
+    id: Scalars['ID'];
+    block?: InputMaybe<Block_height>;
+    subgraphError?: _SubgraphErrorPolicy_;
+};
+export type QueryminStakeAmountsArgs = {
+    skip?: InputMaybe<Scalars['Int']>;
+    first?: InputMaybe<Scalars['Int']>;
+    orderBy?: InputMaybe<MinStakeAmount_orderBy>;
+    orderDirection?: InputMaybe<OrderDirection>;
+    where?: InputMaybe<MinStakeAmount_filter>;
+    block?: InputMaybe<Block_height>;
+    subgraphError?: _SubgraphErrorPolicy_;
+};
+export type QuerystakeDelegationArgs = {
+    id: Scalars['ID'];
+    block?: InputMaybe<Block_height>;
+    subgraphError?: _SubgraphErrorPolicy_;
+};
+export type QuerystakeDelegationsArgs = {
+    skip?: InputMaybe<Scalars['Int']>;
+    first?: InputMaybe<Scalars['Int']>;
+    orderBy?: InputMaybe<StakeDelegation_orderBy>;
+    orderDirection?: InputMaybe<OrderDirection>;
+    where?: InputMaybe<StakeDelegation_filter>;
+    block?: InputMaybe<Block_height>;
+    subgraphError?: _SubgraphErrorPolicy_;
+};
+export type QuerytokenholderDelegationArgs = {
+    id: Scalars['ID'];
+    block?: InputMaybe<Block_height>;
+    subgraphError?: _SubgraphErrorPolicy_;
+};
+export type QuerytokenholderDelegationsArgs = {
+    skip?: InputMaybe<Scalars['Int']>;
+    first?: InputMaybe<Scalars['Int']>;
+    orderBy?: InputMaybe<TokenholderDelegation_orderBy>;
+    orderDirection?: InputMaybe<OrderDirection>;
+    where?: InputMaybe<TokenholderDelegation_filter>;
+    block?: InputMaybe<Block_height>;
+    subgraphError?: _SubgraphErrorPolicy_;
+};
+export type QuerydaometricArgs = {
+    id: Scalars['ID'];
+    block?: InputMaybe<Block_height>;
+    subgraphError?: _SubgraphErrorPolicy_;
+};
+export type QuerydaometricsArgs = {
+    skip?: InputMaybe<Scalars['Int']>;
+    first?: InputMaybe<Scalars['Int']>;
+    orderBy?: InputMaybe<DAOMetric_orderBy>;
+    orderDirection?: InputMaybe<OrderDirection>;
+    where?: InputMaybe<DAOMetric_filter>;
+    block?: InputMaybe<Block_height>;
+    subgraphError?: _SubgraphErrorPolicy_;
+};
+export type QuerytacoCommitmentArgs = {
+    id: Scalars['ID'];
+    block?: InputMaybe<Block_height>;
+    subgraphError?: _SubgraphErrorPolicy_;
+};
+export type QuerytacoCommitmentsArgs = {
+    skip?: InputMaybe<Scalars['Int']>;
+    first?: InputMaybe<Scalars['Int']>;
+    orderBy?: InputMaybe<TACoCommitment_orderBy>;
+    orderDirection?: InputMaybe<OrderDirection>;
+    where?: InputMaybe<TACoCommitment_filter>;
+    block?: InputMaybe<Block_height>;
+    subgraphError?: _SubgraphErrorPolicy_;
+};
+export type QuerydelegationArgs = {
+    id: Scalars['ID'];
+    block?: InputMaybe<Block_height>;
+    subgraphError?: _SubgraphErrorPolicy_;
+};
+export type QuerydelegationsArgs = {
+    skip?: InputMaybe<Scalars['Int']>;
+    first?: InputMaybe<Scalars['Int']>;
+    orderBy?: InputMaybe<Delegation_orderBy>;
+    orderDirection?: InputMaybe<OrderDirection>;
+    where?: InputMaybe<Delegation_filter>;
+    block?: InputMaybe<Block_height>;
+    subgraphError?: _SubgraphErrorPolicy_;
+};
+export type Subscription = {
+    tacoOperator?: Maybe<TACoOperator>;
+    tacoOperators: Array<TACoOperator>;
+    /** Access to subgraph metadata */
+    _meta?: Maybe<_Meta_>;
+    account?: Maybe<Account>;
+    accounts: Array<Account>;
+    stakeData?: Maybe<StakeData>;
+    stakeDatas: Array<StakeData>;
+    epochStake?: Maybe<EpochStake>;
+    epochStakes: Array<EpochStake>;
+    epoch?: Maybe<Epoch>;
+    epoches: Array<Epoch>;
+    epochCounter?: Maybe<EpochCounter>;
+    epochCounters: Array<EpochCounter>;
+    appAuthorization?: Maybe<AppAuthorization>;
+    appAuthorizations: Array<AppAuthorization>;
+    appAuthHistory?: Maybe<AppAuthHistory>;
+    appAuthHistories: Array<AppAuthHistory>;
+    minStakeAmount?: Maybe<MinStakeAmount>;
+    minStakeAmounts: Array<MinStakeAmount>;
+    stakeDelegation?: Maybe<StakeDelegation>;
+    stakeDelegations: Array<StakeDelegation>;
+    tokenholderDelegation?: Maybe<TokenholderDelegation>;
+    tokenholderDelegations: Array<TokenholderDelegation>;
+    daometric?: Maybe<DAOMetric>;
+    daometrics: Array<DAOMetric>;
+    tacoCommitment?: Maybe<TACoCommitment>;
+    tacoCommitments: Array<TACoCommitment>;
+    delegation?: Maybe<Delegation>;
+    delegations: Array<Delegation>;
+};
+export type SubscriptiontacoOperatorArgs = {
+    id: Scalars['ID'];
+    block?: InputMaybe<Block_height>;
+    subgraphError?: _SubgraphErrorPolicy_;
+};
+export type SubscriptiontacoOperatorsArgs = {
+    skip?: InputMaybe<Scalars['Int']>;
+    first?: InputMaybe<Scalars['Int']>;
+    orderBy?: InputMaybe<TACoOperator_orderBy>;
+    orderDirection?: InputMaybe<OrderDirection>;
+    where?: InputMaybe<TACoOperator_filter>;
+    block?: InputMaybe<Block_height>;
+    subgraphError?: _SubgraphErrorPolicy_;
+};
+export type Subscription_metaArgs = {
+    block?: InputMaybe<Block_height>;
+};
+export type SubscriptionaccountArgs = {
+    id: Scalars['ID'];
+    block?: InputMaybe<Block_height>;
+    subgraphError?: _SubgraphErrorPolicy_;
+};
+export type SubscriptionaccountsArgs = {
+    skip?: InputMaybe<Scalars['Int']>;
+    first?: InputMaybe<Scalars['Int']>;
+    orderBy?: InputMaybe<Account_orderBy>;
+    orderDirection?: InputMaybe<OrderDirection>;
+    where?: InputMaybe<Account_filter>;
+    block?: InputMaybe<Block_height>;
+    subgraphError?: _SubgraphErrorPolicy_;
+};
+export type SubscriptionstakeDataArgs = {
+    id: Scalars['ID'];
+    block?: InputMaybe<Block_height>;
+    subgraphError?: _SubgraphErrorPolicy_;
+};
+export type SubscriptionstakeDatasArgs = {
+    skip?: InputMaybe<Scalars['Int']>;
+    first?: InputMaybe<Scalars['Int']>;
+    orderBy?: InputMaybe<StakeData_orderBy>;
+    orderDirection?: InputMaybe<OrderDirection>;
+    where?: InputMaybe<StakeData_filter>;
+    block?: InputMaybe<Block_height>;
+    subgraphError?: _SubgraphErrorPolicy_;
+};
+export type SubscriptionepochStakeArgs = {
+    id: Scalars['ID'];
+    block?: InputMaybe<Block_height>;
+    subgraphError?: _SubgraphErrorPolicy_;
+};
+export type SubscriptionepochStakesArgs = {
+    skip?: InputMaybe<Scalars['Int']>;
+    first?: InputMaybe<Scalars['Int']>;
+    orderBy?: InputMaybe<EpochStake_orderBy>;
+    orderDirection?: InputMaybe<OrderDirection>;
+    where?: InputMaybe<EpochStake_filter>;
+    block?: InputMaybe<Block_height>;
+    subgraphError?: _SubgraphErrorPolicy_;
+};
+export type SubscriptionepochArgs = {
+    id: Scalars['ID'];
+    block?: InputMaybe<Block_height>;
+    subgraphError?: _SubgraphErrorPolicy_;
+};
+export type SubscriptionepochesArgs = {
+    skip?: InputMaybe<Scalars['Int']>;
+    first?: InputMaybe<Scalars['Int']>;
+    orderBy?: InputMaybe<Epoch_orderBy>;
+    orderDirection?: InputMaybe<OrderDirection>;
+    where?: InputMaybe<Epoch_filter>;
+    block?: InputMaybe<Block_height>;
+    subgraphError?: _SubgraphErrorPolicy_;
+};
+export type SubscriptionepochCounterArgs = {
+    id: Scalars['ID'];
+    block?: InputMaybe<Block_height>;
+    subgraphError?: _SubgraphErrorPolicy_;
+};
+export type SubscriptionepochCountersArgs = {
+    skip?: InputMaybe<Scalars['Int']>;
+    first?: InputMaybe<Scalars['Int']>;
+    orderBy?: InputMaybe<EpochCounter_orderBy>;
+    orderDirection?: InputMaybe<OrderDirection>;
+    where?: InputMaybe<EpochCounter_filter>;
+    block?: InputMaybe<Block_height>;
+    subgraphError?: _SubgraphErrorPolicy_;
+};
+export type SubscriptionappAuthorizationArgs = {
+    id: Scalars['ID'];
+    block?: InputMaybe<Block_height>;
+    subgraphError?: _SubgraphErrorPolicy_;
+};
+export type SubscriptionappAuthorizationsArgs = {
+    skip?: InputMaybe<Scalars['Int']>;
+    first?: InputMaybe<Scalars['Int']>;
+    orderBy?: InputMaybe<AppAuthorization_orderBy>;
+    orderDirection?: InputMaybe<OrderDirection>;
+    where?: InputMaybe<AppAuthorization_filter>;
+    block?: InputMaybe<Block_height>;
+    subgraphError?: _SubgraphErrorPolicy_;
+};
+export type SubscriptionappAuthHistoryArgs = {
+    id: Scalars['ID'];
+    block?: InputMaybe<Block_height>;
+    subgraphError?: _SubgraphErrorPolicy_;
+};
+export type SubscriptionappAuthHistoriesArgs = {
+    skip?: InputMaybe<Scalars['Int']>;
+    first?: InputMaybe<Scalars['Int']>;
+    orderBy?: InputMaybe<AppAuthHistory_orderBy>;
+    orderDirection?: InputMaybe<OrderDirection>;
+    where?: InputMaybe<AppAuthHistory_filter>;
+    block?: InputMaybe<Block_height>;
+    subgraphError?: _SubgraphErrorPolicy_;
+};
+export type SubscriptionminStakeAmountArgs = {
+    id: Scalars['ID'];
+    block?: InputMaybe<Block_height>;
+    subgraphError?: _SubgraphErrorPolicy_;
+};
+export type SubscriptionminStakeAmountsArgs = {
+    skip?: InputMaybe<Scalars['Int']>;
+    first?: InputMaybe<Scalars['Int']>;
+    orderBy?: InputMaybe<MinStakeAmount_orderBy>;
+    orderDirection?: InputMaybe<OrderDirection>;
+    where?: InputMaybe<MinStakeAmount_filter>;
+    block?: InputMaybe<Block_height>;
+    subgraphError?: _SubgraphErrorPolicy_;
+};
+export type SubscriptionstakeDelegationArgs = {
+    id: Scalars['ID'];
+    block?: InputMaybe<Block_height>;
+    subgraphError?: _SubgraphErrorPolicy_;
+};
+export type SubscriptionstakeDelegationsArgs = {
+    skip?: InputMaybe<Scalars['Int']>;
+    first?: InputMaybe<Scalars['Int']>;
+    orderBy?: InputMaybe<StakeDelegation_orderBy>;
+    orderDirection?: InputMaybe<OrderDirection>;
+    where?: InputMaybe<StakeDelegation_filter>;
+    block?: InputMaybe<Block_height>;
+    subgraphError?: _SubgraphErrorPolicy_;
+};
+export type SubscriptiontokenholderDelegationArgs = {
+    id: Scalars['ID'];
+    block?: InputMaybe<Block_height>;
+    subgraphError?: _SubgraphErrorPolicy_;
+};
+export type SubscriptiontokenholderDelegationsArgs = {
+    skip?: InputMaybe<Scalars['Int']>;
+    first?: InputMaybe<Scalars['Int']>;
+    orderBy?: InputMaybe<TokenholderDelegation_orderBy>;
+    orderDirection?: InputMaybe<OrderDirection>;
+    where?: InputMaybe<TokenholderDelegation_filter>;
+    block?: InputMaybe<Block_height>;
+    subgraphError?: _SubgraphErrorPolicy_;
+};
+export type SubscriptiondaometricArgs = {
+    id: Scalars['ID'];
+    block?: InputMaybe<Block_height>;
+    subgraphError?: _SubgraphErrorPolicy_;
+};
+export type SubscriptiondaometricsArgs = {
+    skip?: InputMaybe<Scalars['Int']>;
+    first?: InputMaybe<Scalars['Int']>;
+    orderBy?: InputMaybe<DAOMetric_orderBy>;
+    orderDirection?: InputMaybe<OrderDirection>;
+    where?: InputMaybe<DAOMetric_filter>;
+    block?: InputMaybe<Block_height>;
+    subgraphError?: _SubgraphErrorPolicy_;
+};
+export type SubscriptiontacoCommitmentArgs = {
+    id: Scalars['ID'];
+    block?: InputMaybe<Block_height>;
+    subgraphError?: _SubgraphErrorPolicy_;
+};
+export type SubscriptiontacoCommitmentsArgs = {
+    skip?: InputMaybe<Scalars['Int']>;
+    first?: InputMaybe<Scalars['Int']>;
+    orderBy?: InputMaybe<TACoCommitment_orderBy>;
+    orderDirection?: InputMaybe<OrderDirection>;
+    where?: InputMaybe<TACoCommitment_filter>;
+    block?: InputMaybe<Block_height>;
+    subgraphError?: _SubgraphErrorPolicy_;
+};
+export type SubscriptiondelegationArgs = {
+    id: Scalars['ID'];
+    block?: InputMaybe<Block_height>;
+    subgraphError?: _SubgraphErrorPolicy_;
+};
+export type SubscriptiondelegationsArgs = {
+    skip?: InputMaybe<Scalars['Int']>;
+    first?: InputMaybe<Scalars['Int']>;
+    orderBy?: InputMaybe<Delegation_orderBy>;
+    orderDirection?: InputMaybe<OrderDirection>;
+    where?: InputMaybe<Delegation_filter>;
+    block?: InputMaybe<Block_height>;
+    subgraphError?: _SubgraphErrorPolicy_;
+};
+export type BlockChangedFilter = {
+    number_gte: Scalars['Int'];
+};
+export type Block_height = {
+    hash?: InputMaybe<Scalars['Bytes']>;
+    number?: InputMaybe<Scalars['Int']>;
+    number_gte?: InputMaybe<Scalars['Int']>;
+};
+/** Defines the order direction, either ascending or descending */
+export type OrderDirection = 'asc' | 'desc';
+/** TACoOperator represents the TACo operator's info of a staking provider */
+export type TACoOperator = {
+    /** ID is the staking provider address */
+    id: Scalars['ID'];
+    /** Operator's address */
+    operator: Scalars['Bytes'];
+    /** Timestamp in which the current operator was confirmed to the staking provider */
+    confirmedTimestamp: Scalars['BigInt'];
+    /** Timestamp in which the first operator of this staking provider was confirmed */
+    confirmedTimestampFirstOperator?: Maybe<Scalars['BigInt']>;
+    /** The operator won't be confirmed during the operator address update */
+    confirmed?: Maybe<Scalars['Boolean']>;
+    /** Timestamp in which the current operator was bonded to the staking provider */
+    bondedTimestamp: Scalars['BigInt'];
+    /** Timestamp in which the first operator of this staking provider was bonded */
+    bondedTimestampFirstOperator?: Maybe<Scalars['BigInt']>;
+};
+export type TACoOperator_filter = {
+    id?: InputMaybe<Scalars['ID']>;
+    id_not?: InputMaybe<Scalars['ID']>;
+    id_gt?: InputMaybe<Scalars['ID']>;
+    id_lt?: InputMaybe<Scalars['ID']>;
+    id_gte?: InputMaybe<Scalars['ID']>;
+    id_lte?: InputMaybe<Scalars['ID']>;
+    id_in?: InputMaybe<Array<Scalars['ID']>>;
+    id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+    operator?: InputMaybe<Scalars['Bytes']>;
+    operator_not?: InputMaybe<Scalars['Bytes']>;
+    operator_gt?: InputMaybe<Scalars['Bytes']>;
+    operator_lt?: InputMaybe<Scalars['Bytes']>;
+    operator_gte?: InputMaybe<Scalars['Bytes']>;
+    operator_lte?: InputMaybe<Scalars['Bytes']>;
+    operator_in?: InputMaybe<Array<Scalars['Bytes']>>;
+    operator_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
+    operator_contains?: InputMaybe<Scalars['Bytes']>;
+    operator_not_contains?: InputMaybe<Scalars['Bytes']>;
+    confirmedTimestamp?: InputMaybe<Scalars['BigInt']>;
+    confirmedTimestamp_not?: InputMaybe<Scalars['BigInt']>;
+    confirmedTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
+    confirmedTimestamp_lt?: InputMaybe<Scalars['BigInt']>;
+    confirmedTimestamp_gte?: InputMaybe<Scalars['BigInt']>;
+    confirmedTimestamp_lte?: InputMaybe<Scalars['BigInt']>;
+    confirmedTimestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+    confirmedTimestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+    confirmedTimestampFirstOperator?: InputMaybe<Scalars['BigInt']>;
+    confirmedTimestampFirstOperator_not?: InputMaybe<Scalars['BigInt']>;
+    confirmedTimestampFirstOperator_gt?: InputMaybe<Scalars['BigInt']>;
+    confirmedTimestampFirstOperator_lt?: InputMaybe<Scalars['BigInt']>;
+    confirmedTimestampFirstOperator_gte?: InputMaybe<Scalars['BigInt']>;
+    confirmedTimestampFirstOperator_lte?: InputMaybe<Scalars['BigInt']>;
+    confirmedTimestampFirstOperator_in?: InputMaybe<Array<Scalars['BigInt']>>;
+    confirmedTimestampFirstOperator_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+    confirmed?: InputMaybe<Scalars['Boolean']>;
+    confirmed_not?: InputMaybe<Scalars['Boolean']>;
+    confirmed_in?: InputMaybe<Array<Scalars['Boolean']>>;
+    confirmed_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
+    /** Filter for the block changed event. */
+    _change_block?: InputMaybe<BlockChangedFilter>;
+    and?: InputMaybe<Array<InputMaybe<TACoOperator_filter>>>;
+    or?: InputMaybe<Array<InputMaybe<TACoOperator_filter>>>;
+    bondedTimestamp?: InputMaybe<Scalars['BigInt']>;
+    bondedTimestamp_not?: InputMaybe<Scalars['BigInt']>;
+    bondedTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
+    bondedTimestamp_lt?: InputMaybe<Scalars['BigInt']>;
+    bondedTimestamp_gte?: InputMaybe<Scalars['BigInt']>;
+    bondedTimestamp_lte?: InputMaybe<Scalars['BigInt']>;
+    bondedTimestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+    bondedTimestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+    bondedTimestampFirstOperator?: InputMaybe<Scalars['BigInt']>;
+    bondedTimestampFirstOperator_not?: InputMaybe<Scalars['BigInt']>;
+    bondedTimestampFirstOperator_gt?: InputMaybe<Scalars['BigInt']>;
+    bondedTimestampFirstOperator_lt?: InputMaybe<Scalars['BigInt']>;
+    bondedTimestampFirstOperator_gte?: InputMaybe<Scalars['BigInt']>;
+    bondedTimestampFirstOperator_lte?: InputMaybe<Scalars['BigInt']>;
+    bondedTimestampFirstOperator_in?: InputMaybe<Array<Scalars['BigInt']>>;
+    bondedTimestampFirstOperator_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+};
+export type TACoOperator_orderBy = 'id' | 'operator' | 'confirmedTimestamp' | 'confirmedTimestampFirstOperator' | 'confirmed' | 'bondedTimestamp' | 'bondedTimestampFirstOperator';
+export type _Block_ = {
+    /** The hash of the block */
+    hash?: Maybe<Scalars['Bytes']>;
+    /** The block number */
+    number: Scalars['Int'];
+    /** Integer representation of the timestamp stored in blocks for the chain */
+    timestamp?: Maybe<Scalars['Int']>;
+};
+/** The type for the top-level _meta field */
+export type _Meta_ = {
+    /**
+     * Information about a specific subgraph block. The hash of the block
+     * will be null if the _meta field has a block constraint that asks for
+     * a block number. It will be filled if the _meta field has no block constraint
+     * and therefore asks for the latest  block
+     *
+     */
+    block: _Block_;
+    /** The deployment ID */
+    deployment: Scalars['String'];
+    /** If `true`, the subgraph encountered indexing errors at some past block */
+    hasIndexingErrors: Scalars['Boolean'];
+};
+export type _SubgraphErrorPolicy_ = 
+/** Data will be returned even if the subgraph has indexing errors */
+'allow'
+/** If the subgraph has indexing errors, data will be omitted. The default. */
+ | 'deny';
 /** Account represents the base user data: user's stakes and delegations */
 export type Account = {
     /** ID is the account's ETH address */
@@ -277,14 +856,6 @@ export type AppAuthorization_filter = {
     or?: InputMaybe<Array<InputMaybe<AppAuthorization_filter>>>;
 };
 export type AppAuthorization_orderBy = 'id' | 'appAddress' | 'stake' | 'stake__id' | 'stake__beneficiary' | 'stake__authorizer' | 'stake__tStake' | 'stake__keepInTStake' | 'stake__nuInTStake' | 'stake__totalStaked' | 'amount' | 'amountDeauthorizingTo' | 'appName';
-export type BlockChangedFilter = {
-    number_gte: Scalars['Int'];
-};
-export type Block_height = {
-    hash?: InputMaybe<Scalars['Bytes']>;
-    number?: InputMaybe<Scalars['Int']>;
-    number_gte?: InputMaybe<Scalars['Int']>;
-};
 /** DAOMetric represents the liquid and staked T tokens in Threshold Network DAO */
 export type DAOMetric = {
     /** ID is 'dao-metrics' (singleton entity) */
@@ -567,239 +1138,6 @@ export type MinStakeAmount_filter = {
     or?: InputMaybe<Array<InputMaybe<MinStakeAmount_filter>>>;
 };
 export type MinStakeAmount_orderBy = 'id' | 'amount' | 'updatedAt' | 'blockNumber';
-/** Defines the order direction, either ascending or descending */
-export type OrderDirection = 'asc' | 'desc';
-export type Query = {
-    account?: Maybe<Account>;
-    accounts: Array<Account>;
-    stakeData?: Maybe<StakeData>;
-    stakeDatas: Array<StakeData>;
-    epochStake?: Maybe<EpochStake>;
-    epochStakes: Array<EpochStake>;
-    epoch?: Maybe<Epoch>;
-    epoches: Array<Epoch>;
-    epochCounter?: Maybe<EpochCounter>;
-    epochCounters: Array<EpochCounter>;
-    appAuthorization?: Maybe<AppAuthorization>;
-    appAuthorizations: Array<AppAuthorization>;
-    appAuthHistory?: Maybe<AppAuthHistory>;
-    appAuthHistories: Array<AppAuthHistory>;
-    minStakeAmount?: Maybe<MinStakeAmount>;
-    minStakeAmounts: Array<MinStakeAmount>;
-    stakeDelegation?: Maybe<StakeDelegation>;
-    stakeDelegations: Array<StakeDelegation>;
-    tokenholderDelegation?: Maybe<TokenholderDelegation>;
-    tokenholderDelegations: Array<TokenholderDelegation>;
-    daometric?: Maybe<DAOMetric>;
-    daometrics: Array<DAOMetric>;
-    tacoOperator?: Maybe<TACoOperator>;
-    tacoOperators: Array<TACoOperator>;
-    tacoCommitment?: Maybe<TACoCommitment>;
-    tacoCommitments: Array<TACoCommitment>;
-    delegation?: Maybe<Delegation>;
-    delegations: Array<Delegation>;
-    /** Access to subgraph metadata */
-    _meta?: Maybe<_Meta_>;
-};
-export type QueryaccountArgs = {
-    id: Scalars['ID'];
-    block?: InputMaybe<Block_height>;
-    subgraphError?: _SubgraphErrorPolicy_;
-};
-export type QueryaccountsArgs = {
-    skip?: InputMaybe<Scalars['Int']>;
-    first?: InputMaybe<Scalars['Int']>;
-    orderBy?: InputMaybe<Account_orderBy>;
-    orderDirection?: InputMaybe<OrderDirection>;
-    where?: InputMaybe<Account_filter>;
-    block?: InputMaybe<Block_height>;
-    subgraphError?: _SubgraphErrorPolicy_;
-};
-export type QuerystakeDataArgs = {
-    id: Scalars['ID'];
-    block?: InputMaybe<Block_height>;
-    subgraphError?: _SubgraphErrorPolicy_;
-};
-export type QuerystakeDatasArgs = {
-    skip?: InputMaybe<Scalars['Int']>;
-    first?: InputMaybe<Scalars['Int']>;
-    orderBy?: InputMaybe<StakeData_orderBy>;
-    orderDirection?: InputMaybe<OrderDirection>;
-    where?: InputMaybe<StakeData_filter>;
-    block?: InputMaybe<Block_height>;
-    subgraphError?: _SubgraphErrorPolicy_;
-};
-export type QueryepochStakeArgs = {
-    id: Scalars['ID'];
-    block?: InputMaybe<Block_height>;
-    subgraphError?: _SubgraphErrorPolicy_;
-};
-export type QueryepochStakesArgs = {
-    skip?: InputMaybe<Scalars['Int']>;
-    first?: InputMaybe<Scalars['Int']>;
-    orderBy?: InputMaybe<EpochStake_orderBy>;
-    orderDirection?: InputMaybe<OrderDirection>;
-    where?: InputMaybe<EpochStake_filter>;
-    block?: InputMaybe<Block_height>;
-    subgraphError?: _SubgraphErrorPolicy_;
-};
-export type QueryepochArgs = {
-    id: Scalars['ID'];
-    block?: InputMaybe<Block_height>;
-    subgraphError?: _SubgraphErrorPolicy_;
-};
-export type QueryepochesArgs = {
-    skip?: InputMaybe<Scalars['Int']>;
-    first?: InputMaybe<Scalars['Int']>;
-    orderBy?: InputMaybe<Epoch_orderBy>;
-    orderDirection?: InputMaybe<OrderDirection>;
-    where?: InputMaybe<Epoch_filter>;
-    block?: InputMaybe<Block_height>;
-    subgraphError?: _SubgraphErrorPolicy_;
-};
-export type QueryepochCounterArgs = {
-    id: Scalars['ID'];
-    block?: InputMaybe<Block_height>;
-    subgraphError?: _SubgraphErrorPolicy_;
-};
-export type QueryepochCountersArgs = {
-    skip?: InputMaybe<Scalars['Int']>;
-    first?: InputMaybe<Scalars['Int']>;
-    orderBy?: InputMaybe<EpochCounter_orderBy>;
-    orderDirection?: InputMaybe<OrderDirection>;
-    where?: InputMaybe<EpochCounter_filter>;
-    block?: InputMaybe<Block_height>;
-    subgraphError?: _SubgraphErrorPolicy_;
-};
-export type QueryappAuthorizationArgs = {
-    id: Scalars['ID'];
-    block?: InputMaybe<Block_height>;
-    subgraphError?: _SubgraphErrorPolicy_;
-};
-export type QueryappAuthorizationsArgs = {
-    skip?: InputMaybe<Scalars['Int']>;
-    first?: InputMaybe<Scalars['Int']>;
-    orderBy?: InputMaybe<AppAuthorization_orderBy>;
-    orderDirection?: InputMaybe<OrderDirection>;
-    where?: InputMaybe<AppAuthorization_filter>;
-    block?: InputMaybe<Block_height>;
-    subgraphError?: _SubgraphErrorPolicy_;
-};
-export type QueryappAuthHistoryArgs = {
-    id: Scalars['ID'];
-    block?: InputMaybe<Block_height>;
-    subgraphError?: _SubgraphErrorPolicy_;
-};
-export type QueryappAuthHistoriesArgs = {
-    skip?: InputMaybe<Scalars['Int']>;
-    first?: InputMaybe<Scalars['Int']>;
-    orderBy?: InputMaybe<AppAuthHistory_orderBy>;
-    orderDirection?: InputMaybe<OrderDirection>;
-    where?: InputMaybe<AppAuthHistory_filter>;
-    block?: InputMaybe<Block_height>;
-    subgraphError?: _SubgraphErrorPolicy_;
-};
-export type QueryminStakeAmountArgs = {
-    id: Scalars['ID'];
-    block?: InputMaybe<Block_height>;
-    subgraphError?: _SubgraphErrorPolicy_;
-};
-export type QueryminStakeAmountsArgs = {
-    skip?: InputMaybe<Scalars['Int']>;
-    first?: InputMaybe<Scalars['Int']>;
-    orderBy?: InputMaybe<MinStakeAmount_orderBy>;
-    orderDirection?: InputMaybe<OrderDirection>;
-    where?: InputMaybe<MinStakeAmount_filter>;
-    block?: InputMaybe<Block_height>;
-    subgraphError?: _SubgraphErrorPolicy_;
-};
-export type QuerystakeDelegationArgs = {
-    id: Scalars['ID'];
-    block?: InputMaybe<Block_height>;
-    subgraphError?: _SubgraphErrorPolicy_;
-};
-export type QuerystakeDelegationsArgs = {
-    skip?: InputMaybe<Scalars['Int']>;
-    first?: InputMaybe<Scalars['Int']>;
-    orderBy?: InputMaybe<StakeDelegation_orderBy>;
-    orderDirection?: InputMaybe<OrderDirection>;
-    where?: InputMaybe<StakeDelegation_filter>;
-    block?: InputMaybe<Block_height>;
-    subgraphError?: _SubgraphErrorPolicy_;
-};
-export type QuerytokenholderDelegationArgs = {
-    id: Scalars['ID'];
-    block?: InputMaybe<Block_height>;
-    subgraphError?: _SubgraphErrorPolicy_;
-};
-export type QuerytokenholderDelegationsArgs = {
-    skip?: InputMaybe<Scalars['Int']>;
-    first?: InputMaybe<Scalars['Int']>;
-    orderBy?: InputMaybe<TokenholderDelegation_orderBy>;
-    orderDirection?: InputMaybe<OrderDirection>;
-    where?: InputMaybe<TokenholderDelegation_filter>;
-    block?: InputMaybe<Block_height>;
-    subgraphError?: _SubgraphErrorPolicy_;
-};
-export type QuerydaometricArgs = {
-    id: Scalars['ID'];
-    block?: InputMaybe<Block_height>;
-    subgraphError?: _SubgraphErrorPolicy_;
-};
-export type QuerydaometricsArgs = {
-    skip?: InputMaybe<Scalars['Int']>;
-    first?: InputMaybe<Scalars['Int']>;
-    orderBy?: InputMaybe<DAOMetric_orderBy>;
-    orderDirection?: InputMaybe<OrderDirection>;
-    where?: InputMaybe<DAOMetric_filter>;
-    block?: InputMaybe<Block_height>;
-    subgraphError?: _SubgraphErrorPolicy_;
-};
-export type QuerytacoOperatorArgs = {
-    id: Scalars['ID'];
-    block?: InputMaybe<Block_height>;
-    subgraphError?: _SubgraphErrorPolicy_;
-};
-export type QuerytacoOperatorsArgs = {
-    skip?: InputMaybe<Scalars['Int']>;
-    first?: InputMaybe<Scalars['Int']>;
-    orderBy?: InputMaybe<TACoOperator_orderBy>;
-    orderDirection?: InputMaybe<OrderDirection>;
-    where?: InputMaybe<TACoOperator_filter>;
-    block?: InputMaybe<Block_height>;
-    subgraphError?: _SubgraphErrorPolicy_;
-};
-export type QuerytacoCommitmentArgs = {
-    id: Scalars['ID'];
-    block?: InputMaybe<Block_height>;
-    subgraphError?: _SubgraphErrorPolicy_;
-};
-export type QuerytacoCommitmentsArgs = {
-    skip?: InputMaybe<Scalars['Int']>;
-    first?: InputMaybe<Scalars['Int']>;
-    orderBy?: InputMaybe<TACoCommitment_orderBy>;
-    orderDirection?: InputMaybe<OrderDirection>;
-    where?: InputMaybe<TACoCommitment_filter>;
-    block?: InputMaybe<Block_height>;
-    subgraphError?: _SubgraphErrorPolicy_;
-};
-export type QuerydelegationArgs = {
-    id: Scalars['ID'];
-    block?: InputMaybe<Block_height>;
-    subgraphError?: _SubgraphErrorPolicy_;
-};
-export type QuerydelegationsArgs = {
-    skip?: InputMaybe<Scalars['Int']>;
-    first?: InputMaybe<Scalars['Int']>;
-    orderBy?: InputMaybe<Delegation_orderBy>;
-    orderDirection?: InputMaybe<OrderDirection>;
-    where?: InputMaybe<Delegation_filter>;
-    block?: InputMaybe<Block_height>;
-    subgraphError?: _SubgraphErrorPolicy_;
-};
-export type Query_metaArgs = {
-    block?: InputMaybe<Block_height>;
-};
 /** StakeData represents the information about each stake */
 export type StakeData = {
     /** ID is the staking provider's ETH address */
@@ -976,237 +1314,6 @@ export type StakeDelegation_filter = {
     or?: InputMaybe<Array<InputMaybe<StakeDelegation_filter>>>;
 };
 export type StakeDelegation_orderBy = 'id' | 'totalWeight' | 'stakeDelegators';
-export type Subscription = {
-    account?: Maybe<Account>;
-    accounts: Array<Account>;
-    stakeData?: Maybe<StakeData>;
-    stakeDatas: Array<StakeData>;
-    epochStake?: Maybe<EpochStake>;
-    epochStakes: Array<EpochStake>;
-    epoch?: Maybe<Epoch>;
-    epoches: Array<Epoch>;
-    epochCounter?: Maybe<EpochCounter>;
-    epochCounters: Array<EpochCounter>;
-    appAuthorization?: Maybe<AppAuthorization>;
-    appAuthorizations: Array<AppAuthorization>;
-    appAuthHistory?: Maybe<AppAuthHistory>;
-    appAuthHistories: Array<AppAuthHistory>;
-    minStakeAmount?: Maybe<MinStakeAmount>;
-    minStakeAmounts: Array<MinStakeAmount>;
-    stakeDelegation?: Maybe<StakeDelegation>;
-    stakeDelegations: Array<StakeDelegation>;
-    tokenholderDelegation?: Maybe<TokenholderDelegation>;
-    tokenholderDelegations: Array<TokenholderDelegation>;
-    daometric?: Maybe<DAOMetric>;
-    daometrics: Array<DAOMetric>;
-    tacoOperator?: Maybe<TACoOperator>;
-    tacoOperators: Array<TACoOperator>;
-    tacoCommitment?: Maybe<TACoCommitment>;
-    tacoCommitments: Array<TACoCommitment>;
-    delegation?: Maybe<Delegation>;
-    delegations: Array<Delegation>;
-    /** Access to subgraph metadata */
-    _meta?: Maybe<_Meta_>;
-};
-export type SubscriptionaccountArgs = {
-    id: Scalars['ID'];
-    block?: InputMaybe<Block_height>;
-    subgraphError?: _SubgraphErrorPolicy_;
-};
-export type SubscriptionaccountsArgs = {
-    skip?: InputMaybe<Scalars['Int']>;
-    first?: InputMaybe<Scalars['Int']>;
-    orderBy?: InputMaybe<Account_orderBy>;
-    orderDirection?: InputMaybe<OrderDirection>;
-    where?: InputMaybe<Account_filter>;
-    block?: InputMaybe<Block_height>;
-    subgraphError?: _SubgraphErrorPolicy_;
-};
-export type SubscriptionstakeDataArgs = {
-    id: Scalars['ID'];
-    block?: InputMaybe<Block_height>;
-    subgraphError?: _SubgraphErrorPolicy_;
-};
-export type SubscriptionstakeDatasArgs = {
-    skip?: InputMaybe<Scalars['Int']>;
-    first?: InputMaybe<Scalars['Int']>;
-    orderBy?: InputMaybe<StakeData_orderBy>;
-    orderDirection?: InputMaybe<OrderDirection>;
-    where?: InputMaybe<StakeData_filter>;
-    block?: InputMaybe<Block_height>;
-    subgraphError?: _SubgraphErrorPolicy_;
-};
-export type SubscriptionepochStakeArgs = {
-    id: Scalars['ID'];
-    block?: InputMaybe<Block_height>;
-    subgraphError?: _SubgraphErrorPolicy_;
-};
-export type SubscriptionepochStakesArgs = {
-    skip?: InputMaybe<Scalars['Int']>;
-    first?: InputMaybe<Scalars['Int']>;
-    orderBy?: InputMaybe<EpochStake_orderBy>;
-    orderDirection?: InputMaybe<OrderDirection>;
-    where?: InputMaybe<EpochStake_filter>;
-    block?: InputMaybe<Block_height>;
-    subgraphError?: _SubgraphErrorPolicy_;
-};
-export type SubscriptionepochArgs = {
-    id: Scalars['ID'];
-    block?: InputMaybe<Block_height>;
-    subgraphError?: _SubgraphErrorPolicy_;
-};
-export type SubscriptionepochesArgs = {
-    skip?: InputMaybe<Scalars['Int']>;
-    first?: InputMaybe<Scalars['Int']>;
-    orderBy?: InputMaybe<Epoch_orderBy>;
-    orderDirection?: InputMaybe<OrderDirection>;
-    where?: InputMaybe<Epoch_filter>;
-    block?: InputMaybe<Block_height>;
-    subgraphError?: _SubgraphErrorPolicy_;
-};
-export type SubscriptionepochCounterArgs = {
-    id: Scalars['ID'];
-    block?: InputMaybe<Block_height>;
-    subgraphError?: _SubgraphErrorPolicy_;
-};
-export type SubscriptionepochCountersArgs = {
-    skip?: InputMaybe<Scalars['Int']>;
-    first?: InputMaybe<Scalars['Int']>;
-    orderBy?: InputMaybe<EpochCounter_orderBy>;
-    orderDirection?: InputMaybe<OrderDirection>;
-    where?: InputMaybe<EpochCounter_filter>;
-    block?: InputMaybe<Block_height>;
-    subgraphError?: _SubgraphErrorPolicy_;
-};
-export type SubscriptionappAuthorizationArgs = {
-    id: Scalars['ID'];
-    block?: InputMaybe<Block_height>;
-    subgraphError?: _SubgraphErrorPolicy_;
-};
-export type SubscriptionappAuthorizationsArgs = {
-    skip?: InputMaybe<Scalars['Int']>;
-    first?: InputMaybe<Scalars['Int']>;
-    orderBy?: InputMaybe<AppAuthorization_orderBy>;
-    orderDirection?: InputMaybe<OrderDirection>;
-    where?: InputMaybe<AppAuthorization_filter>;
-    block?: InputMaybe<Block_height>;
-    subgraphError?: _SubgraphErrorPolicy_;
-};
-export type SubscriptionappAuthHistoryArgs = {
-    id: Scalars['ID'];
-    block?: InputMaybe<Block_height>;
-    subgraphError?: _SubgraphErrorPolicy_;
-};
-export type SubscriptionappAuthHistoriesArgs = {
-    skip?: InputMaybe<Scalars['Int']>;
-    first?: InputMaybe<Scalars['Int']>;
-    orderBy?: InputMaybe<AppAuthHistory_orderBy>;
-    orderDirection?: InputMaybe<OrderDirection>;
-    where?: InputMaybe<AppAuthHistory_filter>;
-    block?: InputMaybe<Block_height>;
-    subgraphError?: _SubgraphErrorPolicy_;
-};
-export type SubscriptionminStakeAmountArgs = {
-    id: Scalars['ID'];
-    block?: InputMaybe<Block_height>;
-    subgraphError?: _SubgraphErrorPolicy_;
-};
-export type SubscriptionminStakeAmountsArgs = {
-    skip?: InputMaybe<Scalars['Int']>;
-    first?: InputMaybe<Scalars['Int']>;
-    orderBy?: InputMaybe<MinStakeAmount_orderBy>;
-    orderDirection?: InputMaybe<OrderDirection>;
-    where?: InputMaybe<MinStakeAmount_filter>;
-    block?: InputMaybe<Block_height>;
-    subgraphError?: _SubgraphErrorPolicy_;
-};
-export type SubscriptionstakeDelegationArgs = {
-    id: Scalars['ID'];
-    block?: InputMaybe<Block_height>;
-    subgraphError?: _SubgraphErrorPolicy_;
-};
-export type SubscriptionstakeDelegationsArgs = {
-    skip?: InputMaybe<Scalars['Int']>;
-    first?: InputMaybe<Scalars['Int']>;
-    orderBy?: InputMaybe<StakeDelegation_orderBy>;
-    orderDirection?: InputMaybe<OrderDirection>;
-    where?: InputMaybe<StakeDelegation_filter>;
-    block?: InputMaybe<Block_height>;
-    subgraphError?: _SubgraphErrorPolicy_;
-};
-export type SubscriptiontokenholderDelegationArgs = {
-    id: Scalars['ID'];
-    block?: InputMaybe<Block_height>;
-    subgraphError?: _SubgraphErrorPolicy_;
-};
-export type SubscriptiontokenholderDelegationsArgs = {
-    skip?: InputMaybe<Scalars['Int']>;
-    first?: InputMaybe<Scalars['Int']>;
-    orderBy?: InputMaybe<TokenholderDelegation_orderBy>;
-    orderDirection?: InputMaybe<OrderDirection>;
-    where?: InputMaybe<TokenholderDelegation_filter>;
-    block?: InputMaybe<Block_height>;
-    subgraphError?: _SubgraphErrorPolicy_;
-};
-export type SubscriptiondaometricArgs = {
-    id: Scalars['ID'];
-    block?: InputMaybe<Block_height>;
-    subgraphError?: _SubgraphErrorPolicy_;
-};
-export type SubscriptiondaometricsArgs = {
-    skip?: InputMaybe<Scalars['Int']>;
-    first?: InputMaybe<Scalars['Int']>;
-    orderBy?: InputMaybe<DAOMetric_orderBy>;
-    orderDirection?: InputMaybe<OrderDirection>;
-    where?: InputMaybe<DAOMetric_filter>;
-    block?: InputMaybe<Block_height>;
-    subgraphError?: _SubgraphErrorPolicy_;
-};
-export type SubscriptiontacoOperatorArgs = {
-    id: Scalars['ID'];
-    block?: InputMaybe<Block_height>;
-    subgraphError?: _SubgraphErrorPolicy_;
-};
-export type SubscriptiontacoOperatorsArgs = {
-    skip?: InputMaybe<Scalars['Int']>;
-    first?: InputMaybe<Scalars['Int']>;
-    orderBy?: InputMaybe<TACoOperator_orderBy>;
-    orderDirection?: InputMaybe<OrderDirection>;
-    where?: InputMaybe<TACoOperator_filter>;
-    block?: InputMaybe<Block_height>;
-    subgraphError?: _SubgraphErrorPolicy_;
-};
-export type SubscriptiontacoCommitmentArgs = {
-    id: Scalars['ID'];
-    block?: InputMaybe<Block_height>;
-    subgraphError?: _SubgraphErrorPolicy_;
-};
-export type SubscriptiontacoCommitmentsArgs = {
-    skip?: InputMaybe<Scalars['Int']>;
-    first?: InputMaybe<Scalars['Int']>;
-    orderBy?: InputMaybe<TACoCommitment_orderBy>;
-    orderDirection?: InputMaybe<OrderDirection>;
-    where?: InputMaybe<TACoCommitment_filter>;
-    block?: InputMaybe<Block_height>;
-    subgraphError?: _SubgraphErrorPolicy_;
-};
-export type SubscriptiondelegationArgs = {
-    id: Scalars['ID'];
-    block?: InputMaybe<Block_height>;
-    subgraphError?: _SubgraphErrorPolicy_;
-};
-export type SubscriptiondelegationsArgs = {
-    skip?: InputMaybe<Scalars['Int']>;
-    first?: InputMaybe<Scalars['Int']>;
-    orderBy?: InputMaybe<Delegation_orderBy>;
-    orderDirection?: InputMaybe<OrderDirection>;
-    where?: InputMaybe<Delegation_filter>;
-    block?: InputMaybe<Block_height>;
-    subgraphError?: _SubgraphErrorPolicy_;
-};
-export type Subscription_metaArgs = {
-    block?: InputMaybe<Block_height>;
-};
 /** TACo commitments made by a staking provider */
 export type TACoCommitment = {
     /** ID is the staking provider address */
@@ -1247,58 +1354,6 @@ export type TACoCommitment_filter = {
     or?: InputMaybe<Array<InputMaybe<TACoCommitment_filter>>>;
 };
 export type TACoCommitment_orderBy = 'id' | 'endCommitment' | 'duration';
-/** TACoOperator represents the TACo operator's info of a staking provider */
-export type TACoOperator = {
-    /** ID is the staking provider address */
-    id: Scalars['ID'];
-    /** Operator's address */
-    operator: Scalars['Bytes'];
-    /** Timestamp in which the current operator was bonded to the staking provider */
-    bondedTimestamp: Scalars['BigInt'];
-    /** Timestamp in which the first operator of this staking provider was bonded */
-    bondedTimestampFirstOperator?: Maybe<Scalars['BigInt']>;
-};
-export type TACoOperator_filter = {
-    id?: InputMaybe<Scalars['ID']>;
-    id_not?: InputMaybe<Scalars['ID']>;
-    id_gt?: InputMaybe<Scalars['ID']>;
-    id_lt?: InputMaybe<Scalars['ID']>;
-    id_gte?: InputMaybe<Scalars['ID']>;
-    id_lte?: InputMaybe<Scalars['ID']>;
-    id_in?: InputMaybe<Array<Scalars['ID']>>;
-    id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-    operator?: InputMaybe<Scalars['Bytes']>;
-    operator_not?: InputMaybe<Scalars['Bytes']>;
-    operator_gt?: InputMaybe<Scalars['Bytes']>;
-    operator_lt?: InputMaybe<Scalars['Bytes']>;
-    operator_gte?: InputMaybe<Scalars['Bytes']>;
-    operator_lte?: InputMaybe<Scalars['Bytes']>;
-    operator_in?: InputMaybe<Array<Scalars['Bytes']>>;
-    operator_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
-    operator_contains?: InputMaybe<Scalars['Bytes']>;
-    operator_not_contains?: InputMaybe<Scalars['Bytes']>;
-    bondedTimestamp?: InputMaybe<Scalars['BigInt']>;
-    bondedTimestamp_not?: InputMaybe<Scalars['BigInt']>;
-    bondedTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
-    bondedTimestamp_lt?: InputMaybe<Scalars['BigInt']>;
-    bondedTimestamp_gte?: InputMaybe<Scalars['BigInt']>;
-    bondedTimestamp_lte?: InputMaybe<Scalars['BigInt']>;
-    bondedTimestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
-    bondedTimestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-    bondedTimestampFirstOperator?: InputMaybe<Scalars['BigInt']>;
-    bondedTimestampFirstOperator_not?: InputMaybe<Scalars['BigInt']>;
-    bondedTimestampFirstOperator_gt?: InputMaybe<Scalars['BigInt']>;
-    bondedTimestampFirstOperator_lt?: InputMaybe<Scalars['BigInt']>;
-    bondedTimestampFirstOperator_gte?: InputMaybe<Scalars['BigInt']>;
-    bondedTimestampFirstOperator_lte?: InputMaybe<Scalars['BigInt']>;
-    bondedTimestampFirstOperator_in?: InputMaybe<Array<Scalars['BigInt']>>;
-    bondedTimestampFirstOperator_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-    /** Filter for the block changed event. */
-    _change_block?: InputMaybe<BlockChangedFilter>;
-    and?: InputMaybe<Array<InputMaybe<TACoOperator_filter>>>;
-    or?: InputMaybe<Array<InputMaybe<TACoOperator_filter>>>;
-};
-export type TACoOperator_orderBy = 'id' | 'operator' | 'bondedTimestamp' | 'bondedTimestampFirstOperator';
 /** TokenholderDelegation represents the delegatee to whom the TokenHolder DAO voting power has been delegated */
 export type TokenholderDelegation = Delegation & {
     /** ID is delegatee ETH address */
@@ -1349,34 +1404,6 @@ export type TokenholderDelegation_filter = {
     or?: InputMaybe<Array<InputMaybe<TokenholderDelegation_filter>>>;
 };
 export type TokenholderDelegation_orderBy = 'id' | 'totalWeight' | 'liquidWeight' | 'delegators';
-export type _Block_ = {
-    /** The hash of the block */
-    hash?: Maybe<Scalars['Bytes']>;
-    /** The block number */
-    number: Scalars['Int'];
-    /** Integer representation of the timestamp stored in blocks for the chain */
-    timestamp?: Maybe<Scalars['Int']>;
-};
-/** The type for the top-level _meta field */
-export type _Meta_ = {
-    /**
-     * Information about a specific subgraph block. The hash of the block
-     * will be null if the _meta field has a block constraint that asks for
-     * a block number. It will be filled if the _meta field has no block constraint
-     * and therefore asks for the latest  block
-     *
-     */
-    block: _Block_;
-    /** The deployment ID */
-    deployment: Scalars['String'];
-    /** If `true`, the subgraph encountered indexing errors at some past block */
-    hasIndexingErrors: Scalars['Boolean'];
-};
-export type _SubgraphErrorPolicy_ = 
-/** Data will be returned even if the subgraph has indexing errors */
-'allow'
-/** If the subgraph has indexing errors, data will be omitted. The default. */
- | 'deny';
 export type WithIndex<TObject> = TObject & Record<string, any>;
 export type ResolversObject<TObject> = WithIndex<TObject>;
 export type ResolverTypeWrapper<T> = Promise<T> | T;
@@ -1416,6 +1443,26 @@ export type NextResolverFn<T> = () => Promise<T>;
 export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs = {}> = (next: NextResolverFn<TResult>, parent: TParent, args: TArgs, context: TContext, info: GraphQLResolveInfo) => TResult | Promise<TResult>;
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = ResolversObject<{
+    Query: ResolverTypeWrapper<{}>;
+    Subscription: ResolverTypeWrapper<{}>;
+    BigDecimal: ResolverTypeWrapper<Scalars['BigDecimal']>;
+    BigInt: ResolverTypeWrapper<Scalars['BigInt']>;
+    BlockChangedFilter: BlockChangedFilter;
+    Block_height: Block_height;
+    Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
+    Bytes: ResolverTypeWrapper<Scalars['Bytes']>;
+    Float: ResolverTypeWrapper<Scalars['Float']>;
+    ID: ResolverTypeWrapper<Scalars['ID']>;
+    Int: ResolverTypeWrapper<Scalars['Int']>;
+    Int8: ResolverTypeWrapper<Scalars['Int8']>;
+    OrderDirection: OrderDirection;
+    String: ResolverTypeWrapper<Scalars['String']>;
+    TACoOperator: ResolverTypeWrapper<TACoOperator>;
+    TACoOperator_filter: TACoOperator_filter;
+    TACoOperator_orderBy: TACoOperator_orderBy;
+    _Block_: ResolverTypeWrapper<_Block_>;
+    _Meta_: ResolverTypeWrapper<_Meta_>;
+    _SubgraphErrorPolicy_: _SubgraphErrorPolicy_;
     Account: ResolverTypeWrapper<Account>;
     Account_filter: Account_filter;
     Account_orderBy: Account_orderBy;
@@ -1425,12 +1472,6 @@ export type ResolversTypes = ResolversObject<{
     AppAuthorization: ResolverTypeWrapper<AppAuthorization>;
     AppAuthorization_filter: AppAuthorization_filter;
     AppAuthorization_orderBy: AppAuthorization_orderBy;
-    BigDecimal: ResolverTypeWrapper<Scalars['BigDecimal']>;
-    BigInt: ResolverTypeWrapper<Scalars['BigInt']>;
-    BlockChangedFilter: BlockChangedFilter;
-    Block_height: Block_height;
-    Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
-    Bytes: ResolverTypeWrapper<Scalars['Bytes']>;
     DAOMetric: ResolverTypeWrapper<DAOMetric>;
     DAOMetric_filter: DAOMetric_filter;
     DAOMetric_orderBy: DAOMetric_orderBy;
@@ -1446,50 +1487,47 @@ export type ResolversTypes = ResolversObject<{
     EpochStake_orderBy: EpochStake_orderBy;
     Epoch_filter: Epoch_filter;
     Epoch_orderBy: Epoch_orderBy;
-    Float: ResolverTypeWrapper<Scalars['Float']>;
-    ID: ResolverTypeWrapper<Scalars['ID']>;
-    Int: ResolverTypeWrapper<Scalars['Int']>;
-    Int8: ResolverTypeWrapper<Scalars['Int8']>;
     MinStakeAmount: ResolverTypeWrapper<MinStakeAmount>;
     MinStakeAmount_filter: MinStakeAmount_filter;
     MinStakeAmount_orderBy: MinStakeAmount_orderBy;
-    OrderDirection: OrderDirection;
-    Query: ResolverTypeWrapper<{}>;
     StakeData: ResolverTypeWrapper<StakeData>;
     StakeData_filter: StakeData_filter;
     StakeData_orderBy: StakeData_orderBy;
     StakeDelegation: ResolverTypeWrapper<StakeDelegation>;
     StakeDelegation_filter: StakeDelegation_filter;
     StakeDelegation_orderBy: StakeDelegation_orderBy;
-    String: ResolverTypeWrapper<Scalars['String']>;
-    Subscription: ResolverTypeWrapper<{}>;
     TACoCommitment: ResolverTypeWrapper<TACoCommitment>;
     TACoCommitment_filter: TACoCommitment_filter;
     TACoCommitment_orderBy: TACoCommitment_orderBy;
-    TACoOperator: ResolverTypeWrapper<TACoOperator>;
-    TACoOperator_filter: TACoOperator_filter;
-    TACoOperator_orderBy: TACoOperator_orderBy;
     TokenholderDelegation: ResolverTypeWrapper<TokenholderDelegation>;
     TokenholderDelegation_filter: TokenholderDelegation_filter;
     TokenholderDelegation_orderBy: TokenholderDelegation_orderBy;
-    _Block_: ResolverTypeWrapper<_Block_>;
-    _Meta_: ResolverTypeWrapper<_Meta_>;
-    _SubgraphErrorPolicy_: _SubgraphErrorPolicy_;
 }>;
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = ResolversObject<{
-    Account: Account;
-    Account_filter: Account_filter;
-    AppAuthHistory: AppAuthHistory;
-    AppAuthHistory_filter: AppAuthHistory_filter;
-    AppAuthorization: AppAuthorization;
-    AppAuthorization_filter: AppAuthorization_filter;
+    Query: {};
+    Subscription: {};
     BigDecimal: Scalars['BigDecimal'];
     BigInt: Scalars['BigInt'];
     BlockChangedFilter: BlockChangedFilter;
     Block_height: Block_height;
     Boolean: Scalars['Boolean'];
     Bytes: Scalars['Bytes'];
+    Float: Scalars['Float'];
+    ID: Scalars['ID'];
+    Int: Scalars['Int'];
+    Int8: Scalars['Int8'];
+    String: Scalars['String'];
+    TACoOperator: TACoOperator;
+    TACoOperator_filter: TACoOperator_filter;
+    _Block_: _Block_;
+    _Meta_: _Meta_;
+    Account: Account;
+    Account_filter: Account_filter;
+    AppAuthHistory: AppAuthHistory;
+    AppAuthHistory_filter: AppAuthHistory_filter;
+    AppAuthorization: AppAuthorization;
+    AppAuthorization_filter: AppAuthorization_filter;
     DAOMetric: DAOMetric;
     DAOMetric_filter: DAOMetric_filter;
     Delegation: ResolversParentTypes['StakeDelegation'] | ResolversParentTypes['TokenholderDelegation'];
@@ -1500,27 +1538,16 @@ export type ResolversParentTypes = ResolversObject<{
     EpochStake: EpochStake;
     EpochStake_filter: EpochStake_filter;
     Epoch_filter: Epoch_filter;
-    Float: Scalars['Float'];
-    ID: Scalars['ID'];
-    Int: Scalars['Int'];
-    Int8: Scalars['Int8'];
     MinStakeAmount: MinStakeAmount;
     MinStakeAmount_filter: MinStakeAmount_filter;
-    Query: {};
     StakeData: StakeData;
     StakeData_filter: StakeData_filter;
     StakeDelegation: StakeDelegation;
     StakeDelegation_filter: StakeDelegation_filter;
-    String: Scalars['String'];
-    Subscription: {};
     TACoCommitment: TACoCommitment;
     TACoCommitment_filter: TACoCommitment_filter;
-    TACoOperator: TACoOperator;
-    TACoOperator_filter: TACoOperator_filter;
     TokenholderDelegation: TokenholderDelegation;
     TokenholderDelegation_filter: TokenholderDelegation_filter;
-    _Block_: _Block_;
-    _Meta_: _Meta_;
 }>;
 export type entityDirectiveArgs = {};
 export type entityDirectiveResolver<Result, Parent, ContextType = MeshContext, Args = entityDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
@@ -1532,6 +1559,102 @@ export type derivedFromDirectiveArgs = {
     field: Scalars['String'];
 };
 export type derivedFromDirectiveResolver<Result, Parent, ContextType = MeshContext, Args = derivedFromDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
+export type QueryResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
+    tacoOperator?: Resolver<Maybe<ResolversTypes['TACoOperator']>, ParentType, ContextType, RequireFields<QuerytacoOperatorArgs, 'id' | 'subgraphError'>>;
+    tacoOperators?: Resolver<Array<ResolversTypes['TACoOperator']>, ParentType, ContextType, RequireFields<QuerytacoOperatorsArgs, 'skip' | 'first' | 'subgraphError'>>;
+    _meta?: Resolver<Maybe<ResolversTypes['_Meta_']>, ParentType, ContextType, Partial<Query_metaArgs>>;
+    account?: Resolver<Maybe<ResolversTypes['Account']>, ParentType, ContextType, RequireFields<QueryaccountArgs, 'id' | 'subgraphError'>>;
+    accounts?: Resolver<Array<ResolversTypes['Account']>, ParentType, ContextType, RequireFields<QueryaccountsArgs, 'skip' | 'first' | 'subgraphError'>>;
+    stakeData?: Resolver<Maybe<ResolversTypes['StakeData']>, ParentType, ContextType, RequireFields<QuerystakeDataArgs, 'id' | 'subgraphError'>>;
+    stakeDatas?: Resolver<Array<ResolversTypes['StakeData']>, ParentType, ContextType, RequireFields<QuerystakeDatasArgs, 'skip' | 'first' | 'subgraphError'>>;
+    epochStake?: Resolver<Maybe<ResolversTypes['EpochStake']>, ParentType, ContextType, RequireFields<QueryepochStakeArgs, 'id' | 'subgraphError'>>;
+    epochStakes?: Resolver<Array<ResolversTypes['EpochStake']>, ParentType, ContextType, RequireFields<QueryepochStakesArgs, 'skip' | 'first' | 'subgraphError'>>;
+    epoch?: Resolver<Maybe<ResolversTypes['Epoch']>, ParentType, ContextType, RequireFields<QueryepochArgs, 'id' | 'subgraphError'>>;
+    epoches?: Resolver<Array<ResolversTypes['Epoch']>, ParentType, ContextType, RequireFields<QueryepochesArgs, 'skip' | 'first' | 'subgraphError'>>;
+    epochCounter?: Resolver<Maybe<ResolversTypes['EpochCounter']>, ParentType, ContextType, RequireFields<QueryepochCounterArgs, 'id' | 'subgraphError'>>;
+    epochCounters?: Resolver<Array<ResolversTypes['EpochCounter']>, ParentType, ContextType, RequireFields<QueryepochCountersArgs, 'skip' | 'first' | 'subgraphError'>>;
+    appAuthorization?: Resolver<Maybe<ResolversTypes['AppAuthorization']>, ParentType, ContextType, RequireFields<QueryappAuthorizationArgs, 'id' | 'subgraphError'>>;
+    appAuthorizations?: Resolver<Array<ResolversTypes['AppAuthorization']>, ParentType, ContextType, RequireFields<QueryappAuthorizationsArgs, 'skip' | 'first' | 'subgraphError'>>;
+    appAuthHistory?: Resolver<Maybe<ResolversTypes['AppAuthHistory']>, ParentType, ContextType, RequireFields<QueryappAuthHistoryArgs, 'id' | 'subgraphError'>>;
+    appAuthHistories?: Resolver<Array<ResolversTypes['AppAuthHistory']>, ParentType, ContextType, RequireFields<QueryappAuthHistoriesArgs, 'skip' | 'first' | 'subgraphError'>>;
+    minStakeAmount?: Resolver<Maybe<ResolversTypes['MinStakeAmount']>, ParentType, ContextType, RequireFields<QueryminStakeAmountArgs, 'id' | 'subgraphError'>>;
+    minStakeAmounts?: Resolver<Array<ResolversTypes['MinStakeAmount']>, ParentType, ContextType, RequireFields<QueryminStakeAmountsArgs, 'skip' | 'first' | 'subgraphError'>>;
+    stakeDelegation?: Resolver<Maybe<ResolversTypes['StakeDelegation']>, ParentType, ContextType, RequireFields<QuerystakeDelegationArgs, 'id' | 'subgraphError'>>;
+    stakeDelegations?: Resolver<Array<ResolversTypes['StakeDelegation']>, ParentType, ContextType, RequireFields<QuerystakeDelegationsArgs, 'skip' | 'first' | 'subgraphError'>>;
+    tokenholderDelegation?: Resolver<Maybe<ResolversTypes['TokenholderDelegation']>, ParentType, ContextType, RequireFields<QuerytokenholderDelegationArgs, 'id' | 'subgraphError'>>;
+    tokenholderDelegations?: Resolver<Array<ResolversTypes['TokenholderDelegation']>, ParentType, ContextType, RequireFields<QuerytokenholderDelegationsArgs, 'skip' | 'first' | 'subgraphError'>>;
+    daometric?: Resolver<Maybe<ResolversTypes['DAOMetric']>, ParentType, ContextType, RequireFields<QuerydaometricArgs, 'id' | 'subgraphError'>>;
+    daometrics?: Resolver<Array<ResolversTypes['DAOMetric']>, ParentType, ContextType, RequireFields<QuerydaometricsArgs, 'skip' | 'first' | 'subgraphError'>>;
+    tacoCommitment?: Resolver<Maybe<ResolversTypes['TACoCommitment']>, ParentType, ContextType, RequireFields<QuerytacoCommitmentArgs, 'id' | 'subgraphError'>>;
+    tacoCommitments?: Resolver<Array<ResolversTypes['TACoCommitment']>, ParentType, ContextType, RequireFields<QuerytacoCommitmentsArgs, 'skip' | 'first' | 'subgraphError'>>;
+    delegation?: Resolver<Maybe<ResolversTypes['Delegation']>, ParentType, ContextType, RequireFields<QuerydelegationArgs, 'id' | 'subgraphError'>>;
+    delegations?: Resolver<Array<ResolversTypes['Delegation']>, ParentType, ContextType, RequireFields<QuerydelegationsArgs, 'skip' | 'first' | 'subgraphError'>>;
+}>;
+export type SubscriptionResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['Subscription'] = ResolversParentTypes['Subscription']> = ResolversObject<{
+    tacoOperator?: SubscriptionResolver<Maybe<ResolversTypes['TACoOperator']>, "tacoOperator", ParentType, ContextType, RequireFields<SubscriptiontacoOperatorArgs, 'id' | 'subgraphError'>>;
+    tacoOperators?: SubscriptionResolver<Array<ResolversTypes['TACoOperator']>, "tacoOperators", ParentType, ContextType, RequireFields<SubscriptiontacoOperatorsArgs, 'skip' | 'first' | 'subgraphError'>>;
+    _meta?: SubscriptionResolver<Maybe<ResolversTypes['_Meta_']>, "_meta", ParentType, ContextType, Partial<Subscription_metaArgs>>;
+    account?: SubscriptionResolver<Maybe<ResolversTypes['Account']>, "account", ParentType, ContextType, RequireFields<SubscriptionaccountArgs, 'id' | 'subgraphError'>>;
+    accounts?: SubscriptionResolver<Array<ResolversTypes['Account']>, "accounts", ParentType, ContextType, RequireFields<SubscriptionaccountsArgs, 'skip' | 'first' | 'subgraphError'>>;
+    stakeData?: SubscriptionResolver<Maybe<ResolversTypes['StakeData']>, "stakeData", ParentType, ContextType, RequireFields<SubscriptionstakeDataArgs, 'id' | 'subgraphError'>>;
+    stakeDatas?: SubscriptionResolver<Array<ResolversTypes['StakeData']>, "stakeDatas", ParentType, ContextType, RequireFields<SubscriptionstakeDatasArgs, 'skip' | 'first' | 'subgraphError'>>;
+    epochStake?: SubscriptionResolver<Maybe<ResolversTypes['EpochStake']>, "epochStake", ParentType, ContextType, RequireFields<SubscriptionepochStakeArgs, 'id' | 'subgraphError'>>;
+    epochStakes?: SubscriptionResolver<Array<ResolversTypes['EpochStake']>, "epochStakes", ParentType, ContextType, RequireFields<SubscriptionepochStakesArgs, 'skip' | 'first' | 'subgraphError'>>;
+    epoch?: SubscriptionResolver<Maybe<ResolversTypes['Epoch']>, "epoch", ParentType, ContextType, RequireFields<SubscriptionepochArgs, 'id' | 'subgraphError'>>;
+    epoches?: SubscriptionResolver<Array<ResolversTypes['Epoch']>, "epoches", ParentType, ContextType, RequireFields<SubscriptionepochesArgs, 'skip' | 'first' | 'subgraphError'>>;
+    epochCounter?: SubscriptionResolver<Maybe<ResolversTypes['EpochCounter']>, "epochCounter", ParentType, ContextType, RequireFields<SubscriptionepochCounterArgs, 'id' | 'subgraphError'>>;
+    epochCounters?: SubscriptionResolver<Array<ResolversTypes['EpochCounter']>, "epochCounters", ParentType, ContextType, RequireFields<SubscriptionepochCountersArgs, 'skip' | 'first' | 'subgraphError'>>;
+    appAuthorization?: SubscriptionResolver<Maybe<ResolversTypes['AppAuthorization']>, "appAuthorization", ParentType, ContextType, RequireFields<SubscriptionappAuthorizationArgs, 'id' | 'subgraphError'>>;
+    appAuthorizations?: SubscriptionResolver<Array<ResolversTypes['AppAuthorization']>, "appAuthorizations", ParentType, ContextType, RequireFields<SubscriptionappAuthorizationsArgs, 'skip' | 'first' | 'subgraphError'>>;
+    appAuthHistory?: SubscriptionResolver<Maybe<ResolversTypes['AppAuthHistory']>, "appAuthHistory", ParentType, ContextType, RequireFields<SubscriptionappAuthHistoryArgs, 'id' | 'subgraphError'>>;
+    appAuthHistories?: SubscriptionResolver<Array<ResolversTypes['AppAuthHistory']>, "appAuthHistories", ParentType, ContextType, RequireFields<SubscriptionappAuthHistoriesArgs, 'skip' | 'first' | 'subgraphError'>>;
+    minStakeAmount?: SubscriptionResolver<Maybe<ResolversTypes['MinStakeAmount']>, "minStakeAmount", ParentType, ContextType, RequireFields<SubscriptionminStakeAmountArgs, 'id' | 'subgraphError'>>;
+    minStakeAmounts?: SubscriptionResolver<Array<ResolversTypes['MinStakeAmount']>, "minStakeAmounts", ParentType, ContextType, RequireFields<SubscriptionminStakeAmountsArgs, 'skip' | 'first' | 'subgraphError'>>;
+    stakeDelegation?: SubscriptionResolver<Maybe<ResolversTypes['StakeDelegation']>, "stakeDelegation", ParentType, ContextType, RequireFields<SubscriptionstakeDelegationArgs, 'id' | 'subgraphError'>>;
+    stakeDelegations?: SubscriptionResolver<Array<ResolversTypes['StakeDelegation']>, "stakeDelegations", ParentType, ContextType, RequireFields<SubscriptionstakeDelegationsArgs, 'skip' | 'first' | 'subgraphError'>>;
+    tokenholderDelegation?: SubscriptionResolver<Maybe<ResolversTypes['TokenholderDelegation']>, "tokenholderDelegation", ParentType, ContextType, RequireFields<SubscriptiontokenholderDelegationArgs, 'id' | 'subgraphError'>>;
+    tokenholderDelegations?: SubscriptionResolver<Array<ResolversTypes['TokenholderDelegation']>, "tokenholderDelegations", ParentType, ContextType, RequireFields<SubscriptiontokenholderDelegationsArgs, 'skip' | 'first' | 'subgraphError'>>;
+    daometric?: SubscriptionResolver<Maybe<ResolversTypes['DAOMetric']>, "daometric", ParentType, ContextType, RequireFields<SubscriptiondaometricArgs, 'id' | 'subgraphError'>>;
+    daometrics?: SubscriptionResolver<Array<ResolversTypes['DAOMetric']>, "daometrics", ParentType, ContextType, RequireFields<SubscriptiondaometricsArgs, 'skip' | 'first' | 'subgraphError'>>;
+    tacoCommitment?: SubscriptionResolver<Maybe<ResolversTypes['TACoCommitment']>, "tacoCommitment", ParentType, ContextType, RequireFields<SubscriptiontacoCommitmentArgs, 'id' | 'subgraphError'>>;
+    tacoCommitments?: SubscriptionResolver<Array<ResolversTypes['TACoCommitment']>, "tacoCommitments", ParentType, ContextType, RequireFields<SubscriptiontacoCommitmentsArgs, 'skip' | 'first' | 'subgraphError'>>;
+    delegation?: SubscriptionResolver<Maybe<ResolversTypes['Delegation']>, "delegation", ParentType, ContextType, RequireFields<SubscriptiondelegationArgs, 'id' | 'subgraphError'>>;
+    delegations?: SubscriptionResolver<Array<ResolversTypes['Delegation']>, "delegations", ParentType, ContextType, RequireFields<SubscriptiondelegationsArgs, 'skip' | 'first' | 'subgraphError'>>;
+}>;
+export interface BigDecimalScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['BigDecimal'], any> {
+    name: 'BigDecimal';
+}
+export interface BigIntScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['BigInt'], any> {
+    name: 'BigInt';
+}
+export interface BytesScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['Bytes'], any> {
+    name: 'Bytes';
+}
+export interface Int8ScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['Int8'], any> {
+    name: 'Int8';
+}
+export type TACoOperatorResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['TACoOperator'] = ResolversParentTypes['TACoOperator']> = ResolversObject<{
+    id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+    operator?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
+    confirmedTimestamp?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
+    confirmedTimestampFirstOperator?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+    confirmed?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+    bondedTimestamp?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
+    bondedTimestampFirstOperator?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+    __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+export type _Block_Resolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['_Block_'] = ResolversParentTypes['_Block_']> = ResolversObject<{
+    hash?: Resolver<Maybe<ResolversTypes['Bytes']>, ParentType, ContextType>;
+    number?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+    timestamp?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+    __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+export type _Meta_Resolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['_Meta_'] = ResolversParentTypes['_Meta_']> = ResolversObject<{
+    block?: Resolver<ResolversTypes['_Block_'], ParentType, ContextType>;
+    deployment?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+    hasIndexingErrors?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+    __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
 export type AccountResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['Account'] = ResolversParentTypes['Account']> = ResolversObject<{
     id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
     stakes?: Resolver<Maybe<Array<ResolversTypes['StakeData']>>, ParentType, ContextType, RequireFields<AccountstakesArgs, 'skip' | 'first'>>;
@@ -1556,15 +1679,6 @@ export type AppAuthorizationResolvers<ContextType = MeshContext, ParentType exte
     appName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
     __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
-export interface BigDecimalScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['BigDecimal'], any> {
-    name: 'BigDecimal';
-}
-export interface BigIntScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['BigInt'], any> {
-    name: 'BigInt';
-}
-export interface BytesScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['Bytes'], any> {
-    name: 'Bytes';
-}
 export type DAOMetricResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['DAOMetric'] = ResolversParentTypes['DAOMetric']> = ResolversObject<{
     id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
     liquidTotal?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
@@ -1597,46 +1711,12 @@ export type EpochStakeResolvers<ContextType = MeshContext, ParentType extends Re
     amount?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
     __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
-export interface Int8ScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['Int8'], any> {
-    name: 'Int8';
-}
 export type MinStakeAmountResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['MinStakeAmount'] = ResolversParentTypes['MinStakeAmount']> = ResolversObject<{
     id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
     amount?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
     updatedAt?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
     blockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
     __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-export type QueryResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
-    account?: Resolver<Maybe<ResolversTypes['Account']>, ParentType, ContextType, RequireFields<QueryaccountArgs, 'id' | 'subgraphError'>>;
-    accounts?: Resolver<Array<ResolversTypes['Account']>, ParentType, ContextType, RequireFields<QueryaccountsArgs, 'skip' | 'first' | 'subgraphError'>>;
-    stakeData?: Resolver<Maybe<ResolversTypes['StakeData']>, ParentType, ContextType, RequireFields<QuerystakeDataArgs, 'id' | 'subgraphError'>>;
-    stakeDatas?: Resolver<Array<ResolversTypes['StakeData']>, ParentType, ContextType, RequireFields<QuerystakeDatasArgs, 'skip' | 'first' | 'subgraphError'>>;
-    epochStake?: Resolver<Maybe<ResolversTypes['EpochStake']>, ParentType, ContextType, RequireFields<QueryepochStakeArgs, 'id' | 'subgraphError'>>;
-    epochStakes?: Resolver<Array<ResolversTypes['EpochStake']>, ParentType, ContextType, RequireFields<QueryepochStakesArgs, 'skip' | 'first' | 'subgraphError'>>;
-    epoch?: Resolver<Maybe<ResolversTypes['Epoch']>, ParentType, ContextType, RequireFields<QueryepochArgs, 'id' | 'subgraphError'>>;
-    epoches?: Resolver<Array<ResolversTypes['Epoch']>, ParentType, ContextType, RequireFields<QueryepochesArgs, 'skip' | 'first' | 'subgraphError'>>;
-    epochCounter?: Resolver<Maybe<ResolversTypes['EpochCounter']>, ParentType, ContextType, RequireFields<QueryepochCounterArgs, 'id' | 'subgraphError'>>;
-    epochCounters?: Resolver<Array<ResolversTypes['EpochCounter']>, ParentType, ContextType, RequireFields<QueryepochCountersArgs, 'skip' | 'first' | 'subgraphError'>>;
-    appAuthorization?: Resolver<Maybe<ResolversTypes['AppAuthorization']>, ParentType, ContextType, RequireFields<QueryappAuthorizationArgs, 'id' | 'subgraphError'>>;
-    appAuthorizations?: Resolver<Array<ResolversTypes['AppAuthorization']>, ParentType, ContextType, RequireFields<QueryappAuthorizationsArgs, 'skip' | 'first' | 'subgraphError'>>;
-    appAuthHistory?: Resolver<Maybe<ResolversTypes['AppAuthHistory']>, ParentType, ContextType, RequireFields<QueryappAuthHistoryArgs, 'id' | 'subgraphError'>>;
-    appAuthHistories?: Resolver<Array<ResolversTypes['AppAuthHistory']>, ParentType, ContextType, RequireFields<QueryappAuthHistoriesArgs, 'skip' | 'first' | 'subgraphError'>>;
-    minStakeAmount?: Resolver<Maybe<ResolversTypes['MinStakeAmount']>, ParentType, ContextType, RequireFields<QueryminStakeAmountArgs, 'id' | 'subgraphError'>>;
-    minStakeAmounts?: Resolver<Array<ResolversTypes['MinStakeAmount']>, ParentType, ContextType, RequireFields<QueryminStakeAmountsArgs, 'skip' | 'first' | 'subgraphError'>>;
-    stakeDelegation?: Resolver<Maybe<ResolversTypes['StakeDelegation']>, ParentType, ContextType, RequireFields<QuerystakeDelegationArgs, 'id' | 'subgraphError'>>;
-    stakeDelegations?: Resolver<Array<ResolversTypes['StakeDelegation']>, ParentType, ContextType, RequireFields<QuerystakeDelegationsArgs, 'skip' | 'first' | 'subgraphError'>>;
-    tokenholderDelegation?: Resolver<Maybe<ResolversTypes['TokenholderDelegation']>, ParentType, ContextType, RequireFields<QuerytokenholderDelegationArgs, 'id' | 'subgraphError'>>;
-    tokenholderDelegations?: Resolver<Array<ResolversTypes['TokenholderDelegation']>, ParentType, ContextType, RequireFields<QuerytokenholderDelegationsArgs, 'skip' | 'first' | 'subgraphError'>>;
-    daometric?: Resolver<Maybe<ResolversTypes['DAOMetric']>, ParentType, ContextType, RequireFields<QuerydaometricArgs, 'id' | 'subgraphError'>>;
-    daometrics?: Resolver<Array<ResolversTypes['DAOMetric']>, ParentType, ContextType, RequireFields<QuerydaometricsArgs, 'skip' | 'first' | 'subgraphError'>>;
-    tacoOperator?: Resolver<Maybe<ResolversTypes['TACoOperator']>, ParentType, ContextType, RequireFields<QuerytacoOperatorArgs, 'id' | 'subgraphError'>>;
-    tacoOperators?: Resolver<Array<ResolversTypes['TACoOperator']>, ParentType, ContextType, RequireFields<QuerytacoOperatorsArgs, 'skip' | 'first' | 'subgraphError'>>;
-    tacoCommitment?: Resolver<Maybe<ResolversTypes['TACoCommitment']>, ParentType, ContextType, RequireFields<QuerytacoCommitmentArgs, 'id' | 'subgraphError'>>;
-    tacoCommitments?: Resolver<Array<ResolversTypes['TACoCommitment']>, ParentType, ContextType, RequireFields<QuerytacoCommitmentsArgs, 'skip' | 'first' | 'subgraphError'>>;
-    delegation?: Resolver<Maybe<ResolversTypes['Delegation']>, ParentType, ContextType, RequireFields<QuerydelegationArgs, 'id' | 'subgraphError'>>;
-    delegations?: Resolver<Array<ResolversTypes['Delegation']>, ParentType, ContextType, RequireFields<QuerydelegationsArgs, 'skip' | 'first' | 'subgraphError'>>;
-    _meta?: Resolver<Maybe<ResolversTypes['_Meta_']>, ParentType, ContextType, Partial<Query_metaArgs>>;
 }>;
 export type StakeDataResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['StakeData'] = ResolversParentTypes['StakeData']> = ResolversObject<{
     id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
@@ -1657,48 +1737,10 @@ export type StakeDelegationResolvers<ContextType = MeshContext, ParentType exten
     stakeDelegators?: Resolver<Maybe<Array<ResolversTypes['StakeData']>>, ParentType, ContextType, RequireFields<StakeDelegationstakeDelegatorsArgs, 'skip' | 'first'>>;
     __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
-export type SubscriptionResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['Subscription'] = ResolversParentTypes['Subscription']> = ResolversObject<{
-    account?: SubscriptionResolver<Maybe<ResolversTypes['Account']>, "account", ParentType, ContextType, RequireFields<SubscriptionaccountArgs, 'id' | 'subgraphError'>>;
-    accounts?: SubscriptionResolver<Array<ResolversTypes['Account']>, "accounts", ParentType, ContextType, RequireFields<SubscriptionaccountsArgs, 'skip' | 'first' | 'subgraphError'>>;
-    stakeData?: SubscriptionResolver<Maybe<ResolversTypes['StakeData']>, "stakeData", ParentType, ContextType, RequireFields<SubscriptionstakeDataArgs, 'id' | 'subgraphError'>>;
-    stakeDatas?: SubscriptionResolver<Array<ResolversTypes['StakeData']>, "stakeDatas", ParentType, ContextType, RequireFields<SubscriptionstakeDatasArgs, 'skip' | 'first' | 'subgraphError'>>;
-    epochStake?: SubscriptionResolver<Maybe<ResolversTypes['EpochStake']>, "epochStake", ParentType, ContextType, RequireFields<SubscriptionepochStakeArgs, 'id' | 'subgraphError'>>;
-    epochStakes?: SubscriptionResolver<Array<ResolversTypes['EpochStake']>, "epochStakes", ParentType, ContextType, RequireFields<SubscriptionepochStakesArgs, 'skip' | 'first' | 'subgraphError'>>;
-    epoch?: SubscriptionResolver<Maybe<ResolversTypes['Epoch']>, "epoch", ParentType, ContextType, RequireFields<SubscriptionepochArgs, 'id' | 'subgraphError'>>;
-    epoches?: SubscriptionResolver<Array<ResolversTypes['Epoch']>, "epoches", ParentType, ContextType, RequireFields<SubscriptionepochesArgs, 'skip' | 'first' | 'subgraphError'>>;
-    epochCounter?: SubscriptionResolver<Maybe<ResolversTypes['EpochCounter']>, "epochCounter", ParentType, ContextType, RequireFields<SubscriptionepochCounterArgs, 'id' | 'subgraphError'>>;
-    epochCounters?: SubscriptionResolver<Array<ResolversTypes['EpochCounter']>, "epochCounters", ParentType, ContextType, RequireFields<SubscriptionepochCountersArgs, 'skip' | 'first' | 'subgraphError'>>;
-    appAuthorization?: SubscriptionResolver<Maybe<ResolversTypes['AppAuthorization']>, "appAuthorization", ParentType, ContextType, RequireFields<SubscriptionappAuthorizationArgs, 'id' | 'subgraphError'>>;
-    appAuthorizations?: SubscriptionResolver<Array<ResolversTypes['AppAuthorization']>, "appAuthorizations", ParentType, ContextType, RequireFields<SubscriptionappAuthorizationsArgs, 'skip' | 'first' | 'subgraphError'>>;
-    appAuthHistory?: SubscriptionResolver<Maybe<ResolversTypes['AppAuthHistory']>, "appAuthHistory", ParentType, ContextType, RequireFields<SubscriptionappAuthHistoryArgs, 'id' | 'subgraphError'>>;
-    appAuthHistories?: SubscriptionResolver<Array<ResolversTypes['AppAuthHistory']>, "appAuthHistories", ParentType, ContextType, RequireFields<SubscriptionappAuthHistoriesArgs, 'skip' | 'first' | 'subgraphError'>>;
-    minStakeAmount?: SubscriptionResolver<Maybe<ResolversTypes['MinStakeAmount']>, "minStakeAmount", ParentType, ContextType, RequireFields<SubscriptionminStakeAmountArgs, 'id' | 'subgraphError'>>;
-    minStakeAmounts?: SubscriptionResolver<Array<ResolversTypes['MinStakeAmount']>, "minStakeAmounts", ParentType, ContextType, RequireFields<SubscriptionminStakeAmountsArgs, 'skip' | 'first' | 'subgraphError'>>;
-    stakeDelegation?: SubscriptionResolver<Maybe<ResolversTypes['StakeDelegation']>, "stakeDelegation", ParentType, ContextType, RequireFields<SubscriptionstakeDelegationArgs, 'id' | 'subgraphError'>>;
-    stakeDelegations?: SubscriptionResolver<Array<ResolversTypes['StakeDelegation']>, "stakeDelegations", ParentType, ContextType, RequireFields<SubscriptionstakeDelegationsArgs, 'skip' | 'first' | 'subgraphError'>>;
-    tokenholderDelegation?: SubscriptionResolver<Maybe<ResolversTypes['TokenholderDelegation']>, "tokenholderDelegation", ParentType, ContextType, RequireFields<SubscriptiontokenholderDelegationArgs, 'id' | 'subgraphError'>>;
-    tokenholderDelegations?: SubscriptionResolver<Array<ResolversTypes['TokenholderDelegation']>, "tokenholderDelegations", ParentType, ContextType, RequireFields<SubscriptiontokenholderDelegationsArgs, 'skip' | 'first' | 'subgraphError'>>;
-    daometric?: SubscriptionResolver<Maybe<ResolversTypes['DAOMetric']>, "daometric", ParentType, ContextType, RequireFields<SubscriptiondaometricArgs, 'id' | 'subgraphError'>>;
-    daometrics?: SubscriptionResolver<Array<ResolversTypes['DAOMetric']>, "daometrics", ParentType, ContextType, RequireFields<SubscriptiondaometricsArgs, 'skip' | 'first' | 'subgraphError'>>;
-    tacoOperator?: SubscriptionResolver<Maybe<ResolversTypes['TACoOperator']>, "tacoOperator", ParentType, ContextType, RequireFields<SubscriptiontacoOperatorArgs, 'id' | 'subgraphError'>>;
-    tacoOperators?: SubscriptionResolver<Array<ResolversTypes['TACoOperator']>, "tacoOperators", ParentType, ContextType, RequireFields<SubscriptiontacoOperatorsArgs, 'skip' | 'first' | 'subgraphError'>>;
-    tacoCommitment?: SubscriptionResolver<Maybe<ResolversTypes['TACoCommitment']>, "tacoCommitment", ParentType, ContextType, RequireFields<SubscriptiontacoCommitmentArgs, 'id' | 'subgraphError'>>;
-    tacoCommitments?: SubscriptionResolver<Array<ResolversTypes['TACoCommitment']>, "tacoCommitments", ParentType, ContextType, RequireFields<SubscriptiontacoCommitmentsArgs, 'skip' | 'first' | 'subgraphError'>>;
-    delegation?: SubscriptionResolver<Maybe<ResolversTypes['Delegation']>, "delegation", ParentType, ContextType, RequireFields<SubscriptiondelegationArgs, 'id' | 'subgraphError'>>;
-    delegations?: SubscriptionResolver<Array<ResolversTypes['Delegation']>, "delegations", ParentType, ContextType, RequireFields<SubscriptiondelegationsArgs, 'skip' | 'first' | 'subgraphError'>>;
-    _meta?: SubscriptionResolver<Maybe<ResolversTypes['_Meta_']>, "_meta", ParentType, ContextType, Partial<Subscription_metaArgs>>;
-}>;
 export type TACoCommitmentResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['TACoCommitment'] = ResolversParentTypes['TACoCommitment']> = ResolversObject<{
     id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
     endCommitment?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
     duration?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-    __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-export type TACoOperatorResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['TACoOperator'] = ResolversParentTypes['TACoOperator']> = ResolversObject<{
-    id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-    operator?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
-    bondedTimestamp?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
-    bondedTimestampFirstOperator?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
     __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 export type TokenholderDelegationResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['TokenholderDelegation'] = ResolversParentTypes['TokenholderDelegation']> = ResolversObject<{
@@ -1708,48 +1750,36 @@ export type TokenholderDelegationResolvers<ContextType = MeshContext, ParentType
     delegators?: Resolver<Maybe<Array<ResolversTypes['Account']>>, ParentType, ContextType, RequireFields<TokenholderDelegationdelegatorsArgs, 'skip' | 'first'>>;
     __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
-export type _Block_Resolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['_Block_'] = ResolversParentTypes['_Block_']> = ResolversObject<{
-    hash?: Resolver<Maybe<ResolversTypes['Bytes']>, ParentType, ContextType>;
-    number?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-    timestamp?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
-    __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-export type _Meta_Resolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['_Meta_'] = ResolversParentTypes['_Meta_']> = ResolversObject<{
-    block?: Resolver<ResolversTypes['_Block_'], ParentType, ContextType>;
-    deployment?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-    hasIndexingErrors?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
-    __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
 export type Resolvers<ContextType = MeshContext> = ResolversObject<{
-    Account?: AccountResolvers<ContextType>;
-    AppAuthHistory?: AppAuthHistoryResolvers<ContextType>;
-    AppAuthorization?: AppAuthorizationResolvers<ContextType>;
+    Query?: QueryResolvers<ContextType>;
+    Subscription?: SubscriptionResolvers<ContextType>;
     BigDecimal?: GraphQLScalarType;
     BigInt?: GraphQLScalarType;
     Bytes?: GraphQLScalarType;
+    Int8?: GraphQLScalarType;
+    TACoOperator?: TACoOperatorResolvers<ContextType>;
+    _Block_?: _Block_Resolvers<ContextType>;
+    _Meta_?: _Meta_Resolvers<ContextType>;
+    Account?: AccountResolvers<ContextType>;
+    AppAuthHistory?: AppAuthHistoryResolvers<ContextType>;
+    AppAuthorization?: AppAuthorizationResolvers<ContextType>;
     DAOMetric?: DAOMetricResolvers<ContextType>;
     Delegation?: DelegationResolvers<ContextType>;
     Epoch?: EpochResolvers<ContextType>;
     EpochCounter?: EpochCounterResolvers<ContextType>;
     EpochStake?: EpochStakeResolvers<ContextType>;
-    Int8?: GraphQLScalarType;
     MinStakeAmount?: MinStakeAmountResolvers<ContextType>;
-    Query?: QueryResolvers<ContextType>;
     StakeData?: StakeDataResolvers<ContextType>;
     StakeDelegation?: StakeDelegationResolvers<ContextType>;
-    Subscription?: SubscriptionResolvers<ContextType>;
     TACoCommitment?: TACoCommitmentResolvers<ContextType>;
-    TACoOperator?: TACoOperatorResolvers<ContextType>;
     TokenholderDelegation?: TokenholderDelegationResolvers<ContextType>;
-    _Block_?: _Block_Resolvers<ContextType>;
-    _Meta_?: _Meta_Resolvers<ContextType>;
 }>;
 export type DirectiveResolvers<ContextType = MeshContext> = ResolversObject<{
     entity?: entityDirectiveResolver<any, any, ContextType>;
     subgraphId?: subgraphIdDirectiveResolver<any, any, ContextType>;
     derivedFrom?: derivedFromDirectiveResolver<any, any, ContextType>;
 }>;
-export type MeshContext = DevelopmentThresholdSubgraphTypes.Context & BaseMeshContext;
+export type MeshContext = ThresholdStakingPolygonTypes.Context & DevelopmentThresholdSubgraphTypes.Context & BaseMeshContext;
 export declare const rawServeConfig: YamlConfig.Config['serve'];
 export declare function getMeshOptions(): Promise<GetMeshOptions>;
 export declare function createBuiltMeshHTTPHandler<TServerContext = {}>(): MeshHTTPHandler<TServerContext>;
@@ -1760,6 +1790,16 @@ export declare function getBuiltGraphSDK<TGlobalContext = any, TOperationContext
     LegacyKeepStakesQuery(variables?: Exact<{
         blockNumber?: number;
     }>, options?: TOperationContext): Promise<LegacyKeepStakesQueryQuery>;
+    TACoAuthHistoryQuery(variables?: Exact<{
+        endTimestamp?: any;
+        first?: number;
+        skip?: number;
+    }>, options?: TOperationContext): Promise<TACoAuthHistoryQueryQuery>;
+    TACoOperators(variables?: Exact<{
+        endTimestamp?: any;
+        first?: number;
+        skip?: number;
+    }>, options?: TOperationContext): Promise<TACoOperatorsQuery>;
 };
 export type LegacyKeepStakesQueryQueryVariables = Exact<{
     blockNumber?: InputMaybe<Scalars['Int']>;
@@ -1769,11 +1809,43 @@ export type LegacyKeepStakesQueryQuery = {
         stakes?: Maybe<Array<Pick<StakeData, 'id' | 'keepInTStake' | 'tStake' | 'totalStaked'>>>;
     })>;
 };
+export type TACoAuthHistoryQueryQueryVariables = Exact<{
+    endTimestamp?: InputMaybe<Scalars['BigInt']>;
+    first?: InputMaybe<Scalars['Int']>;
+    skip?: InputMaybe<Scalars['Int']>;
+}>;
+export type TACoAuthHistoryQueryQuery = {
+    appAuthHistories: Array<(Pick<AppAuthHistory, 'id' | 'timestamp' | 'amount' | 'blockNumber' | 'eventType'> & {
+        appAuthorization: {
+            stake: Pick<StakeData, 'id' | 'beneficiary'>;
+        };
+    })>;
+};
+export type TACoOperatorsQueryVariables = Exact<{
+    endTimestamp?: InputMaybe<Scalars['BigInt']>;
+    first?: InputMaybe<Scalars['Int']>;
+    skip?: InputMaybe<Scalars['Int']>;
+}>;
+export type TACoOperatorsQuery = {
+    tacoOperators: Array<Pick<TACoOperator, 'id' | 'operator' | 'confirmedTimestampFirstOperator'>>;
+};
 export declare const LegacyKeepStakesQueryDocument: DocumentNode<LegacyKeepStakesQueryQuery, Exact<{
     blockNumber?: InputMaybe<Scalars['Int']>;
+}>>;
+export declare const TACoAuthHistoryQueryDocument: DocumentNode<TACoAuthHistoryQueryQuery, Exact<{
+    endTimestamp?: InputMaybe<Scalars['BigInt']>;
+    first?: InputMaybe<Scalars['Int']>;
+    skip?: InputMaybe<Scalars['Int']>;
+}>>;
+export declare const TACoOperatorsDocument: DocumentNode<TACoOperatorsQuery, Exact<{
+    endTimestamp?: InputMaybe<Scalars['BigInt']>;
+    first?: InputMaybe<Scalars['Int']>;
+    skip?: InputMaybe<Scalars['Int']>;
 }>>;
 export type Requester<C = {}, E = unknown> = <R, V>(doc: DocumentNode, vars?: V, options?: C) => Promise<R> | AsyncIterable<R>;
 export declare function getSdk<C, E>(requester: Requester<C, E>): {
     LegacyKeepStakesQuery(variables?: LegacyKeepStakesQueryQueryVariables, options?: C): Promise<LegacyKeepStakesQueryQuery>;
+    TACoAuthHistoryQuery(variables?: TACoAuthHistoryQueryQueryVariables, options?: C): Promise<TACoAuthHistoryQueryQuery>;
+    TACoOperators(variables?: TACoOperatorsQueryVariables, options?: C): Promise<TACoOperatorsQuery>;
 };
 export type Sdk = ReturnType<typeof getSdk>;

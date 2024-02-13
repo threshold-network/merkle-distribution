@@ -1,0 +1,26 @@
+query TACoAuthHistoryQuery(
+  $endTimestamp: BigInt
+  $first: Int = 1000
+  $skip: Int = 0
+) {
+  appAuthHistories(
+    where: {
+      timestamp_lte: $endTimestamp
+      appAuthorization_: { appName: "TACo" }
+    }
+    first: $first
+    skip: $skip
+  ) {
+    id
+    timestamp
+    amount
+    blockNumber
+    eventType
+    appAuthorization {
+      stake {
+        id
+        beneficiary
+      }
+    }
+  }
+}

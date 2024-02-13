@@ -4,20 +4,24 @@ import { DefaultLogger } from '@graphql-mesh/utils';
 import MeshCache from "@graphql-mesh/cache-localforage";
 import { fetch as fetchFn } from '@whatwg-node/fetch';
 import GraphqlHandler from "@graphql-mesh/graphql";
-import BareMerger from "@graphql-mesh/merger-bare";
+import AutoPaginationTransform from "@graphprotocol/client-auto-pagination";
+import StitchingMerger from "@graphql-mesh/merger-stitching";
 import { printWithCache } from '@graphql-mesh/utils';
 import { createMeshHTTPHandler } from '@graphql-mesh/http';
 import { getMesh } from '@graphql-mesh/runtime';
 import { MeshStore, FsStoreStorageAdapter } from '@graphql-mesh/store';
 import { path as pathModule } from '@graphql-mesh/cross-helpers';
-import * as importedModule$0 from "./sources/development-threshold-subgraph/introspectionSchema.json";
+import * as importedModule$0 from "./sources/threshold-staking-polygon/introspectionSchema.json";
+import * as importedModule$1 from "./sources/development-threshold-subgraph/introspectionSchema.json";
 import { fileURLToPath } from '@graphql-mesh/utils';
 const baseDir = pathModule.join(pathModule.dirname(fileURLToPath(import.meta.url)), '..');
 const importFn = (moduleId) => {
     const relativeModuleId = (pathModule.isAbsolute(moduleId) ? pathModule.relative(baseDir, moduleId) : moduleId).split('\\').join('/').replace(baseDir + '/', '');
     switch (relativeModuleId) {
-        case ".graphclient/sources/development-threshold-subgraph/introspectionSchema.json":
+        case ".graphclient/sources/threshold-staking-polygon/introspectionSchema.json":
             return Promise.resolve(importedModule$0);
+        case ".graphclient/sources/development-threshold-subgraph/introspectionSchema.json":
+            return Promise.resolve(importedModule$1);
         default:
             return Promise.reject(new Error(`Cannot find module '${relativeModuleId}'.`));
     }
@@ -46,6 +50,7 @@ export async function getMeshOptions() {
     const transforms = [];
     const additionalEnvelopPlugins = [];
     const developmentThresholdSubgraphTransforms = [];
+    const thresholdStakingPolygonTransforms = [];
     const additionalTypeDefs = [];
     const developmentThresholdSubgraphHandler = new GraphqlHandler({
         name: "development-threshold-subgraph",
@@ -57,17 +62,50 @@ export async function getMeshOptions() {
         logger: logger.child("development-threshold-subgraph"),
         importFn,
     });
+    const thresholdStakingPolygonHandler = new GraphqlHandler({
+        name: "threshold-staking-polygon",
+        config: { "endpoint": "https://api.studio.thegraph.com/query/24143/threshold-staking-polygon/0.1.1" },
+        baseDir,
+        cache,
+        pubsub,
+        store: sourcesStore.child("threshold-staking-polygon"),
+        logger: logger.child("threshold-staking-polygon"),
+        importFn,
+    });
+    developmentThresholdSubgraphTransforms[0] = new AutoPaginationTransform({
+        apiName: "development-threshold-subgraph",
+        config: { "validateSchema": true },
+        baseDir,
+        cache,
+        pubsub,
+        importFn,
+        logger,
+    });
+    thresholdStakingPolygonTransforms[0] = new AutoPaginationTransform({
+        apiName: "threshold-staking-polygon",
+        config: { "validateSchema": true },
+        baseDir,
+        cache,
+        pubsub,
+        importFn,
+        logger,
+    });
     sources[0] = {
         name: 'development-threshold-subgraph',
         handler: developmentThresholdSubgraphHandler,
         transforms: developmentThresholdSubgraphTransforms
     };
+    sources[1] = {
+        name: 'threshold-staking-polygon',
+        handler: thresholdStakingPolygonHandler,
+        transforms: thresholdStakingPolygonTransforms
+    };
     const additionalResolvers = [];
-    const merger = new BareMerger({
+    const merger = new StitchingMerger({
         cache,
         pubsub,
-        logger: logger.child('bareMerger'),
-        store: rootStore.child('bareMerger')
+        logger: logger.child('stitchingMerger'),
+        store: rootStore.child('stitchingMerger')
     });
     return {
         sources,
@@ -87,6 +125,18 @@ export async function getMeshOptions() {
                         return printWithCache(LegacyKeepStakesQueryDocument);
                     },
                     location: 'LegacyKeepStakesQueryDocument.graphql'
+                }, {
+                    document: TaCoAuthHistoryQueryDocument,
+                    get rawSDL() {
+                        return printWithCache(TaCoAuthHistoryQueryDocument);
+                    },
+                    location: 'TaCoAuthHistoryQueryDocument.graphql'
+                }, {
+                    document: TaCoOperatorsDocument,
+                    get rawSDL() {
+                        return printWithCache(TaCoOperatorsDocument);
+                    },
+                    location: 'TaCoOperatorsDocument.graphql'
                 }
             ];
         },
@@ -135,10 +185,50 @@ export const LegacyKeepStakesQueryDocument = gql `
   }
 }
     `;
+export const TACoAuthHistoryQueryDocument = gql `
+    query TACoAuthHistoryQuery($endTimestamp: BigInt, $first: Int = 1000, $skip: Int = 0) {
+  appAuthHistories(
+    where: {timestamp_lte: $endTimestamp, appAuthorization_: {appName: "TACo"}}
+    first: $first
+    skip: $skip
+  ) {
+    id
+    timestamp
+    amount
+    blockNumber
+    eventType
+    appAuthorization {
+      stake {
+        id
+        beneficiary
+      }
+    }
+  }
+}
+    `;
+export const TACoOperatorsDocument = gql `
+    query TACoOperators($endTimestamp: BigInt, $first: Int = 1000, $skip: Int = 0) {
+  tacoOperators(
+    where: {confirmedTimestampFirstOperator_lte: $endTimestamp}
+    first: $first
+    skip: $skip
+  ) {
+    id
+    operator
+    confirmedTimestampFirstOperator
+  }
+}
+    `;
 export function getSdk(requester) {
     return {
         LegacyKeepStakesQuery(variables, options) {
             return requester(LegacyKeepStakesQueryDocument, variables, options);
+        },
+        TACoAuthHistoryQuery(variables, options) {
+            return requester(TACoAuthHistoryQueryDocument, variables, options);
+        },
+        TACoOperators(variables, options) {
+            return requester(TACoOperatorsDocument, variables, options);
         }
     };
 }

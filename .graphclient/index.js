@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getSdk = exports.LegacyKeepStakesQueryDocument = exports.getBuiltGraphSDK = exports.subscribe = exports.execute = exports.getBuiltGraphClient = exports.createBuiltMeshHTTPHandler = exports.getMeshOptions = exports.rawServeConfig = void 0;
+exports.getSdk = exports.TACoOperatorsDocument = exports.TACoAuthHistoryQueryDocument = exports.LegacyKeepStakesQueryDocument = exports.getBuiltGraphSDK = exports.subscribe = exports.execute = exports.getBuiltGraphClient = exports.createBuiltMeshHTTPHandler = exports.getMeshOptions = exports.rawServeConfig = void 0;
 const tslib_1 = require("tslib");
 const utils_1 = require("@graphql-mesh/utils");
 const utils_2 = require("@graphql-mesh/utils");
@@ -8,19 +8,23 @@ const utils_3 = require("@graphql-mesh/utils");
 const cache_localforage_1 = tslib_1.__importDefault(require("@graphql-mesh/cache-localforage"));
 const fetch_1 = require("@whatwg-node/fetch");
 const graphql_1 = tslib_1.__importDefault(require("@graphql-mesh/graphql"));
-const merger_bare_1 = tslib_1.__importDefault(require("@graphql-mesh/merger-bare"));
+const client_auto_pagination_1 = tslib_1.__importDefault(require("@graphprotocol/client-auto-pagination"));
+const merger_stitching_1 = tslib_1.__importDefault(require("@graphql-mesh/merger-stitching"));
 const utils_4 = require("@graphql-mesh/utils");
 const http_1 = require("@graphql-mesh/http");
 const runtime_1 = require("@graphql-mesh/runtime");
 const store_1 = require("@graphql-mesh/store");
 const cross_helpers_1 = require("@graphql-mesh/cross-helpers");
-const importedModule$0 = tslib_1.__importStar(require("./sources/development-threshold-subgraph/introspectionSchema.json"));
+const importedModule$0 = tslib_1.__importStar(require("./sources/threshold-staking-polygon/introspectionSchema.json"));
+const importedModule$1 = tslib_1.__importStar(require("./sources/development-threshold-subgraph/introspectionSchema.json"));
 const baseDir = cross_helpers_1.path.join(typeof __dirname === 'string' ? __dirname : '/', '..');
 const importFn = (moduleId) => {
     const relativeModuleId = (cross_helpers_1.path.isAbsolute(moduleId) ? cross_helpers_1.path.relative(baseDir, moduleId) : moduleId).split('\\').join('/').replace(baseDir + '/', '');
     switch (relativeModuleId) {
-        case ".graphclient/sources/development-threshold-subgraph/introspectionSchema.json":
+        case ".graphclient/sources/threshold-staking-polygon/introspectionSchema.json":
             return Promise.resolve(importedModule$0);
+        case ".graphclient/sources/development-threshold-subgraph/introspectionSchema.json":
+            return Promise.resolve(importedModule$1);
         default:
             return Promise.reject(new Error(`Cannot find module '${relativeModuleId}'.`));
     }
@@ -49,6 +53,7 @@ async function getMeshOptions() {
     const transforms = [];
     const additionalEnvelopPlugins = [];
     const developmentThresholdSubgraphTransforms = [];
+    const thresholdStakingPolygonTransforms = [];
     const additionalTypeDefs = [];
     const developmentThresholdSubgraphHandler = new graphql_1.default({
         name: "development-threshold-subgraph",
@@ -60,17 +65,50 @@ async function getMeshOptions() {
         logger: logger.child("development-threshold-subgraph"),
         importFn,
     });
+    const thresholdStakingPolygonHandler = new graphql_1.default({
+        name: "threshold-staking-polygon",
+        config: { "endpoint": "https://api.studio.thegraph.com/query/24143/threshold-staking-polygon/0.1.1" },
+        baseDir,
+        cache,
+        pubsub,
+        store: sourcesStore.child("threshold-staking-polygon"),
+        logger: logger.child("threshold-staking-polygon"),
+        importFn,
+    });
+    developmentThresholdSubgraphTransforms[0] = new client_auto_pagination_1.default({
+        apiName: "development-threshold-subgraph",
+        config: { "validateSchema": true },
+        baseDir,
+        cache,
+        pubsub,
+        importFn,
+        logger,
+    });
+    thresholdStakingPolygonTransforms[0] = new client_auto_pagination_1.default({
+        apiName: "threshold-staking-polygon",
+        config: { "validateSchema": true },
+        baseDir,
+        cache,
+        pubsub,
+        importFn,
+        logger,
+    });
     sources[0] = {
         name: 'development-threshold-subgraph',
         handler: developmentThresholdSubgraphHandler,
         transforms: developmentThresholdSubgraphTransforms
     };
+    sources[1] = {
+        name: 'threshold-staking-polygon',
+        handler: thresholdStakingPolygonHandler,
+        transforms: thresholdStakingPolygonTransforms
+    };
     const additionalResolvers = [];
-    const merger = new merger_bare_1.default({
+    const merger = new merger_stitching_1.default({
         cache,
         pubsub,
-        logger: logger.child('bareMerger'),
-        store: rootStore.child('bareMerger')
+        logger: logger.child('stitchingMerger'),
+        store: rootStore.child('stitchingMerger')
     });
     return {
         sources,
@@ -90,6 +128,18 @@ async function getMeshOptions() {
                         return (0, utils_4.printWithCache)(exports.LegacyKeepStakesQueryDocument);
                     },
                     location: 'LegacyKeepStakesQueryDocument.graphql'
+                }, {
+                    document: TaCoAuthHistoryQueryDocument,
+                    get rawSDL() {
+                        return (0, utils_4.printWithCache)(TaCoAuthHistoryQueryDocument);
+                    },
+                    location: 'TaCoAuthHistoryQueryDocument.graphql'
+                }, {
+                    document: TaCoOperatorsDocument,
+                    get rawSDL() {
+                        return (0, utils_4.printWithCache)(TaCoOperatorsDocument);
+                    },
+                    location: 'TaCoOperatorsDocument.graphql'
                 }
             ];
         },
@@ -144,10 +194,50 @@ exports.LegacyKeepStakesQueryDocument = (0, utils_1.gql) `
   }
 }
     `;
+exports.TACoAuthHistoryQueryDocument = (0, utils_1.gql) `
+    query TACoAuthHistoryQuery($endTimestamp: BigInt, $first: Int = 1000, $skip: Int = 0) {
+  appAuthHistories(
+    where: {timestamp_lte: $endTimestamp, appAuthorization_: {appName: "TACo"}}
+    first: $first
+    skip: $skip
+  ) {
+    id
+    timestamp
+    amount
+    blockNumber
+    eventType
+    appAuthorization {
+      stake {
+        id
+        beneficiary
+      }
+    }
+  }
+}
+    `;
+exports.TACoOperatorsDocument = (0, utils_1.gql) `
+    query TACoOperators($endTimestamp: BigInt, $first: Int = 1000, $skip: Int = 0) {
+  tacoOperators(
+    where: {confirmedTimestampFirstOperator_lte: $endTimestamp}
+    first: $first
+    skip: $skip
+  ) {
+    id
+    operator
+    confirmedTimestampFirstOperator
+  }
+}
+    `;
 function getSdk(requester) {
     return {
         LegacyKeepStakesQuery(variables, options) {
             return requester(exports.LegacyKeepStakesQueryDocument, variables, options);
+        },
+        TACoAuthHistoryQuery(variables, options) {
+            return requester(exports.TACoAuthHistoryQueryDocument, variables, options);
+        },
+        TACoOperators(variables, options) {
+            return requester(exports.TACoOperatorsDocument, variables, options);
         }
     };
 }

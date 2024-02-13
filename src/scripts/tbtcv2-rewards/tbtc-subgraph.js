@@ -5,13 +5,9 @@ const { getBuiltGraphSDK } = require("../../../.graphclient")
 // Keep staking contracts. These staked tokens were registred as keepInT in the
 // Threshold staking contract.
 //
-async function getLegacyKeepStakes(gqlClient, blockNumber) {
+async function getLegacyKeepStakes(blockNumber) {
   const { LegacyKeepStakesQuery } = getBuiltGraphSDK()
   const { accounts } = await LegacyKeepStakesQuery({ blockNumber: blockNumber })
-
-  if (!accounts) {
-    return {}
-  }
 
   const stakes = {}
   accounts.map((account) => {

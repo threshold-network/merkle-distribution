@@ -1,0 +1,11 @@
+query TACoOperators($endTimestamp: BigInt, $first: Int = 1000, $skip: Int = 0) {
+  tacoOperators(
+    where: { confirmedTimestampFirstOperator_lte: $endTimestamp }
+    first: $first
+    skip: $skip
+  ) {
+    id
+    operator
+    confirmedTimestampFirstOperator
+  }
+}

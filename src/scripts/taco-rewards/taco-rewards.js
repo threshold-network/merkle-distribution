@@ -1,73 +1,46 @@
-const { gql } = require("@urql/core")
+const { getBuiltGraphSDK } = require("../../../.graphclient")
 const { BigNumber } = require("bignumber.js")
 const { ethers } = require("ethers")
 
-// The Graph limits GraphQL queries to 1000 results max
-const RESULTS_PER_QUERY = 1000
 const SECONDS_IN_YEAR = 31536000
+
+//
+// Return the TACo operators that have been confirmed before a timestamp
+// The graphqlClient passed must be for Polygon staking subgraph
+//
+async function getOpsConfirmedUntil(endTimestamp) {
+  const { TACoOperators } = getBuiltGraphSDK()
+  const { tacoOperators } = await TACoOperators({
+    endTimestamp: endTimestamp,
+    first: 3000,
+    skip: 0,
+  })
+
+  const opsConfirmed = tacoOperators.reduce((acc, cur) => {
+    acc[cur.id] = {
+      operator: cur.operator,
+      confirmedTimestamp: cur.confirmedTimestampFirstOperator,
+    }
+    return acc
+  }, {})
+
+  return opsConfirmed
+}
 
 //
 // Return the history of TACo authorization changes until a given timestamp
 // The graphqlClient passed must be for Ethereum mainnet staking subgraph
 //
-async function getTACoAuthHistoryUntil(graphqlClient, endTimestamp) {
-  const authHistoryQuery = gql`
-    query authHistoryQuery(
-      $endTimestamp: Int
-      $resultsPerQuery: Int
-      $lastId: String
-    ) {
-      appAuthHistories(
-        first: $resultsPerQuery
-        where: {
-          timestamp_lte: $endTimestamp
-          appAuthorization_: { appName: "TACo" }
-          id_gt: $lastId
-        }
-      ) {
-        id
-        timestamp
-        amount
-        blockNumber
-        eventType
-        appAuthorization {
-          stake {
-            id
-            beneficiary
-          }
-        }
-      }
-    }
-  `
+async function getTACoAuthHistoryUntil(endTimestamp) {
+  const { TACoAuthHistoryQuery } = getBuiltGraphSDK()
+  const { appAuthHistories } = await TACoAuthHistoryQuery({
+    endTimestamp: endTimestamp,
+    first: 3000,
+    skip: 0,
+  })
 
-  let lastId = ""
-  let rawHistory = []
-  let data
-  do {
-    const queryResult = await graphqlClient
-      .query(authHistoryQuery, {
-        endTimestamp: endTimestamp,
-        resultsPerQuery: RESULTS_PER_QUERY,
-        lastId: lastId,
-      })
-      .toPromise()
-
-    if (queryResult.error) {
-      console.error(
-        "ERROR: No TACo Auth history retrieved\n" + queryResult.error
-      )
-      return []
-    }
-
-    data = queryResult.data.appAuthHistories
-    if (data.length > 0) {
-      rawHistory = rawHistory.concat(queryResult.data.appAuthHistories)
-      lastId = data[data.length - 1].id
-    }
-  } while (data.length > 0)
-
-  // Let's convert this array in a dictionary
-  const authHistory = rawHistory.reduce((acc, curr) => {
+  // Let's convert this array into a dictionary
+  const authHistory = appAuthHistories.reduce((acc, curr) => {
     const stakingProvider = curr.appAuthorization.stake.id
     const historyElem = {
       amount: curr.amount,
@@ -84,59 +57,15 @@ async function getTACoAuthHistoryUntil(graphqlClient, endTimestamp) {
 }
 
 //
-// Return the TACo operators that have been confirmed before a timestamp
-// The graphqlClient passed must be for Polygon staking subgraph
-//
-async function getOpsConfirmedUntil(graphqlClient, endTimestamp) {
-  const opsConfirmedQuery = gql`
-    query tacoOperators($endTimestamp: Int) {
-      tacoOperators(
-        where: { confirmedTimestampFirstOperator_lte: $endTimestamp }
-      ) {
-        id
-        operator
-        confirmedTimestampFirstOperator
-      }
-    }
-  `
-
-  const queryResult = await graphqlClient
-    .query(opsConfirmedQuery, { endTimestamp: endTimestamp })
-    .toPromise()
-  if (queryResult.error || queryResult.data.length === 0) {
-    console.error("ERROR: No TACo operators retrieved\n" + queryResult.error)
-    return []
-  }
-
-  const opsConfirmed = queryResult.data.tacoOperators.reduce((acc, cur) => {
-    acc[cur.id] = {
-      operator: cur.operator,
-      confirmedTimestamp: cur.confirmedTimestampFirstOperator,
-    }
-    return acc
-  }, {})
-
-  return opsConfirmed
-}
-
-//
 // Return the TACo rewards calculated for a period of time
 //
 async function getTACoRewards(
-  mainnetClient,
-  polygonClient,
   startPeriodTimestamp,
   endPeriodTimestamp,
   tacoWeight
 ) {
-  const opsConfirmed = await getOpsConfirmedUntil(
-    polygonClient,
-    endPeriodTimestamp
-  )
-  const tacoAuthHistories = await getTACoAuthHistoryUntil(
-    mainnetClient,
-    endPeriodTimestamp
-  )
+  const opsConfirmed = await getOpsConfirmedUntil(endPeriodTimestamp)
+  const tacoAuthHistories = await getTACoAuthHistoryUntil(endPeriodTimestamp)
 
   const confirmedAuthHistories = {}
   // Filter those stakes that have not a confirmed operator and add the
