@@ -4,8 +4,8 @@ import type { GetMeshOptions } from '@graphql-mesh/runtime';
 import type { YamlConfig } from '@graphql-mesh/types';
 import { MeshHTTPHandler } from '@graphql-mesh/http';
 import { ExecuteMeshFn, SubscribeMeshFn, MeshContext as BaseMeshContext, MeshInstance } from '@graphql-mesh/runtime';
-import type { DevelopmentThresholdSubgraphTypes } from './sources/development-threshold-subgraph/types';
 import type { ThresholdStakingPolygonTypes } from './sources/threshold-staking-polygon/types';
+import type { DevelopmentThresholdSubgraphTypes } from './sources/development-threshold-subgraph/types';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends {
