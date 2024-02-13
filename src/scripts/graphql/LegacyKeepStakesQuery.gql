@@ -1,0 +1,14 @@
+query LegacyKeepStakesQuery($blockNumber: Int) {
+  accounts(
+    block: { number: $blockNumber }
+    where: { stakes_: { keepInTStake_gt: "0" } }
+  ) {
+    id
+    stakes {
+      id
+      keepInTStake
+      tStake
+      totalStaked
+    }
+  }
+}

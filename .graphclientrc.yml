@@ -1,0 +1,7 @@
+sources:
+  - name: development-threshold-subgraph
+    handler:
+      graphql:
+        endpoint: https://api.studio.thegraph.com/query/24143/development-threshold-subgraph/0.9.7
+documents:
+  - ./src/scripts/graphql/LegacyKeepStakesQuery.gql
