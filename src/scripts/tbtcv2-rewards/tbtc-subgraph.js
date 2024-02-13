@@ -1,4 +1,4 @@
-const { gql } = require("@urql/core")
+const { getBuiltGraphSDK } = require("../../../.graphclient")
 
 //
 //For a specific block, return a list of stakes whose tokens were staked in
@@ -6,51 +6,22 @@ const { gql } = require("@urql/core")
 // Threshold staking contract.
 //
 async function getLegacyKeepStakes(gqlClient, blockNumber) {
-  const legacyKeepStakersQuery = gql`
-    query legacyKeepStakersQuery($blockNumber: Int) {
-      accounts(
-        first: 1000
-        block: { number: $blockNumber }
-        where: { stakes_: { keepInTStake_gt: "0" } }
-      ) {
-        id
-        stakes {
-          id
-          keepInTStake
-          nuInTStake
-          tStake
-          totalStaked
-        }
-      }
-    }
-  `
+  const { LegacyKeepStakesQuery } = getBuiltGraphSDK()
+  const { accounts } = await LegacyKeepStakesQuery({ blockNumber: blockNumber })
 
-  const response = await gqlClient
-    .query(legacyKeepStakersQuery, { blockNumber: blockNumber })
-    .toPromise()
-
-  if (response.error) {
-    console.error(`Error in getLegacyKeepStakes: ${response.error.message}`)
-    return null
+  if (!accounts) {
+    return {}
   }
-
-  if (!response.data) {
-    console.error("No data found")
-    return null
-  }
-
-  const accounts = response.data["accounts"]
 
   const stakes = {}
   accounts.map((account) => {
     account.stakes.map((stake) => {
-      if (stake.keepInTStake === "0" && stake.nuInTStake === "0") {
+      if (stake.keepInTStake === "0") {
         return
       }
       stakes[stake.id] = {
         owner: account.id,
         keepInTStake: stake.keepInTStake,
-        nuInTStake: stake.nuInTStake,
         tStake: stake.tStake,
       }
     })
