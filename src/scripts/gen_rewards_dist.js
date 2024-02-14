@@ -3,7 +3,6 @@
 // Use: node src/scripts/gen_merkle_dist.js
 
 require("dotenv").config()
-const { createClient } = require("@urql/core")
 const fs = require("fs")
 const shell = require("shelljs")
 const BigNumber = require("bignumber.js")
@@ -21,10 +20,6 @@ const lastDistribution = "2024-01-01"
 
 const etherscanApiKey = process.env.ETHERSCAN_TOKEN
 const tbtcv2ScriptPath = "src/scripts/tbtcv2-rewards/"
-const mainnetSubgraphApi =
-  "https://api.studio.thegraph.com/query/24143/development-threshold-subgraph/0.9.7"
-const polygonSubgraphApi =
-  "https://api.studio.thegraph.com/query/24143/threshold-staking-polygon/0.1.1"
 
 async function main() {
   if (!etherscanApiKey) {
@@ -57,18 +52,9 @@ async function main() {
     return
   }
 
-  const mainnetSubgraphClient = createClient({ url: mainnetSubgraphApi })
-  const polygonSubgraphClient = createClient({ url: polygonSubgraphApi })
-
   // TACo rewards calculation
   if (tacoWeight > 0) {
-    earnedTACoRewards = await getTACoRewards(
-      mainnetSubgraphClient,
-      polygonSubgraphClient,
-      startTime,
-      endTime,
-      tacoWeight
-    )
+    earnedTACoRewards = await getTACoRewards(startTime, endTime, tacoWeight)
   }
 
   // February 24th 2024 special case:
@@ -105,10 +91,7 @@ async function main() {
 
   // Get the legacy Keep stakes
   const blockNumber = 18624792 // Block height in which legacy stakes were deac
-  const legacyStakes = await getLegacyKeepStakes(
-    mainnetSubgraphClient,
-    blockNumber - 1
-  )
+  const legacyStakes = await getLegacyKeepStakes(blockNumber - 1)
 
   // Delete the Keep legacy stakes in earned rewards
   Object.keys(legacyStakes).map((legacyStake) => {
