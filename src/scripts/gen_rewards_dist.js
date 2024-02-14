@@ -7,9 +7,9 @@ const fs = require("fs")
 const shell = require("shelljs")
 const BigNumber = require("bignumber.js")
 const ethers = require("ethers")
-const { getLegacyKeepStakes } = require("./tbtcv2-rewards/tbtc-subgraph.js")
-const MerkleDist = require("./merkle_dist/merkle_dist.js")
-const { getTACoRewards } = require("./taco-rewards/taco-rewards.js")
+const { getLegacyKeepStakes } = require("./utils/legacy-keep-rewards.js")
+const MerkleDist = require("./utils/merkle_dist.js")
+const { getTACoRewards } = require("./utils/taco-rewards.js")
 
 // The following parameters must be modified for each distribution
 const tacoWeight = 0.25

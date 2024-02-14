@@ -14,6 +14,6 @@ sources:
       - autoPagination:
           validateSchema: true
 documents:
-  - ./src/scripts/graphql/LegacyKeepStakesQuery.gql
-  - ./src/scripts/graphql/TACoAuthHistoryQuery.gql
-  - ./src/scripts/graphql/TACoOperators.gql
+  - ./src/scripts/utils/graphql/LegacyKeepStakesQuery.gql
+  - ./src/scripts/utils/graphql/TACoAuthHistoryQuery.gql
+  - ./src/scripts/utils/graphql/TACoOperators.gql
