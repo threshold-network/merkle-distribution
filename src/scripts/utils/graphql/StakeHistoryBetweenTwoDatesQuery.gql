@@ -1,0 +1,20 @@
+query StakeHistoryBetweenTwoDatesQuery(
+  $startTimestamp: BigInt
+  $endTimestamp: BigInt
+  $first: Int = 1000
+  $skip: Int = 0
+) {
+  stakeDatas(first: $first, skip: $skip) {
+    id
+    beneficiary
+    stakeHistory(
+      where: { timestamp_gte: $startTimestamp, timestamp_lt: $endTimestamp }
+    ) {
+      stakedAmount
+      timestamp
+      eventType
+      blockNumber
+      eventAmount
+    }
+  }
+}

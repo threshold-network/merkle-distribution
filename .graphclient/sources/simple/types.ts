@@ -3,7 +3,7 @@
 import { InContextSdkMethod } from '@graphql-mesh/types';
 import { MeshContext } from '@graphql-mesh/runtime';
 
-export namespace ThresholdStakingPolygonTypes {
+export namespace SimpleTypes {
   export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
@@ -42,26 +42,26 @@ export type OrderDirection =
   | 'desc';
 
 export type Query = {
-  tacoOperator?: Maybe<TACoOperator>;
-  tacoOperators: Array<TACoOperator>;
+  simplePREApplication?: Maybe<SimplePREApplication>;
+  simplePREApplications: Array<SimplePREApplication>;
   /** Access to subgraph metadata */
   _meta?: Maybe<_Meta_>;
 };
 
 
-export type QuerytacoOperatorArgs = {
+export type QuerysimplePREApplicationArgs = {
   id: Scalars['ID'];
   block?: InputMaybe<Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type QuerytacoOperatorsArgs = {
+export type QuerysimplePREApplicationsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<TACoOperator_orderBy>;
+  orderBy?: InputMaybe<SimplePREApplication_orderBy>;
   orderDirection?: InputMaybe<OrderDirection>;
-  where?: InputMaybe<TACoOperator_filter>;
+  where?: InputMaybe<SimplePREApplication_filter>;
   block?: InputMaybe<Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -71,51 +71,21 @@ export type Query_metaArgs = {
   block?: InputMaybe<Block_height>;
 };
 
-export type Subscription = {
-  tacoOperator?: Maybe<TACoOperator>;
-  tacoOperators: Array<TACoOperator>;
-  /** Access to subgraph metadata */
-  _meta?: Maybe<_Meta_>;
-};
-
-
-export type SubscriptiontacoOperatorArgs = {
+/** SimplePREApplication represents the state of Simple Proxy ReEncryption operators */
+export type SimplePREApplication = {
+  /** ID is the staking provider ETH address */
   id: Scalars['ID'];
-  block?: InputMaybe<Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type SubscriptiontacoOperatorsArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<TACoOperator_orderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  where?: InputMaybe<TACoOperator_filter>;
-  block?: InputMaybe<Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type Subscription_metaArgs = {
-  block?: InputMaybe<Block_height>;
-};
-
-/** TACoOperator represents the TACo operator's info of a staking provider */
-export type TACoOperator = {
-  /** ID is the staking provider address */
-  id: Scalars['ID'];
-  /** Operator's address */
+  /** Operator's ETH address */
   operator: Scalars['Bytes'];
-  /** Timestamp in which the current operator was confirmed to the staking provider */
-  confirmedTimestamp: Scalars['BigInt'];
-  /** Timestamp in which the first operator of this staking provider was confirmed */
-  confirmedTimestampFirstOperator?: Maybe<Scalars['BigInt']>;
-  /** The operator won't be confirmed during the operator address update */
-  confirmed?: Maybe<Scalars['Boolean']>;
+  /** Stake address related to this PRE operator */
+  stake: Scalars['Bytes'];
+  /** UNIX timestamp in which an operator was bonded for this staking provider for first time */
+  bondedTimestamp?: Maybe<Scalars['BigInt']>;
+  /** UNIX timestamp in which an operator was confirmed for this staking provider for first time */
+  confirmedTimestamp?: Maybe<Scalars['BigInt']>;
 };
 
-export type TACoOperator_filter = {
+export type SimplePREApplication_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -134,6 +104,24 @@ export type TACoOperator_filter = {
   operator_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
   operator_contains?: InputMaybe<Scalars['Bytes']>;
   operator_not_contains?: InputMaybe<Scalars['Bytes']>;
+  stake?: InputMaybe<Scalars['Bytes']>;
+  stake_not?: InputMaybe<Scalars['Bytes']>;
+  stake_gt?: InputMaybe<Scalars['Bytes']>;
+  stake_lt?: InputMaybe<Scalars['Bytes']>;
+  stake_gte?: InputMaybe<Scalars['Bytes']>;
+  stake_lte?: InputMaybe<Scalars['Bytes']>;
+  stake_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  stake_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  stake_contains?: InputMaybe<Scalars['Bytes']>;
+  stake_not_contains?: InputMaybe<Scalars['Bytes']>;
+  bondedTimestamp?: InputMaybe<Scalars['BigInt']>;
+  bondedTimestamp_not?: InputMaybe<Scalars['BigInt']>;
+  bondedTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  bondedTimestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  bondedTimestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  bondedTimestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  bondedTimestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  bondedTimestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   confirmedTimestamp?: InputMaybe<Scalars['BigInt']>;
   confirmedTimestamp_not?: InputMaybe<Scalars['BigInt']>;
   confirmedTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
@@ -142,30 +130,48 @@ export type TACoOperator_filter = {
   confirmedTimestamp_lte?: InputMaybe<Scalars['BigInt']>;
   confirmedTimestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
   confirmedTimestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  confirmedTimestampFirstOperator?: InputMaybe<Scalars['BigInt']>;
-  confirmedTimestampFirstOperator_not?: InputMaybe<Scalars['BigInt']>;
-  confirmedTimestampFirstOperator_gt?: InputMaybe<Scalars['BigInt']>;
-  confirmedTimestampFirstOperator_lt?: InputMaybe<Scalars['BigInt']>;
-  confirmedTimestampFirstOperator_gte?: InputMaybe<Scalars['BigInt']>;
-  confirmedTimestampFirstOperator_lte?: InputMaybe<Scalars['BigInt']>;
-  confirmedTimestampFirstOperator_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  confirmedTimestampFirstOperator_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  confirmed?: InputMaybe<Scalars['Boolean']>;
-  confirmed_not?: InputMaybe<Scalars['Boolean']>;
-  confirmed_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  confirmed_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<TACoOperator_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<TACoOperator_filter>>>;
+  and?: InputMaybe<Array<InputMaybe<SimplePREApplication_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<SimplePREApplication_filter>>>;
 };
 
-export type TACoOperator_orderBy =
+export type SimplePREApplication_orderBy =
   | 'id'
   | 'operator'
-  | 'confirmedTimestamp'
-  | 'confirmedTimestampFirstOperator'
-  | 'confirmed';
+  | 'stake'
+  | 'bondedTimestamp'
+  | 'confirmedTimestamp';
+
+export type Subscription = {
+  simplePREApplication?: Maybe<SimplePREApplication>;
+  simplePREApplications: Array<SimplePREApplication>;
+  /** Access to subgraph metadata */
+  _meta?: Maybe<_Meta_>;
+};
+
+
+export type SubscriptionsimplePREApplicationArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type SubscriptionsimplePREApplicationsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<SimplePREApplication_orderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  where?: InputMaybe<SimplePREApplication_filter>;
+  block?: InputMaybe<Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type Subscription_metaArgs = {
+  block?: InputMaybe<Block_height>;
+};
 
 export type _Block_ = {
   /** The hash of the block */
@@ -200,9 +206,9 @@ export type _SubgraphErrorPolicy_ =
 
   export type QuerySdk = {
       /** null **/
-  tacoOperator: InContextSdkMethod<Query['tacoOperator'], QuerytacoOperatorArgs, MeshContext>,
+  simplePREApplication: InContextSdkMethod<Query['simplePREApplication'], QuerysimplePREApplicationArgs, MeshContext>,
   /** null **/
-  tacoOperators: InContextSdkMethod<Query['tacoOperators'], QuerytacoOperatorsArgs, MeshContext>,
+  simplePREApplications: InContextSdkMethod<Query['simplePREApplications'], QuerysimplePREApplicationsArgs, MeshContext>,
   /** Access to subgraph metadata **/
   _meta: InContextSdkMethod<Query['_meta'], Query_metaArgs, MeshContext>
   };
@@ -213,15 +219,15 @@ export type _SubgraphErrorPolicy_ =
 
   export type SubscriptionSdk = {
       /** null **/
-  tacoOperator: InContextSdkMethod<Subscription['tacoOperator'], SubscriptiontacoOperatorArgs, MeshContext>,
+  simplePREApplication: InContextSdkMethod<Subscription['simplePREApplication'], SubscriptionsimplePREApplicationArgs, MeshContext>,
   /** null **/
-  tacoOperators: InContextSdkMethod<Subscription['tacoOperators'], SubscriptiontacoOperatorsArgs, MeshContext>,
+  simplePREApplications: InContextSdkMethod<Subscription['simplePREApplications'], SubscriptionsimplePREApplicationsArgs, MeshContext>,
   /** Access to subgraph metadata **/
   _meta: InContextSdkMethod<Subscription['_meta'], Subscription_metaArgs, MeshContext>
   };
 
   export type Context = {
-      ["threshold-staking-polygon"]: { Query: QuerySdk, Mutation: MutationSdk, Subscription: SubscriptionSdk },
+      ["simple"]: { Query: QuerySdk, Mutation: MutationSdk, Subscription: SubscriptionSdk },
       
     };
 }
