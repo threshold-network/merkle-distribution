@@ -1,6 +1,7 @@
 const { getBuiltGraphSDK } = require("../../../.graphclient")
 const { BigNumber } = require("bignumber.js")
 const { legacyKeepAccounts } = require("./legacy-keep-stakes")
+const { getTACoRewards } = require("./taco-rewards")
 
 // Timestamp of legacy tokens deactivation. See
 // https://etherscan.io/tx/0x68ddee6b5651d5348a40555b0079b5066d05a63196e3832323afafae0095a656
@@ -74,7 +75,7 @@ async function getRestakes(stakes, deadline) {
 //
 // Calculate the rewards corresponding to PRE
 //
-async function getPRERewards(stakes, deadline) {
+async function getPRERewards(legacyStakes, deadline) {
   const rewards = {}
   const { PREOpsBeforeLegacyDeactQuery } = getBuiltGraphSDK()
 
@@ -85,12 +86,12 @@ async function getPRERewards(stakes, deadline) {
 
   // Get the legacy stakes that had a PRE operator confirmed
   const stakesWithPre = {}
-  Object.keys(stakes).map((stake) => {
+  Object.keys(legacyStakes).map((stake) => {
     const preOperator = simplePREApplications.filter(
       (operator) => operator.id === stake
     )
     if (preOperator.length !== 0) {
-      stakesWithPre[stake] = stakes[stake]
+      stakesWithPre[stake] = legacyStakes[stake]
     }
   })
 
@@ -130,6 +131,22 @@ async function getPRERewards(stakes, deadline) {
 }
 
 //
+// Calculate the rewards corresponding to TACo
+//
+async function getTACoRewardsForLegacy(legacyStakes, deadline) {
+  const tACoActivationTime = 1706745600
+  const tacoRewards = await getTACoRewards(tACoActivationTime, deadline, 0.25)
+
+  const rewards = {}
+  Object.keys(tacoRewards).map((stake) => {
+    if (legacyStakes[stake]) {
+      rewards[stake] = tacoRewards[stake].amount
+    }
+  })
+  return rewards
+}
+
+//
 // Return the rewards corresponding to Legacy Keep stakes
 //
 async function getLegacyKeepRewards(deadline) {
@@ -140,6 +157,11 @@ async function getLegacyKeepRewards(deadline) {
 
   // Get the PRE rewards
   const preRewards = await getPRERewards(stakes, deadline)
+
+  // Get the TACo rewards
+  const tacoRewards = await getTACoRewardsForLegacy(stakes, deadline)
+
+  return rewards
 }
 
 module.exports = {
