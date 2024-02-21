@@ -1,0 +1,19 @@
+sources:
+  - name: development-threshold-subgraph
+    handler:
+      graphql:
+        endpoint: https://api.studio.thegraph.com/query/24143/development-threshold-subgraph/0.9.7
+    transforms:
+      - autoPagination:
+          validateSchema: true
+  - name: threshold-staking-polygon
+    handler:
+      graphql:
+        endpoint: https://api.studio.thegraph.com/query/24143/threshold-staking-polygon/0.1.1
+    transforms:
+      - autoPagination:
+          validateSchema: true
+documents:
+  - ./src/scripts/utils/graphql/LegacyKeepStakesQuery.gql
+  - ./src/scripts/utils/graphql/TACoAuthHistoryQuery.gql
+  - ./src/scripts/utils/graphql/TACoOperators.gql
