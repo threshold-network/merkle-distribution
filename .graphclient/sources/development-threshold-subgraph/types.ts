@@ -93,6 +93,8 @@ export type AppAuthHistory = {
   appAuthorization: AppAuthorization;
   /** Amount of total T authorized by staking provider to the application in this block */
   amount: Scalars['BigInt'];
+  /** Amount of T that has been increased or decreased */
+  eventAmount: Scalars['BigInt'];
   /** Type of event that caused this update */
   eventType: Scalars['String'];
   /** Block in which this authorization update became effective */
@@ -139,6 +141,14 @@ export type AppAuthHistory_filter = {
   amount_lte?: InputMaybe<Scalars['BigInt']>;
   amount_in?: InputMaybe<Array<Scalars['BigInt']>>;
   amount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  eventAmount?: InputMaybe<Scalars['BigInt']>;
+  eventAmount_not?: InputMaybe<Scalars['BigInt']>;
+  eventAmount_gt?: InputMaybe<Scalars['BigInt']>;
+  eventAmount_lt?: InputMaybe<Scalars['BigInt']>;
+  eventAmount_gte?: InputMaybe<Scalars['BigInt']>;
+  eventAmount_lte?: InputMaybe<Scalars['BigInt']>;
+  eventAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  eventAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   eventType?: InputMaybe<Scalars['String']>;
   eventType_not?: InputMaybe<Scalars['String']>;
   eventType_gt?: InputMaybe<Scalars['String']>;
@@ -190,6 +200,7 @@ export type AppAuthHistory_orderBy =
   | 'appAuthorization__amountDeauthorizing'
   | 'appAuthorization__appName'
   | 'amount'
+  | 'eventAmount'
   | 'eventType'
   | 'blockNumber'
   | 'timestamp';

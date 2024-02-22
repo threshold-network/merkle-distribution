@@ -76,6 +76,8 @@ type AppAuthHistory {
   Amount of total T authorized by staking provider to the application in this block
   """
   amount: BigInt!
+  """Amount of T that has been increased or decreased"""
+  eventAmount: BigInt!
   """Type of event that caused this update"""
   eventType: String!
   """Block in which this authorization update became effective"""
@@ -122,6 +124,14 @@ input AppAuthHistory_filter {
   amount_lte: BigInt
   amount_in: [BigInt!]
   amount_not_in: [BigInt!]
+  eventAmount: BigInt
+  eventAmount_not: BigInt
+  eventAmount_gt: BigInt
+  eventAmount_lt: BigInt
+  eventAmount_gte: BigInt
+  eventAmount_lte: BigInt
+  eventAmount_in: [BigInt!]
+  eventAmount_not_in: [BigInt!]
   eventType: String
   eventType_not: String
   eventType_gt: String
@@ -173,6 +183,7 @@ enum AppAuthHistory_orderBy {
   appAuthorization__amountDeauthorizing
   appAuthorization__appName
   amount
+  eventAmount
   eventType
   blockNumber
   timestamp

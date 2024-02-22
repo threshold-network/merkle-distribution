@@ -4,9 +4,9 @@ import type { GetMeshOptions } from '@graphql-mesh/runtime';
 import type { YamlConfig } from '@graphql-mesh/types';
 import { MeshHTTPHandler } from '@graphql-mesh/http';
 import { ExecuteMeshFn, SubscribeMeshFn, MeshContext as BaseMeshContext, MeshInstance } from '@graphql-mesh/runtime';
-import type { SimpleTypes } from './sources/simple/types';
-import type { ThresholdStakingPolygonTypes } from './sources/threshold-staking-polygon/types';
 import type { DevelopmentThresholdSubgraphTypes } from './sources/development-threshold-subgraph/types';
+import type { ThresholdStakingPolygonTypes } from './sources/threshold-staking-polygon/types';
+import type { SimpleTypes } from './sources/simple/types';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends {
@@ -36,12 +36,10 @@ export type Scalars = {
     Int8: any;
 };
 export type Query = {
-    simplePREApplication?: Maybe<SimplePREApplication>;
-    simplePREApplications: Array<SimplePREApplication>;
-    /** Access to subgraph metadata */
-    _meta?: Maybe<_Meta_>;
     tacoOperator?: Maybe<TACoOperator>;
     tacoOperators: Array<TACoOperator>;
+    /** Access to subgraph metadata */
+    _meta?: Maybe<_Meta_>;
     account?: Maybe<Account>;
     accounts: Array<Account>;
     stakeData?: Maybe<StakeData>;
@@ -64,23 +62,8 @@ export type Query = {
     tacoCommitments: Array<TACoCommitment>;
     delegation?: Maybe<Delegation>;
     delegations: Array<Delegation>;
-};
-export type QuerysimplePREApplicationArgs = {
-    id: Scalars['ID'];
-    block?: InputMaybe<Block_height>;
-    subgraphError?: _SubgraphErrorPolicy_;
-};
-export type QuerysimplePREApplicationsArgs = {
-    skip?: InputMaybe<Scalars['Int']>;
-    first?: InputMaybe<Scalars['Int']>;
-    orderBy?: InputMaybe<SimplePREApplication_orderBy>;
-    orderDirection?: InputMaybe<OrderDirection>;
-    where?: InputMaybe<SimplePREApplication_filter>;
-    block?: InputMaybe<Block_height>;
-    subgraphError?: _SubgraphErrorPolicy_;
-};
-export type Query_metaArgs = {
-    block?: InputMaybe<Block_height>;
+    simplePREApplication?: Maybe<SimplePREApplication>;
+    simplePREApplications: Array<SimplePREApplication>;
 };
 export type QuerytacoOperatorArgs = {
     id: Scalars['ID'];
@@ -95,6 +78,9 @@ export type QuerytacoOperatorsArgs = {
     where?: InputMaybe<TACoOperator_filter>;
     block?: InputMaybe<Block_height>;
     subgraphError?: _SubgraphErrorPolicy_;
+};
+export type Query_metaArgs = {
+    block?: InputMaybe<Block_height>;
 };
 export type QueryaccountArgs = {
     id: Scalars['ID'];
@@ -250,13 +236,25 @@ export type QuerydelegationsArgs = {
     block?: InputMaybe<Block_height>;
     subgraphError?: _SubgraphErrorPolicy_;
 };
+export type QuerysimplePREApplicationArgs = {
+    id: Scalars['ID'];
+    block?: InputMaybe<Block_height>;
+    subgraphError?: _SubgraphErrorPolicy_;
+};
+export type QuerysimplePREApplicationsArgs = {
+    skip?: InputMaybe<Scalars['Int']>;
+    first?: InputMaybe<Scalars['Int']>;
+    orderBy?: InputMaybe<SimplePREApplication_orderBy>;
+    orderDirection?: InputMaybe<OrderDirection>;
+    where?: InputMaybe<SimplePREApplication_filter>;
+    block?: InputMaybe<Block_height>;
+    subgraphError?: _SubgraphErrorPolicy_;
+};
 export type Subscription = {
-    simplePREApplication?: Maybe<SimplePREApplication>;
-    simplePREApplications: Array<SimplePREApplication>;
-    /** Access to subgraph metadata */
-    _meta?: Maybe<_Meta_>;
     tacoOperator?: Maybe<TACoOperator>;
     tacoOperators: Array<TACoOperator>;
+    /** Access to subgraph metadata */
+    _meta?: Maybe<_Meta_>;
     account?: Maybe<Account>;
     accounts: Array<Account>;
     stakeData?: Maybe<StakeData>;
@@ -279,23 +277,8 @@ export type Subscription = {
     tacoCommitments: Array<TACoCommitment>;
     delegation?: Maybe<Delegation>;
     delegations: Array<Delegation>;
-};
-export type SubscriptionsimplePREApplicationArgs = {
-    id: Scalars['ID'];
-    block?: InputMaybe<Block_height>;
-    subgraphError?: _SubgraphErrorPolicy_;
-};
-export type SubscriptionsimplePREApplicationsArgs = {
-    skip?: InputMaybe<Scalars['Int']>;
-    first?: InputMaybe<Scalars['Int']>;
-    orderBy?: InputMaybe<SimplePREApplication_orderBy>;
-    orderDirection?: InputMaybe<OrderDirection>;
-    where?: InputMaybe<SimplePREApplication_filter>;
-    block?: InputMaybe<Block_height>;
-    subgraphError?: _SubgraphErrorPolicy_;
-};
-export type Subscription_metaArgs = {
-    block?: InputMaybe<Block_height>;
+    simplePREApplication?: Maybe<SimplePREApplication>;
+    simplePREApplications: Array<SimplePREApplication>;
 };
 export type SubscriptiontacoOperatorArgs = {
     id: Scalars['ID'];
@@ -310,6 +293,9 @@ export type SubscriptiontacoOperatorsArgs = {
     where?: InputMaybe<TACoOperator_filter>;
     block?: InputMaybe<Block_height>;
     subgraphError?: _SubgraphErrorPolicy_;
+};
+export type Subscription_metaArgs = {
+    block?: InputMaybe<Block_height>;
 };
 export type SubscriptionaccountArgs = {
     id: Scalars['ID'];
@@ -465,6 +451,20 @@ export type SubscriptiondelegationsArgs = {
     block?: InputMaybe<Block_height>;
     subgraphError?: _SubgraphErrorPolicy_;
 };
+export type SubscriptionsimplePREApplicationArgs = {
+    id: Scalars['ID'];
+    block?: InputMaybe<Block_height>;
+    subgraphError?: _SubgraphErrorPolicy_;
+};
+export type SubscriptionsimplePREApplicationsArgs = {
+    skip?: InputMaybe<Scalars['Int']>;
+    first?: InputMaybe<Scalars['Int']>;
+    orderBy?: InputMaybe<SimplePREApplication_orderBy>;
+    orderDirection?: InputMaybe<OrderDirection>;
+    where?: InputMaybe<SimplePREApplication_filter>;
+    block?: InputMaybe<Block_height>;
+    subgraphError?: _SubgraphErrorPolicy_;
+};
 export type Aggregation_interval = 'hour' | 'day';
 export type BlockChangedFilter = {
     number_gte: Scalars['Int'];
@@ -476,98 +476,6 @@ export type Block_height = {
 };
 /** Defines the order direction, either ascending or descending */
 export type OrderDirection = 'asc' | 'desc';
-/** SimplePREApplication represents the state of Simple Proxy ReEncryption operators */
-export type SimplePREApplication = {
-    /** ID is the staking provider ETH address */
-    id: Scalars['ID'];
-    /** Operator's ETH address */
-    operator: Scalars['Bytes'];
-    /** Stake address related to this PRE operator */
-    stake: Scalars['Bytes'];
-    /** UNIX timestamp in which an operator was bonded for this staking provider for first time */
-    bondedTimestamp?: Maybe<Scalars['BigInt']>;
-    /** UNIX timestamp in which an operator was confirmed for this staking provider for first time */
-    confirmedTimestamp?: Maybe<Scalars['BigInt']>;
-};
-export type SimplePREApplication_filter = {
-    id?: InputMaybe<Scalars['ID']>;
-    id_not?: InputMaybe<Scalars['ID']>;
-    id_gt?: InputMaybe<Scalars['ID']>;
-    id_lt?: InputMaybe<Scalars['ID']>;
-    id_gte?: InputMaybe<Scalars['ID']>;
-    id_lte?: InputMaybe<Scalars['ID']>;
-    id_in?: InputMaybe<Array<Scalars['ID']>>;
-    id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-    operator?: InputMaybe<Scalars['Bytes']>;
-    operator_not?: InputMaybe<Scalars['Bytes']>;
-    operator_gt?: InputMaybe<Scalars['Bytes']>;
-    operator_lt?: InputMaybe<Scalars['Bytes']>;
-    operator_gte?: InputMaybe<Scalars['Bytes']>;
-    operator_lte?: InputMaybe<Scalars['Bytes']>;
-    operator_in?: InputMaybe<Array<Scalars['Bytes']>>;
-    operator_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
-    operator_contains?: InputMaybe<Scalars['Bytes']>;
-    operator_not_contains?: InputMaybe<Scalars['Bytes']>;
-    stake?: InputMaybe<Scalars['Bytes']>;
-    stake_not?: InputMaybe<Scalars['Bytes']>;
-    stake_gt?: InputMaybe<Scalars['Bytes']>;
-    stake_lt?: InputMaybe<Scalars['Bytes']>;
-    stake_gte?: InputMaybe<Scalars['Bytes']>;
-    stake_lte?: InputMaybe<Scalars['Bytes']>;
-    stake_in?: InputMaybe<Array<Scalars['Bytes']>>;
-    stake_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
-    stake_contains?: InputMaybe<Scalars['Bytes']>;
-    stake_not_contains?: InputMaybe<Scalars['Bytes']>;
-    bondedTimestamp?: InputMaybe<Scalars['BigInt']>;
-    bondedTimestamp_not?: InputMaybe<Scalars['BigInt']>;
-    bondedTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
-    bondedTimestamp_lt?: InputMaybe<Scalars['BigInt']>;
-    bondedTimestamp_gte?: InputMaybe<Scalars['BigInt']>;
-    bondedTimestamp_lte?: InputMaybe<Scalars['BigInt']>;
-    bondedTimestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
-    bondedTimestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-    confirmedTimestamp?: InputMaybe<Scalars['BigInt']>;
-    confirmedTimestamp_not?: InputMaybe<Scalars['BigInt']>;
-    confirmedTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
-    confirmedTimestamp_lt?: InputMaybe<Scalars['BigInt']>;
-    confirmedTimestamp_gte?: InputMaybe<Scalars['BigInt']>;
-    confirmedTimestamp_lte?: InputMaybe<Scalars['BigInt']>;
-    confirmedTimestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
-    confirmedTimestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-    /** Filter for the block changed event. */
-    _change_block?: InputMaybe<BlockChangedFilter>;
-    and?: InputMaybe<Array<InputMaybe<SimplePREApplication_filter>>>;
-    or?: InputMaybe<Array<InputMaybe<SimplePREApplication_filter>>>;
-};
-export type SimplePREApplication_orderBy = 'id' | 'operator' | 'stake' | 'bondedTimestamp' | 'confirmedTimestamp';
-export type _Block_ = {
-    /** The hash of the block */
-    hash?: Maybe<Scalars['Bytes']>;
-    /** The block number */
-    number: Scalars['Int'];
-    /** Integer representation of the timestamp stored in blocks for the chain */
-    timestamp?: Maybe<Scalars['Int']>;
-};
-/** The type for the top-level _meta field */
-export type _Meta_ = {
-    /**
-     * Information about a specific subgraph block. The hash of the block
-     * will be null if the _meta field has a block constraint that asks for
-     * a block number. It will be filled if the _meta field has no block constraint
-     * and therefore asks for the latest  block
-     *
-     */
-    block: _Block_;
-    /** The deployment ID */
-    deployment: Scalars['String'];
-    /** If `true`, the subgraph encountered indexing errors at some past block */
-    hasIndexingErrors: Scalars['Boolean'];
-};
-export type _SubgraphErrorPolicy_ = 
-/** Data will be returned even if the subgraph has indexing errors */
-'allow'
-/** If the subgraph has indexing errors, data will be omitted. The default. */
- | 'deny';
 /** TACoOperator represents the TACo operator's info of a staking provider */
 export type TACoOperator = {
     /** ID is the staking provider address */
@@ -646,6 +554,34 @@ export type TACoOperator_filter = {
     bondedTimestampFirstOperator_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
 };
 export type TACoOperator_orderBy = 'id' | 'operator' | 'confirmedTimestamp' | 'confirmedTimestampFirstOperator' | 'confirmed' | 'bondedTimestamp' | 'bondedTimestampFirstOperator';
+export type _Block_ = {
+    /** The hash of the block */
+    hash?: Maybe<Scalars['Bytes']>;
+    /** The block number */
+    number: Scalars['Int'];
+    /** Integer representation of the timestamp stored in blocks for the chain */
+    timestamp?: Maybe<Scalars['Int']>;
+};
+/** The type for the top-level _meta field */
+export type _Meta_ = {
+    /**
+     * Information about a specific subgraph block. The hash of the block
+     * will be null if the _meta field has a block constraint that asks for
+     * a block number. It will be filled if the _meta field has no block constraint
+     * and therefore asks for the latest  block
+     *
+     */
+    block: _Block_;
+    /** The deployment ID */
+    deployment: Scalars['String'];
+    /** If `true`, the subgraph encountered indexing errors at some past block */
+    hasIndexingErrors: Scalars['Boolean'];
+};
+export type _SubgraphErrorPolicy_ = 
+/** Data will be returned even if the subgraph has indexing errors */
+'allow'
+/** If the subgraph has indexing errors, data will be omitted. The default. */
+ | 'deny';
 /** Account represents the base user data: user's stakes and delegations */
 export type Account = {
     /** ID is the account's ETH address */
@@ -706,6 +642,8 @@ export type AppAuthHistory = {
     appAuthorization: AppAuthorization;
     /** Amount of total T authorized by staking provider to the application in this block */
     amount: Scalars['BigInt'];
+    /** Amount of T that has been increased or decreased */
+    eventAmount: Scalars['BigInt'];
     /** Type of event that caused this update */
     eventType: Scalars['String'];
     /** Block in which this authorization update became effective */
@@ -751,6 +689,14 @@ export type AppAuthHistory_filter = {
     amount_lte?: InputMaybe<Scalars['BigInt']>;
     amount_in?: InputMaybe<Array<Scalars['BigInt']>>;
     amount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+    eventAmount?: InputMaybe<Scalars['BigInt']>;
+    eventAmount_not?: InputMaybe<Scalars['BigInt']>;
+    eventAmount_gt?: InputMaybe<Scalars['BigInt']>;
+    eventAmount_lt?: InputMaybe<Scalars['BigInt']>;
+    eventAmount_gte?: InputMaybe<Scalars['BigInt']>;
+    eventAmount_lte?: InputMaybe<Scalars['BigInt']>;
+    eventAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
+    eventAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
     eventType?: InputMaybe<Scalars['String']>;
     eventType_not?: InputMaybe<Scalars['String']>;
     eventType_gt?: InputMaybe<Scalars['String']>;
@@ -792,7 +738,7 @@ export type AppAuthHistory_filter = {
     and?: InputMaybe<Array<InputMaybe<AppAuthHistory_filter>>>;
     or?: InputMaybe<Array<InputMaybe<AppAuthHistory_filter>>>;
 };
-export type AppAuthHistory_orderBy = 'id' | 'appAuthorization' | 'appAuthorization__id' | 'appAuthorization__appAddress' | 'appAuthorization__amount' | 'appAuthorization__amountDeauthorizing' | 'appAuthorization__appName' | 'amount' | 'eventType' | 'blockNumber' | 'timestamp';
+export type AppAuthHistory_orderBy = 'id' | 'appAuthorization' | 'appAuthorization__id' | 'appAuthorization__appAddress' | 'appAuthorization__amount' | 'appAuthorization__amountDeauthorizing' | 'appAuthorization__appName' | 'amount' | 'eventAmount' | 'eventType' | 'blockNumber' | 'timestamp';
 /** AppAuthorizations represents the stake authorizations to Threshold apps */
 export type AppAuthorization = {
     /** ID is <staking provider address>-<application address> */
@@ -1354,6 +1300,70 @@ export type TokenholderDelegation_filter = {
     or?: InputMaybe<Array<InputMaybe<TokenholderDelegation_filter>>>;
 };
 export type TokenholderDelegation_orderBy = 'id' | 'totalWeight' | 'liquidWeight' | 'delegators';
+/** SimplePREApplication represents the state of Simple Proxy ReEncryption operators */
+export type SimplePREApplication = {
+    /** ID is the staking provider ETH address */
+    id: Scalars['ID'];
+    /** Operator's ETH address */
+    operator: Scalars['Bytes'];
+    /** Stake address related to this PRE operator */
+    stake: Scalars['Bytes'];
+    /** UNIX timestamp in which an operator was bonded for this staking provider for first time */
+    bondedTimestamp?: Maybe<Scalars['BigInt']>;
+    /** UNIX timestamp in which an operator was confirmed for this staking provider for first time */
+    confirmedTimestamp?: Maybe<Scalars['BigInt']>;
+};
+export type SimplePREApplication_filter = {
+    id?: InputMaybe<Scalars['ID']>;
+    id_not?: InputMaybe<Scalars['ID']>;
+    id_gt?: InputMaybe<Scalars['ID']>;
+    id_lt?: InputMaybe<Scalars['ID']>;
+    id_gte?: InputMaybe<Scalars['ID']>;
+    id_lte?: InputMaybe<Scalars['ID']>;
+    id_in?: InputMaybe<Array<Scalars['ID']>>;
+    id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+    operator?: InputMaybe<Scalars['Bytes']>;
+    operator_not?: InputMaybe<Scalars['Bytes']>;
+    operator_gt?: InputMaybe<Scalars['Bytes']>;
+    operator_lt?: InputMaybe<Scalars['Bytes']>;
+    operator_gte?: InputMaybe<Scalars['Bytes']>;
+    operator_lte?: InputMaybe<Scalars['Bytes']>;
+    operator_in?: InputMaybe<Array<Scalars['Bytes']>>;
+    operator_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
+    operator_contains?: InputMaybe<Scalars['Bytes']>;
+    operator_not_contains?: InputMaybe<Scalars['Bytes']>;
+    stake?: InputMaybe<Scalars['Bytes']>;
+    stake_not?: InputMaybe<Scalars['Bytes']>;
+    stake_gt?: InputMaybe<Scalars['Bytes']>;
+    stake_lt?: InputMaybe<Scalars['Bytes']>;
+    stake_gte?: InputMaybe<Scalars['Bytes']>;
+    stake_lte?: InputMaybe<Scalars['Bytes']>;
+    stake_in?: InputMaybe<Array<Scalars['Bytes']>>;
+    stake_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
+    stake_contains?: InputMaybe<Scalars['Bytes']>;
+    stake_not_contains?: InputMaybe<Scalars['Bytes']>;
+    bondedTimestamp?: InputMaybe<Scalars['BigInt']>;
+    bondedTimestamp_not?: InputMaybe<Scalars['BigInt']>;
+    bondedTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
+    bondedTimestamp_lt?: InputMaybe<Scalars['BigInt']>;
+    bondedTimestamp_gte?: InputMaybe<Scalars['BigInt']>;
+    bondedTimestamp_lte?: InputMaybe<Scalars['BigInt']>;
+    bondedTimestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+    bondedTimestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+    confirmedTimestamp?: InputMaybe<Scalars['BigInt']>;
+    confirmedTimestamp_not?: InputMaybe<Scalars['BigInt']>;
+    confirmedTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
+    confirmedTimestamp_lt?: InputMaybe<Scalars['BigInt']>;
+    confirmedTimestamp_gte?: InputMaybe<Scalars['BigInt']>;
+    confirmedTimestamp_lte?: InputMaybe<Scalars['BigInt']>;
+    confirmedTimestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+    confirmedTimestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+    /** Filter for the block changed event. */
+    _change_block?: InputMaybe<BlockChangedFilter>;
+    and?: InputMaybe<Array<InputMaybe<SimplePREApplication_filter>>>;
+    or?: InputMaybe<Array<InputMaybe<SimplePREApplication_filter>>>;
+};
+export type SimplePREApplication_orderBy = 'id' | 'operator' | 'stake' | 'bondedTimestamp' | 'confirmedTimestamp';
 export type WithIndex<TObject> = TObject & Record<string, any>;
 export type ResolversObject<TObject> = WithIndex<TObject>;
 export type ResolverTypeWrapper<T> = Promise<T> | T;
@@ -1407,16 +1417,13 @@ export type ResolversTypes = ResolversObject<{
     Int: ResolverTypeWrapper<Scalars['Int']>;
     Int8: ResolverTypeWrapper<Scalars['Int8']>;
     OrderDirection: OrderDirection;
-    SimplePREApplication: ResolverTypeWrapper<SimplePREApplication>;
-    SimplePREApplication_filter: SimplePREApplication_filter;
-    SimplePREApplication_orderBy: SimplePREApplication_orderBy;
     String: ResolverTypeWrapper<Scalars['String']>;
-    _Block_: ResolverTypeWrapper<_Block_>;
-    _Meta_: ResolverTypeWrapper<_Meta_>;
-    _SubgraphErrorPolicy_: _SubgraphErrorPolicy_;
     TACoOperator: ResolverTypeWrapper<TACoOperator>;
     TACoOperator_filter: TACoOperator_filter;
     TACoOperator_orderBy: TACoOperator_orderBy;
+    _Block_: ResolverTypeWrapper<_Block_>;
+    _Meta_: ResolverTypeWrapper<_Meta_>;
+    _SubgraphErrorPolicy_: _SubgraphErrorPolicy_;
     Account: ResolverTypeWrapper<Account>;
     Account_filter: Account_filter;
     Account_orderBy: Account_orderBy;
@@ -1450,6 +1457,9 @@ export type ResolversTypes = ResolversObject<{
     TokenholderDelegation: ResolverTypeWrapper<TokenholderDelegation>;
     TokenholderDelegation_filter: TokenholderDelegation_filter;
     TokenholderDelegation_orderBy: TokenholderDelegation_orderBy;
+    SimplePREApplication: ResolverTypeWrapper<SimplePREApplication>;
+    SimplePREApplication_filter: SimplePREApplication_filter;
+    SimplePREApplication_orderBy: SimplePREApplication_orderBy;
 }>;
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = ResolversObject<{
@@ -1465,13 +1475,11 @@ export type ResolversParentTypes = ResolversObject<{
     ID: Scalars['ID'];
     Int: Scalars['Int'];
     Int8: Scalars['Int8'];
-    SimplePREApplication: SimplePREApplication;
-    SimplePREApplication_filter: SimplePREApplication_filter;
     String: Scalars['String'];
-    _Block_: _Block_;
-    _Meta_: _Meta_;
     TACoOperator: TACoOperator;
     TACoOperator_filter: TACoOperator_filter;
+    _Block_: _Block_;
+    _Meta_: _Meta_;
     Account: Account;
     Account_filter: Account_filter;
     AppAuthHistory: AppAuthHistory;
@@ -1494,6 +1502,8 @@ export type ResolversParentTypes = ResolversObject<{
     TACoCommitment_filter: TACoCommitment_filter;
     TokenholderDelegation: TokenholderDelegation;
     TokenholderDelegation_filter: TokenholderDelegation_filter;
+    SimplePREApplication: SimplePREApplication;
+    SimplePREApplication_filter: SimplePREApplication_filter;
 }>;
 export type entityDirectiveArgs = {};
 export type entityDirectiveResolver<Result, Parent, ContextType = MeshContext, Args = entityDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
@@ -1506,11 +1516,9 @@ export type derivedFromDirectiveArgs = {
 };
 export type derivedFromDirectiveResolver<Result, Parent, ContextType = MeshContext, Args = derivedFromDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
 export type QueryResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
-    simplePREApplication?: Resolver<Maybe<ResolversTypes['SimplePREApplication']>, ParentType, ContextType, RequireFields<QuerysimplePREApplicationArgs, 'id' | 'subgraphError'>>;
-    simplePREApplications?: Resolver<Array<ResolversTypes['SimplePREApplication']>, ParentType, ContextType, RequireFields<QuerysimplePREApplicationsArgs, 'skip' | 'first' | 'subgraphError'>>;
-    _meta?: Resolver<Maybe<ResolversTypes['_Meta_']>, ParentType, ContextType, Partial<Query_metaArgs>>;
     tacoOperator?: Resolver<Maybe<ResolversTypes['TACoOperator']>, ParentType, ContextType, RequireFields<QuerytacoOperatorArgs, 'id' | 'subgraphError'>>;
     tacoOperators?: Resolver<Array<ResolversTypes['TACoOperator']>, ParentType, ContextType, RequireFields<QuerytacoOperatorsArgs, 'skip' | 'first' | 'subgraphError'>>;
+    _meta?: Resolver<Maybe<ResolversTypes['_Meta_']>, ParentType, ContextType, Partial<Query_metaArgs>>;
     account?: Resolver<Maybe<ResolversTypes['Account']>, ParentType, ContextType, RequireFields<QueryaccountArgs, 'id' | 'subgraphError'>>;
     accounts?: Resolver<Array<ResolversTypes['Account']>, ParentType, ContextType, RequireFields<QueryaccountsArgs, 'skip' | 'first' | 'subgraphError'>>;
     stakeData?: Resolver<Maybe<ResolversTypes['StakeData']>, ParentType, ContextType, RequireFields<QuerystakeDataArgs, 'id' | 'subgraphError'>>;
@@ -1533,13 +1541,13 @@ export type QueryResolvers<ContextType = MeshContext, ParentType extends Resolve
     tacoCommitments?: Resolver<Array<ResolversTypes['TACoCommitment']>, ParentType, ContextType, RequireFields<QuerytacoCommitmentsArgs, 'skip' | 'first' | 'subgraphError'>>;
     delegation?: Resolver<Maybe<ResolversTypes['Delegation']>, ParentType, ContextType, RequireFields<QuerydelegationArgs, 'id' | 'subgraphError'>>;
     delegations?: Resolver<Array<ResolversTypes['Delegation']>, ParentType, ContextType, RequireFields<QuerydelegationsArgs, 'skip' | 'first' | 'subgraphError'>>;
+    simplePREApplication?: Resolver<Maybe<ResolversTypes['SimplePREApplication']>, ParentType, ContextType, RequireFields<QuerysimplePREApplicationArgs, 'id' | 'subgraphError'>>;
+    simplePREApplications?: Resolver<Array<ResolversTypes['SimplePREApplication']>, ParentType, ContextType, RequireFields<QuerysimplePREApplicationsArgs, 'skip' | 'first' | 'subgraphError'>>;
 }>;
 export type SubscriptionResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['Subscription'] = ResolversParentTypes['Subscription']> = ResolversObject<{
-    simplePREApplication?: SubscriptionResolver<Maybe<ResolversTypes['SimplePREApplication']>, "simplePREApplication", ParentType, ContextType, RequireFields<SubscriptionsimplePREApplicationArgs, 'id' | 'subgraphError'>>;
-    simplePREApplications?: SubscriptionResolver<Array<ResolversTypes['SimplePREApplication']>, "simplePREApplications", ParentType, ContextType, RequireFields<SubscriptionsimplePREApplicationsArgs, 'skip' | 'first' | 'subgraphError'>>;
-    _meta?: SubscriptionResolver<Maybe<ResolversTypes['_Meta_']>, "_meta", ParentType, ContextType, Partial<Subscription_metaArgs>>;
     tacoOperator?: SubscriptionResolver<Maybe<ResolversTypes['TACoOperator']>, "tacoOperator", ParentType, ContextType, RequireFields<SubscriptiontacoOperatorArgs, 'id' | 'subgraphError'>>;
     tacoOperators?: SubscriptionResolver<Array<ResolversTypes['TACoOperator']>, "tacoOperators", ParentType, ContextType, RequireFields<SubscriptiontacoOperatorsArgs, 'skip' | 'first' | 'subgraphError'>>;
+    _meta?: SubscriptionResolver<Maybe<ResolversTypes['_Meta_']>, "_meta", ParentType, ContextType, Partial<Subscription_metaArgs>>;
     account?: SubscriptionResolver<Maybe<ResolversTypes['Account']>, "account", ParentType, ContextType, RequireFields<SubscriptionaccountArgs, 'id' | 'subgraphError'>>;
     accounts?: SubscriptionResolver<Array<ResolversTypes['Account']>, "accounts", ParentType, ContextType, RequireFields<SubscriptionaccountsArgs, 'skip' | 'first' | 'subgraphError'>>;
     stakeData?: SubscriptionResolver<Maybe<ResolversTypes['StakeData']>, "stakeData", ParentType, ContextType, RequireFields<SubscriptionstakeDataArgs, 'id' | 'subgraphError'>>;
@@ -1562,6 +1570,8 @@ export type SubscriptionResolvers<ContextType = MeshContext, ParentType extends 
     tacoCommitments?: SubscriptionResolver<Array<ResolversTypes['TACoCommitment']>, "tacoCommitments", ParentType, ContextType, RequireFields<SubscriptiontacoCommitmentsArgs, 'skip' | 'first' | 'subgraphError'>>;
     delegation?: SubscriptionResolver<Maybe<ResolversTypes['Delegation']>, "delegation", ParentType, ContextType, RequireFields<SubscriptiondelegationArgs, 'id' | 'subgraphError'>>;
     delegations?: SubscriptionResolver<Array<ResolversTypes['Delegation']>, "delegations", ParentType, ContextType, RequireFields<SubscriptiondelegationsArgs, 'skip' | 'first' | 'subgraphError'>>;
+    simplePREApplication?: SubscriptionResolver<Maybe<ResolversTypes['SimplePREApplication']>, "simplePREApplication", ParentType, ContextType, RequireFields<SubscriptionsimplePREApplicationArgs, 'id' | 'subgraphError'>>;
+    simplePREApplications?: SubscriptionResolver<Array<ResolversTypes['SimplePREApplication']>, "simplePREApplications", ParentType, ContextType, RequireFields<SubscriptionsimplePREApplicationsArgs, 'skip' | 'first' | 'subgraphError'>>;
 }>;
 export interface BigDecimalScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['BigDecimal'], any> {
     name: 'BigDecimal';
@@ -1575,12 +1585,14 @@ export interface BytesScalarConfig extends GraphQLScalarTypeConfig<ResolversType
 export interface Int8ScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['Int8'], any> {
     name: 'Int8';
 }
-export type SimplePREApplicationResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['SimplePREApplication'] = ResolversParentTypes['SimplePREApplication']> = ResolversObject<{
+export type TACoOperatorResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['TACoOperator'] = ResolversParentTypes['TACoOperator']> = ResolversObject<{
     id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
     operator?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
-    stake?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
-    bondedTimestamp?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-    confirmedTimestamp?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+    confirmedTimestamp?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
+    confirmedTimestampFirstOperator?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+    confirmed?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+    bondedTimestamp?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
+    bondedTimestampFirstOperator?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
     __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 export type _Block_Resolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['_Block_'] = ResolversParentTypes['_Block_']> = ResolversObject<{
@@ -1595,16 +1607,6 @@ export type _Meta_Resolvers<ContextType = MeshContext, ParentType extends Resolv
     hasIndexingErrors?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
     __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
-export type TACoOperatorResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['TACoOperator'] = ResolversParentTypes['TACoOperator']> = ResolversObject<{
-    id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-    operator?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
-    confirmedTimestamp?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
-    confirmedTimestampFirstOperator?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-    confirmed?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
-    bondedTimestamp?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
-    bondedTimestampFirstOperator?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-    __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
 export type AccountResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['Account'] = ResolversParentTypes['Account']> = ResolversObject<{
     id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
     stakes?: Resolver<Maybe<Array<ResolversTypes['StakeData']>>, ParentType, ContextType, RequireFields<AccountstakesArgs, 'skip' | 'first'>>;
@@ -1615,6 +1617,7 @@ export type AppAuthHistoryResolvers<ContextType = MeshContext, ParentType extend
     id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
     appAuthorization?: Resolver<ResolversTypes['AppAuthorization'], ParentType, ContextType>;
     amount?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
+    eventAmount?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
     eventType?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
     blockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
     timestamp?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
@@ -1687,6 +1690,14 @@ export type TokenholderDelegationResolvers<ContextType = MeshContext, ParentType
     delegators?: Resolver<Maybe<Array<ResolversTypes['Account']>>, ParentType, ContextType, RequireFields<TokenholderDelegationdelegatorsArgs, 'skip' | 'first'>>;
     __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
+export type SimplePREApplicationResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['SimplePREApplication'] = ResolversParentTypes['SimplePREApplication']> = ResolversObject<{
+    id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+    operator?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
+    stake?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
+    bondedTimestamp?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+    confirmedTimestamp?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+    __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
 export type Resolvers<ContextType = MeshContext> = ResolversObject<{
     Query?: QueryResolvers<ContextType>;
     Subscription?: SubscriptionResolvers<ContextType>;
@@ -1694,10 +1705,9 @@ export type Resolvers<ContextType = MeshContext> = ResolversObject<{
     BigInt?: GraphQLScalarType;
     Bytes?: GraphQLScalarType;
     Int8?: GraphQLScalarType;
-    SimplePREApplication?: SimplePREApplicationResolvers<ContextType>;
+    TACoOperator?: TACoOperatorResolvers<ContextType>;
     _Block_?: _Block_Resolvers<ContextType>;
     _Meta_?: _Meta_Resolvers<ContextType>;
-    TACoOperator?: TACoOperatorResolvers<ContextType>;
     Account?: AccountResolvers<ContextType>;
     AppAuthHistory?: AppAuthHistoryResolvers<ContextType>;
     AppAuthorization?: AppAuthorizationResolvers<ContextType>;
@@ -1709,13 +1719,14 @@ export type Resolvers<ContextType = MeshContext> = ResolversObject<{
     StakeHistory?: StakeHistoryResolvers<ContextType>;
     TACoCommitment?: TACoCommitmentResolvers<ContextType>;
     TokenholderDelegation?: TokenholderDelegationResolvers<ContextType>;
+    SimplePREApplication?: SimplePREApplicationResolvers<ContextType>;
 }>;
 export type DirectiveResolvers<ContextType = MeshContext> = ResolversObject<{
     entity?: entityDirectiveResolver<any, any, ContextType>;
     subgraphId?: subgraphIdDirectiveResolver<any, any, ContextType>;
     derivedFrom?: derivedFromDirectiveResolver<any, any, ContextType>;
 }>;
-export type MeshContext = SimpleTypes.Context & ThresholdStakingPolygonTypes.Context & DevelopmentThresholdSubgraphTypes.Context & BaseMeshContext;
+export type MeshContext = ThresholdStakingPolygonTypes.Context & DevelopmentThresholdSubgraphTypes.Context & SimpleTypes.Context & BaseMeshContext;
 export declare const rawServeConfig: YamlConfig.Config['serve'];
 export declare function getMeshOptions(): Promise<GetMeshOptions>;
 export declare function createBuiltMeshHTTPHandler<TServerContext = {}>(): MeshHTTPHandler<TServerContext>;
@@ -1723,6 +1734,24 @@ export declare function getBuiltGraphClient(): Promise<MeshInstance>;
 export declare const execute: ExecuteMeshFn;
 export declare const subscribe: SubscribeMeshFn;
 export declare function getBuiltGraphSDK<TGlobalContext = any, TOperationContext = any>(globalContext?: TGlobalContext): {
+    RBAuthHistoryQuery(variables?: Exact<{
+        startTimestamp?: any;
+        endTimestamp?: any;
+        first?: number;
+        skip?: number;
+    }>, options?: TOperationContext): Promise<RBAuthHistoryQueryQuery>;
+    TbtcAuthHistoryQuery(variables?: Exact<{
+        startTimestamp?: any;
+        endTimestamp?: any;
+        first?: number;
+        skip?: number;
+    }>, options?: TOperationContext): Promise<TbtcAuthHistoryQueryQuery>;
+    TACOAuthHistoryQuery(variables?: Exact<{
+        startTimestamp?: any;
+        endTimestamp?: any;
+        first?: number;
+        skip?: number;
+    }>, options?: TOperationContext): Promise<TACOAuthHistoryQueryQuery>;
     PREOpsBeforeLegacyDeactQuery(variables?: Exact<{
         blockNumber?: number;
     }>, options?: TOperationContext): Promise<PREOpsBeforeLegacyDeactQueryQuery>;
@@ -1742,6 +1771,45 @@ export declare function getBuiltGraphSDK<TGlobalContext = any, TOperationContext
         first?: number;
         skip?: number;
     }>, options?: TOperationContext): Promise<TACoOperatorsQuery>;
+};
+export type RBAuthHistoryQueryQueryVariables = Exact<{
+    startTimestamp?: InputMaybe<Scalars['BigInt']>;
+    endTimestamp?: InputMaybe<Scalars['BigInt']>;
+    first?: InputMaybe<Scalars['Int']>;
+    skip?: InputMaybe<Scalars['Int']>;
+}>;
+export type RBAuthHistoryQueryQuery = {
+    appAuthHistories: Array<(Pick<AppAuthHistory, 'timestamp' | 'amount' | 'eventAmount' | 'blockNumber' | 'eventType'> & {
+        appAuthorization: (Pick<AppAuthorization, 'appName'> & {
+            stake: Pick<StakeData, 'id' | 'beneficiary'>;
+        });
+    })>;
+};
+export type TbtcAuthHistoryQueryQueryVariables = Exact<{
+    startTimestamp?: InputMaybe<Scalars['BigInt']>;
+    endTimestamp?: InputMaybe<Scalars['BigInt']>;
+    first?: InputMaybe<Scalars['Int']>;
+    skip?: InputMaybe<Scalars['Int']>;
+}>;
+export type TbtcAuthHistoryQueryQuery = {
+    appAuthHistories: Array<(Pick<AppAuthHistory, 'timestamp' | 'amount' | 'eventAmount' | 'blockNumber' | 'eventType'> & {
+        appAuthorization: (Pick<AppAuthorization, 'appName'> & {
+            stake: Pick<StakeData, 'id' | 'beneficiary'>;
+        });
+    })>;
+};
+export type TACOAuthHistoryQueryQueryVariables = Exact<{
+    startTimestamp?: InputMaybe<Scalars['BigInt']>;
+    endTimestamp?: InputMaybe<Scalars['BigInt']>;
+    first?: InputMaybe<Scalars['Int']>;
+    skip?: InputMaybe<Scalars['Int']>;
+}>;
+export type TACOAuthHistoryQueryQuery = {
+    appAuthHistories: Array<(Pick<AppAuthHistory, 'timestamp' | 'amount' | 'eventAmount' | 'blockNumber' | 'eventType'> & {
+        appAuthorization: (Pick<AppAuthorization, 'appName'> & {
+            stake: Pick<StakeData, 'id' | 'beneficiary'>;
+        });
+    })>;
 };
 export type PREOpsBeforeLegacyDeactQueryQueryVariables = Exact<{
     blockNumber?: InputMaybe<Scalars['Int']>;
@@ -1780,6 +1848,24 @@ export type TACoOperatorsQueryVariables = Exact<{
 export type TACoOperatorsQuery = {
     tacoOperators: Array<Pick<TACoOperator, 'id' | 'operator' | 'confirmedTimestampFirstOperator'>>;
 };
+export declare const RBAuthHistoryQueryDocument: DocumentNode<RBAuthHistoryQueryQuery, Exact<{
+    startTimestamp?: InputMaybe<Scalars['BigInt']>;
+    endTimestamp?: InputMaybe<Scalars['BigInt']>;
+    first?: InputMaybe<Scalars['Int']>;
+    skip?: InputMaybe<Scalars['Int']>;
+}>>;
+export declare const TbtcAuthHistoryQueryDocument: DocumentNode<TbtcAuthHistoryQueryQuery, Exact<{
+    startTimestamp?: InputMaybe<Scalars['BigInt']>;
+    endTimestamp?: InputMaybe<Scalars['BigInt']>;
+    first?: InputMaybe<Scalars['Int']>;
+    skip?: InputMaybe<Scalars['Int']>;
+}>>;
+export declare const TACOAuthHistoryQueryDocument: DocumentNode<TACOAuthHistoryQueryQuery, Exact<{
+    startTimestamp?: InputMaybe<Scalars['BigInt']>;
+    endTimestamp?: InputMaybe<Scalars['BigInt']>;
+    first?: InputMaybe<Scalars['Int']>;
+    skip?: InputMaybe<Scalars['Int']>;
+}>>;
 export declare const PREOpsBeforeLegacyDeactQueryDocument: DocumentNode<PREOpsBeforeLegacyDeactQueryQuery, Exact<{
     blockNumber?: InputMaybe<Scalars['Int']>;
 }>>;
@@ -1801,6 +1887,9 @@ export declare const TACoOperatorsDocument: DocumentNode<TACoOperatorsQuery, Exa
 }>>;
 export type Requester<C = {}, E = unknown> = <R, V>(doc: DocumentNode, vars?: V, options?: C) => Promise<R> | AsyncIterable<R>;
 export declare function getSdk<C, E>(requester: Requester<C, E>): {
+    RBAuthHistoryQuery(variables?: RBAuthHistoryQueryQueryVariables, options?: C): Promise<RBAuthHistoryQueryQuery>;
+    TbtcAuthHistoryQuery(variables?: TbtcAuthHistoryQueryQueryVariables, options?: C): Promise<TbtcAuthHistoryQueryQuery>;
+    TACOAuthHistoryQuery(variables?: TACOAuthHistoryQueryQueryVariables, options?: C): Promise<TACOAuthHistoryQueryQuery>;
     PREOpsBeforeLegacyDeactQuery(variables?: PREOpsBeforeLegacyDeactQueryQueryVariables, options?: C): Promise<PREOpsBeforeLegacyDeactQueryQuery>;
     StakeHistoryBetweenTwoDatesQuery(variables?: StakeHistoryBetweenTwoDatesQueryQueryVariables, options?: C): Promise<StakeHistoryBetweenTwoDatesQueryQuery>;
     TACoAuthHistoryQuery(variables?: TACoAuthHistoryQueryQueryVariables, options?: C): Promise<TACoAuthHistoryQueryQuery>;

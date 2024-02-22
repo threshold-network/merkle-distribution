@@ -11,19 +11,19 @@ import { createMeshHTTPHandler } from '@graphql-mesh/http';
 import { getMesh } from '@graphql-mesh/runtime';
 import { MeshStore, FsStoreStorageAdapter } from '@graphql-mesh/store';
 import { path as pathModule } from '@graphql-mesh/cross-helpers';
-import * as importedModule$0 from "./sources/simple/introspectionSchema.json";
-import * as importedModule$1 from "./sources/threshold-staking-polygon/introspectionSchema.json";
-import * as importedModule$2 from "./sources/development-threshold-subgraph/introspectionSchema.json";
+import * as importedModule$0 from "./sources/threshold-staking-polygon/introspectionSchema.json";
+import * as importedModule$1 from "./sources/development-threshold-subgraph/introspectionSchema.json";
+import * as importedModule$2 from "./sources/simple/introspectionSchema.json";
 import { fileURLToPath } from '@graphql-mesh/utils';
 const baseDir = pathModule.join(pathModule.dirname(fileURLToPath(import.meta.url)), '..');
 const importFn = (moduleId) => {
     const relativeModuleId = (pathModule.isAbsolute(moduleId) ? pathModule.relative(baseDir, moduleId) : moduleId).split('\\').join('/').replace(baseDir + '/', '');
     switch (relativeModuleId) {
-        case ".graphclient/sources/simple/introspectionSchema.json":
-            return Promise.resolve(importedModule$0);
         case ".graphclient/sources/threshold-staking-polygon/introspectionSchema.json":
-            return Promise.resolve(importedModule$1);
+            return Promise.resolve(importedModule$0);
         case ".graphclient/sources/development-threshold-subgraph/introspectionSchema.json":
+            return Promise.resolve(importedModule$1);
+        case ".graphclient/sources/simple/introspectionSchema.json":
             return Promise.resolve(importedModule$2);
         default:
             return Promise.reject(new Error(`Cannot find module '${relativeModuleId}'.`));
@@ -139,6 +139,24 @@ export async function getMeshOptions() {
         get documents() {
             return [
                 {
+                    document: RbAuthHistoryQueryDocument,
+                    get rawSDL() {
+                        return printWithCache(RbAuthHistoryQueryDocument);
+                    },
+                    location: 'RbAuthHistoryQueryDocument.graphql'
+                }, {
+                    document: TbtcAuthHistoryQueryDocument,
+                    get rawSDL() {
+                        return printWithCache(TbtcAuthHistoryQueryDocument);
+                    },
+                    location: 'TbtcAuthHistoryQueryDocument.graphql'
+                }, {
+                    document: TacoAuthHistoryQueryDocument,
+                    get rawSDL() {
+                        return printWithCache(TacoAuthHistoryQueryDocument);
+                    },
+                    location: 'TacoAuthHistoryQueryDocument.graphql'
+                }, {
                     document: PreOpsBeforeLegacyDeactQueryDocument,
                     get rawSDL() {
                         return printWithCache(PreOpsBeforeLegacyDeactQueryDocument);
@@ -194,6 +212,72 @@ export function getBuiltGraphSDK(globalContext) {
     const sdkRequester$ = getBuiltGraphClient().then(({ sdkRequesterFactory }) => sdkRequesterFactory(globalContext));
     return getSdk((...args) => sdkRequester$.then(sdkRequester => sdkRequester(...args)));
 }
+export const RBAuthHistoryQueryDocument = gql `
+    query RBAuthHistoryQuery($startTimestamp: BigInt, $endTimestamp: BigInt, $first: Int = 1000, $skip: Int = 0) {
+  appAuthHistories(
+    where: {timestamp_gte: $startTimestamp, timestamp_lt: $endTimestamp, appAuthorization_: {appName: "Random Beacon"}}
+    first: $first
+    skip: $skip
+  ) {
+    timestamp
+    amount
+    eventAmount
+    blockNumber
+    eventType
+    appAuthorization {
+      stake {
+        id
+        beneficiary
+      }
+      appName
+    }
+  }
+}
+    `;
+export const TbtcAuthHistoryQueryDocument = gql `
+    query TbtcAuthHistoryQuery($startTimestamp: BigInt, $endTimestamp: BigInt, $first: Int = 1000, $skip: Int = 0) {
+  appAuthHistories(
+    where: {timestamp_gte: $startTimestamp, timestamp_lt: $endTimestamp, appAuthorization_: {appName: "tBTC"}}
+    first: $first
+    skip: $skip
+  ) {
+    timestamp
+    amount
+    eventAmount
+    blockNumber
+    eventType
+    appAuthorization {
+      stake {
+        id
+        beneficiary
+      }
+      appName
+    }
+  }
+}
+    `;
+export const TACOAuthHistoryQueryDocument = gql `
+    query TACOAuthHistoryQuery($startTimestamp: BigInt, $endTimestamp: BigInt, $first: Int = 1000, $skip: Int = 0) {
+  appAuthHistories(
+    where: {timestamp_gte: $startTimestamp, timestamp_lt: $endTimestamp, appAuthorization_: {appName: "TACo"}}
+    first: $first
+    skip: $skip
+  ) {
+    timestamp
+    amount
+    eventAmount
+    blockNumber
+    eventType
+    appAuthorization {
+      stake {
+        id
+        beneficiary
+      }
+      appName
+    }
+  }
+}
+    `;
 export const PREOpsBeforeLegacyDeactQueryDocument = gql `
     query PREOpsBeforeLegacyDeactQuery($blockNumber: Int) {
   simplePREApplications(first: 1000, block: {number: $blockNumber}) {
@@ -256,6 +340,15 @@ export const TACoOperatorsDocument = gql `
     `;
 export function getSdk(requester) {
     return {
+        RBAuthHistoryQuery(variables, options) {
+            return requester(RBAuthHistoryQueryDocument, variables, options);
+        },
+        TbtcAuthHistoryQuery(variables, options) {
+            return requester(TbtcAuthHistoryQueryDocument, variables, options);
+        },
+        TACOAuthHistoryQuery(variables, options) {
+            return requester(TACOAuthHistoryQueryDocument, variables, options);
+        },
         PREOpsBeforeLegacyDeactQuery(variables, options) {
             return requester(PREOpsBeforeLegacyDeactQueryDocument, variables, options);
         },

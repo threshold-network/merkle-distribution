@@ -22,3 +22,4 @@ documents:
   - ./src/scripts/utils/graphql/TACoOperators.gql
   - ./src/scripts/utils/graphql/PREOpsBeforeLegacyDeactQuery.gql
   - ./src/scripts/utils/graphql/StakeHistoryBetweenTwoDatesQuery.gql
+  - ./src/scripts/utils/graphql/AuthHistoryBetweenTwoDatesQuery.gql
