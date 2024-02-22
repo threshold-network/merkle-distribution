@@ -229,6 +229,11 @@ async function getTbtcRewards(legacyStakes) {
   Object.keys(legacyStakes).map((stake) => {
     // if reauthorization done...
     if (rbAuthIncreases[stake] && tbtcAuthIncreases[stake]) {
+      const currentAuth = BigNumber(legacyStakes[stake].auths.RandomBeacon).lt(
+        BigNumber(legacyStakes[stake].auths.tBTC)
+      )
+        ? legacyStakes[stake].auths.RandomBeacon
+        : legacyStakes[stake].auths.tBTC
       // the reauthorized amount is the lower between RB and tBTC
       const reauthorizedAmount = BigNumber(rbAuthIncreases[stake].amount).lt(
         BigNumber(tbtcAuthIncreases[stake].amount)
@@ -256,6 +261,7 @@ async function getTbtcRewards(legacyStakes) {
       )
 
       reauthorizedStakes[stake] = {
+        currentAuth: currentAuth,
         reauthorizedAmount: reauthorizedAmount,
         reauthorizedTimestamp: reauthorizedTimestamp,
         postRestakeRBAuthHistory: postRestakeRBAuthHistory,
@@ -281,10 +287,53 @@ async function getTbtcRewards(legacyStakes) {
     }
   })
 
-  // TODO: 2. calculate rewards for those that didn't reauthorized
   // Let's calculate the rewards for those stakes that didn't reauthorized
+  const rewardsAPR = 15
+  const tbtcAllocation = 75
+  const conversion_denominator = 100 * 100
+  const noReauthRewards = {}
+  Object.keys(noReauthorizedStakes).map((stake) => {
+    const secondsSinceDeact = TRANSITION_DEADLINE - LEGACY_DEACT_TIMESTAMP
+    const reward = BigNumber(noReauthorizedStakes[stake].amount)
+      .times(rewardsAPR)
+      .times(tbtcAllocation)
+      .times(secondsSinceDeact)
+      .div(SECONDS_IN_YEAR * conversion_denominator)
 
-  // TODO: 3. calculate rewards for those that reauthorized
+    if (!reward.isZero()) {
+      noReauthRewards[stake] = reward.toFixed(0)
+    }
+  })
+
+  // Let's calculate the rewards for those stakes that did reauthorize
+  const reauthRewards = {}
+  Object.keys(reauthorizedStakes).map((stake) => {
+    const secondsSinceDeact =
+      reauthorizedStakes[stake].reauthorizedTimestamp - LEGACY_DEACT_TIMESTAMP
+
+    const reauthReward = BigNumber(reauthorizedStakes[stake].reauthorizedAmount)
+      .times(rewardsAPR)
+      .times(tbtcAllocation)
+      .times(secondsSinceDeact)
+      .div(SECONDS_IN_YEAR * conversion_denominator)
+
+    const secondsSinceReauth =
+      TRANSITION_DEADLINE - reauthorizedStakes[stake].reauthorizedTimestamp
+
+    const postReauthReward = BigNumber(reauthorizedStakes[stake].currentAuth)
+      .times(rewardsAPR)
+      .times(tbtcAllocation)
+      .times(secondsSinceReauth)
+      .div(SECONDS_IN_YEAR * conversion_denominator)
+
+    const reward = reauthReward.plus(postReauthReward)
+
+    if (!reward.isZero()) {
+      reauthRewards[stake] = reward.toFixed(0)
+    }
+  })
+
+  // TODO: check if the stakes with rewards comply with the rest of requirements
   return rewards
 }
 
@@ -298,10 +347,10 @@ async function getLegacyKeepRewards() {
   const stakes = await getLegacyKeepStakes()
 
   // Get the PRE rewards
-  // const preRewards = await getPRERewards(stakes)
+  const preRewards = await getPRERewards(stakes)
 
   // Get the TACo rewards
-  // const tacoRewards = await getTACoRewardsForLegacy(stakes)
+  const tacoRewards = await getTACoRewardsForLegacy(stakes)
 
   // Get the tBTC rewards
   const tbtcRewards = await getTbtcRewards(stakes)
