@@ -3,12 +3,14 @@ const { BigNumber } = require("bignumber.js")
 const { legacyKeepAccounts } = require("./legacy-keep-stakes")
 const { getTACoRewards } = require("./taco-rewards")
 
+const SECONDS_IN_YEAR = 31536000
 // Timestamp of legacy tokens deactivation. See
 // https://etherscan.io/tx/0x68ddee6b5651d5348a40555b0079b5066d05a63196e3832323afafae0095a656
-const DEACT_TIMESTAMP = 1700625971
+const LEGACY_DEACT_TIMESTAMP = 1700625971
+// Timestamp of deactivation of PRE rewards
+const PRE_DEACT_TIMESTAMP = 1706745600
 // Block height in which legacy stakes were deactivated
 const DEACT_BLOCK = 18624792
-const SECONDS_IN_YEAR = 31536000
 
 //
 // For a specific block, return a list of stakes whose tokens were staked in
@@ -54,7 +56,7 @@ async function getRestakes(stakes, deadline) {
 
   // Get all the stake history since the legacy deactivation
   const { stakeDatas } = await StakeHistoryBetweenTwoDatesQuery({
-    startTimestamp: DEACT_TIMESTAMP + 1,
+    startTimestamp: LEGACY_DEACT_TIMESTAMP + 1,
     endTimestamp: deadline,
   })
 
@@ -114,12 +116,12 @@ async function getPRERewards(legacyStakes, deadline) {
   const conversion_denominator = 100 * 100
 
   Object.keys(stakesWithPre).map((stake) => {
-    const secondsSinceDeact = deadline - DEACT_TIMESTAMP
+    const secondsSincePREDeact = deadline - PRE_DEACT_TIMESTAMP
 
     const reward = BigNumber(stakesToBeRewarded[stake])
       .times(rewardsAPR)
       .times(preAllocation)
-      .times(secondsSinceDeact)
+      .times(secondsSincePREDeact)
       .div(SECONDS_IN_YEAR * conversion_denominator)
 
     if (!reward.isZero()) {
@@ -134,7 +136,7 @@ async function getPRERewards(legacyStakes, deadline) {
 // Calculate the rewards corresponding to TACo
 //
 async function getTACoRewardsForLegacy(legacyStakes, deadline) {
-  const tACoActivationTime = 1706745600
+  const tACoActivationTime = PRE_DEACT_TIMESTAMP
   const tacoRewards = await getTACoRewards(tACoActivationTime, deadline, 0.25)
 
   const rewards = {}
