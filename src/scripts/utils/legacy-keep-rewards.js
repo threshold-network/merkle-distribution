@@ -4,6 +4,9 @@ const { legacyKeepAccounts } = require("./legacy-keep-stakes")
 const { getTACoRewards } = require("./taco-rewards")
 
 const SECONDS_IN_YEAR = 31536000
+// Deadline for the transition process, as stated in
+// https://forum.threshold.network/t/transition-guide-for-legacy-stakers/719
+const TRANSITION_DEADLINE = 1708732799 // 2024-02-23T23:59:59
 // Timestamp of legacy tokens deactivation. See
 // https://etherscan.io/tx/0x68ddee6b5651d5348a40555b0079b5066d05a63196e3832323afafae0095a656
 const LEGACY_DEACT_TIMESTAMP = 1700625971
@@ -49,15 +52,16 @@ async function getLegacyKeepStakes() {
 
 //
 // Given a list of stakes, get those that completed the re-staking (i.e, they
-// staked T during the period between legacy staking deactivation and deadline)
+// staked T during the period between legacy staking deactivation and transition
+// deadline)
 //
-async function getRestakes(stakes, deadline) {
+async function getRestakes(stakes) {
   const { StakeHistoryBetweenTwoDatesQuery } = getBuiltGraphSDK()
 
   // Get all the stake history since the legacy deactivation
   const { stakeDatas } = await StakeHistoryBetweenTwoDatesQuery({
     startTimestamp: LEGACY_DEACT_TIMESTAMP + 1,
-    endTimestamp: deadline,
+    endTimestamp: TRANSITION_DEADLINE,
   })
 
   // Get the those provided stakes that did a restake
@@ -77,7 +81,7 @@ async function getRestakes(stakes, deadline) {
 //
 // Calculate the rewards corresponding to PRE
 //
-async function getPRERewards(legacyStakes, deadline) {
+async function getPRERewards(legacyStakes) {
   const rewards = {}
   const { PREOpsBeforeLegacyDeactQuery } = getBuiltGraphSDK()
 
@@ -98,7 +102,7 @@ async function getPRERewards(legacyStakes, deadline) {
   })
 
   // Get the stakes that did a re-stake
-  const restakes = await getRestakes(stakesWithPre, deadline)
+  const restakes = await getRestakes(stakesWithPre)
 
   const stakesToBeRewarded = {}
   Object.keys(stakesWithPre).map((stake) => {
@@ -116,7 +120,7 @@ async function getPRERewards(legacyStakes, deadline) {
   const conversion_denominator = 100 * 100
 
   Object.keys(stakesWithPre).map((stake) => {
-    const secondsSincePREDeact = deadline - PRE_DEACT_TIMESTAMP
+    const secondsSincePREDeact = TRANSITION_DEADLINE - PRE_DEACT_TIMESTAMP
 
     const reward = BigNumber(stakesToBeRewarded[stake])
       .times(rewardsAPR)
@@ -135,9 +139,13 @@ async function getPRERewards(legacyStakes, deadline) {
 //
 // Calculate the rewards corresponding to TACo
 //
-async function getTACoRewardsForLegacy(legacyStakes, deadline) {
+async function getTACoRewardsForLegacy(legacyStakes) {
   const tACoActivationTime = PRE_DEACT_TIMESTAMP
-  const tacoRewards = await getTACoRewards(tACoActivationTime, deadline, 0.25)
+  const tacoRewards = await getTACoRewards(
+    tACoActivationTime,
+    TRANSITION_DEADLINE,
+    0.25
+  )
 
   const rewards = {}
   Object.keys(tacoRewards).map((stake) => {
@@ -151,17 +159,17 @@ async function getTACoRewardsForLegacy(legacyStakes, deadline) {
 //
 // Return the rewards corresponding to Legacy Keep stakes
 //
-async function getLegacyKeepRewards(deadline) {
+async function getLegacyKeepRewards() {
   const rewards = {}
 
   // Get the legacy Keep stakes
   const stakes = await getLegacyKeepStakes()
 
   // Get the PRE rewards
-  const preRewards = await getPRERewards(stakes, deadline)
+  const preRewards = await getPRERewards(stakes)
 
   // Get the TACo rewards
-  const tacoRewards = await getTACoRewardsForLegacy(stakes, deadline)
+  const tacoRewards = await getTACoRewardsForLegacy(stakes)
 
   return rewards
 }
