@@ -302,6 +302,7 @@ async function getTbtcRewards(legacyStakes) {
 
     if (!reward.isZero()) {
       noReauthRewards[stake] = reward.toFixed(0)
+      rewards[stake] = reward.toFixed(0)
     }
   })
 
@@ -330,6 +331,7 @@ async function getTbtcRewards(legacyStakes) {
 
     if (!reward.isZero()) {
       reauthRewards[stake] = reward.toFixed(0)
+      rewards[stake] = reward.toFixed(0)
     }
   })
 
@@ -344,16 +346,34 @@ async function getLegacyKeepRewards() {
   const rewards = {}
 
   // Get the legacy Keep stakes
-  const stakes = await getLegacyKeepStakes()
+  const legacyStakes = await getLegacyKeepStakes()
 
   // Get the PRE rewards
-  const preRewards = await getPRERewards(stakes)
+  const preRewards = await getPRERewards(legacyStakes)
 
   // Get the TACo rewards
-  const tacoRewards = await getTACoRewardsForLegacy(stakes)
+  const tacoRewards = await getTACoRewardsForLegacy(legacyStakes)
 
   // Get the tBTC rewards
-  const tbtcRewards = await getTbtcRewards(stakes)
+  const tbtcRewards = await getTbtcRewards(legacyStakes)
+
+  // Combine the rewards
+  Object.keys(legacyStakes).map((stake) => {
+    const preRew = preRewards[stake]
+      ? BigNumber(preRewards[stake])
+      : BigNumber(0)
+    const tacoRew = tacoRewards[stake]
+      ? BigNumber(tacoRewards[stake])
+      : BigNumber(0)
+    const tbtcRew = tbtcRewards[stake]
+      ? BigNumber(tbtcRewards[stake])
+      : BigNumber(0)
+    const totalReward = preRew.plus(tacoRew).plus(tbtcRew)
+    rewards[stake] = {
+      beneficiary: legacyStakes[stake].beneficiary,
+      amount: totalReward.toFixed(0),
+    }
+  })
 
   return rewards
 }
