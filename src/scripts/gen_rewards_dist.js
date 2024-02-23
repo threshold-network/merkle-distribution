@@ -7,7 +7,10 @@ const fs = require("fs")
 const shell = require("shelljs")
 const BigNumber = require("bignumber.js")
 const ethers = require("ethers")
-const { getLegacyKeepStakes } = require("./utils/legacy-keep-rewards.js")
+const {
+  getLegacyKeepStakes,
+  getLegacyKeepRewards,
+} = require("./utils/legacy-keep-rewards.js")
 const MerkleDist = require("./utils/merkle_dist.js")
 const { getTACoRewards } = require("./utils/taco-rewards.js")
 
@@ -73,10 +76,7 @@ async function main() {
   // 2. Rewards for the keepInT that has been migrated to T staking/authorizing:
   // 2.1. In case that re-staking hasn't been completed, no keepInT rewards.
   // 2.2. In case that re-staking has been completed, it will be considered that
-  //      it was staked the keepInT until re-staking time. After re-staking time,
-  //      the rewards were calculated over this re-staked amount.
-  //      TODO: check what happens if someone restaked a lower amount and to
-  //            think about what amount to choose as basis for the rewards.
+  //      it was staked the keepInT until re-staking time.
 
   // February 24th special case: calculate the rewards for non-legacy-stakes
   // tBTCv2 rewards calculation
@@ -99,27 +99,8 @@ async function main() {
     delete earnedTbtcv2Rewards[legacyStakeAddress]
   })
 
-  // Delete the Keep legacy stakes in rewards details file
-  const rewardsDetailsPath =
-    "distributions/2024-01-01/tBTCv2-rewards-details/1701993600-1704067200.json"
-
-  const rewardsDetails = JSON.parse(fs.readFileSync(rewardsDetailsPath))
-
-  const rewardsDetailsFiltered = rewardsDetails.filter((rewardDetail) => {
-    const rewardStakingProvider = Object.keys(rewardDetail)[0].toLowerCase()
-    const legacyStakesStakingProviders = Object.keys(legacyStakes)
-    return !legacyStakesStakingProviders.includes(rewardStakingProvider)
-  })
-
-  fs.writeFileSync(
-    rewardsDetailsPath,
-    JSON.stringify(rewardsDetailsFiltered, null, 4)
-  )
-
-  // February 24th special case: calculate the rewards for Keep legacy stakes
-  // TODO: calculate the rewards
-
-  // TODO: add the keepInT rewards to tBTC rewards
+  const legacyRewards = await getLegacyKeepRewards()
+  earnedTbtcv2Rewards = { ...earnedTbtcv2Rewards, ...legacyRewards }
 
   // Add rewards earned to cumulative totals
   try {
@@ -131,7 +112,7 @@ async function main() {
       JSON.stringify(bonusRewards, null, 4)
     )
     tacoRewards = JSON.parse(
-      fs.readFileSync(`${lastDistPath}/MerkleInputPreRewards.json`)
+      fs.readFileSync(`${lastDistPath}/MerkleInputTACoRewards.json`)
     )
     tacoRewards = MerkleDist.combineMerkleInputs(tacoRewards, earnedTACoRewards)
     fs.writeFileSync(
