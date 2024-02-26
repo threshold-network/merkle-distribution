@@ -395,9 +395,11 @@ async function getLegacyKeepRewards() {
       ? BigNumber(tbtcRewards[stake])
       : BigNumber(0)
     const totalReward = preRew.plus(tacoRew).plus(tbtcRew)
-    rewards[stake] = {
-      beneficiary: legacyStakes[stake].beneficiary,
-      amount: totalReward.toFixed(0),
+    if (!totalReward.isZero()) {
+      rewards[stake] = {
+        beneficiary: legacyStakes[stake].beneficiary,
+        amount: totalReward.toFixed(0),
+      }
     }
   })
 
