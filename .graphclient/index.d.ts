@@ -4,8 +4,9 @@ import type { GetMeshOptions } from '@graphql-mesh/runtime';
 import type { YamlConfig } from '@graphql-mesh/types';
 import { MeshHTTPHandler } from '@graphql-mesh/http';
 import { ExecuteMeshFn, SubscribeMeshFn, MeshContext as BaseMeshContext, MeshInstance } from '@graphql-mesh/runtime';
-import type { ThresholdStakingPolygonTypes } from './sources/threshold-staking-polygon/types';
 import type { DevelopmentThresholdSubgraphTypes } from './sources/development-threshold-subgraph/types';
+import type { ThresholdStakingPolygonTypes } from './sources/threshold-staking-polygon/types';
+import type { SimpleTypes } from './sources/simple/types';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends {
@@ -43,12 +44,8 @@ export type Query = {
     accounts: Array<Account>;
     stakeData?: Maybe<StakeData>;
     stakeDatas: Array<StakeData>;
-    epochStake?: Maybe<EpochStake>;
-    epochStakes: Array<EpochStake>;
-    epoch?: Maybe<Epoch>;
-    epoches: Array<Epoch>;
-    epochCounter?: Maybe<EpochCounter>;
-    epochCounters: Array<EpochCounter>;
+    stakeHistory?: Maybe<StakeHistory>;
+    stakeHistories: Array<StakeHistory>;
     appAuthorization?: Maybe<AppAuthorization>;
     appAuthorizations: Array<AppAuthorization>;
     appAuthHistory?: Maybe<AppAuthHistory>;
@@ -65,6 +62,8 @@ export type Query = {
     tacoCommitments: Array<TACoCommitment>;
     delegation?: Maybe<Delegation>;
     delegations: Array<Delegation>;
+    simplePREApplication?: Maybe<SimplePREApplication>;
+    simplePREApplications: Array<SimplePREApplication>;
 };
 export type QuerytacoOperatorArgs = {
     id: Scalars['ID'];
@@ -111,45 +110,17 @@ export type QuerystakeDatasArgs = {
     block?: InputMaybe<Block_height>;
     subgraphError?: _SubgraphErrorPolicy_;
 };
-export type QueryepochStakeArgs = {
+export type QuerystakeHistoryArgs = {
     id: Scalars['ID'];
     block?: InputMaybe<Block_height>;
     subgraphError?: _SubgraphErrorPolicy_;
 };
-export type QueryepochStakesArgs = {
+export type QuerystakeHistoriesArgs = {
     skip?: InputMaybe<Scalars['Int']>;
     first?: InputMaybe<Scalars['Int']>;
-    orderBy?: InputMaybe<EpochStake_orderBy>;
+    orderBy?: InputMaybe<StakeHistory_orderBy>;
     orderDirection?: InputMaybe<OrderDirection>;
-    where?: InputMaybe<EpochStake_filter>;
-    block?: InputMaybe<Block_height>;
-    subgraphError?: _SubgraphErrorPolicy_;
-};
-export type QueryepochArgs = {
-    id: Scalars['ID'];
-    block?: InputMaybe<Block_height>;
-    subgraphError?: _SubgraphErrorPolicy_;
-};
-export type QueryepochesArgs = {
-    skip?: InputMaybe<Scalars['Int']>;
-    first?: InputMaybe<Scalars['Int']>;
-    orderBy?: InputMaybe<Epoch_orderBy>;
-    orderDirection?: InputMaybe<OrderDirection>;
-    where?: InputMaybe<Epoch_filter>;
-    block?: InputMaybe<Block_height>;
-    subgraphError?: _SubgraphErrorPolicy_;
-};
-export type QueryepochCounterArgs = {
-    id: Scalars['ID'];
-    block?: InputMaybe<Block_height>;
-    subgraphError?: _SubgraphErrorPolicy_;
-};
-export type QueryepochCountersArgs = {
-    skip?: InputMaybe<Scalars['Int']>;
-    first?: InputMaybe<Scalars['Int']>;
-    orderBy?: InputMaybe<EpochCounter_orderBy>;
-    orderDirection?: InputMaybe<OrderDirection>;
-    where?: InputMaybe<EpochCounter_filter>;
+    where?: InputMaybe<StakeHistory_filter>;
     block?: InputMaybe<Block_height>;
     subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -265,6 +236,20 @@ export type QuerydelegationsArgs = {
     block?: InputMaybe<Block_height>;
     subgraphError?: _SubgraphErrorPolicy_;
 };
+export type QuerysimplePREApplicationArgs = {
+    id: Scalars['ID'];
+    block?: InputMaybe<Block_height>;
+    subgraphError?: _SubgraphErrorPolicy_;
+};
+export type QuerysimplePREApplicationsArgs = {
+    skip?: InputMaybe<Scalars['Int']>;
+    first?: InputMaybe<Scalars['Int']>;
+    orderBy?: InputMaybe<SimplePREApplication_orderBy>;
+    orderDirection?: InputMaybe<OrderDirection>;
+    where?: InputMaybe<SimplePREApplication_filter>;
+    block?: InputMaybe<Block_height>;
+    subgraphError?: _SubgraphErrorPolicy_;
+};
 export type Subscription = {
     tacoOperator?: Maybe<TACoOperator>;
     tacoOperators: Array<TACoOperator>;
@@ -274,12 +259,8 @@ export type Subscription = {
     accounts: Array<Account>;
     stakeData?: Maybe<StakeData>;
     stakeDatas: Array<StakeData>;
-    epochStake?: Maybe<EpochStake>;
-    epochStakes: Array<EpochStake>;
-    epoch?: Maybe<Epoch>;
-    epoches: Array<Epoch>;
-    epochCounter?: Maybe<EpochCounter>;
-    epochCounters: Array<EpochCounter>;
+    stakeHistory?: Maybe<StakeHistory>;
+    stakeHistories: Array<StakeHistory>;
     appAuthorization?: Maybe<AppAuthorization>;
     appAuthorizations: Array<AppAuthorization>;
     appAuthHistory?: Maybe<AppAuthHistory>;
@@ -296,6 +277,8 @@ export type Subscription = {
     tacoCommitments: Array<TACoCommitment>;
     delegation?: Maybe<Delegation>;
     delegations: Array<Delegation>;
+    simplePREApplication?: Maybe<SimplePREApplication>;
+    simplePREApplications: Array<SimplePREApplication>;
 };
 export type SubscriptiontacoOperatorArgs = {
     id: Scalars['ID'];
@@ -342,45 +325,17 @@ export type SubscriptionstakeDatasArgs = {
     block?: InputMaybe<Block_height>;
     subgraphError?: _SubgraphErrorPolicy_;
 };
-export type SubscriptionepochStakeArgs = {
+export type SubscriptionstakeHistoryArgs = {
     id: Scalars['ID'];
     block?: InputMaybe<Block_height>;
     subgraphError?: _SubgraphErrorPolicy_;
 };
-export type SubscriptionepochStakesArgs = {
+export type SubscriptionstakeHistoriesArgs = {
     skip?: InputMaybe<Scalars['Int']>;
     first?: InputMaybe<Scalars['Int']>;
-    orderBy?: InputMaybe<EpochStake_orderBy>;
+    orderBy?: InputMaybe<StakeHistory_orderBy>;
     orderDirection?: InputMaybe<OrderDirection>;
-    where?: InputMaybe<EpochStake_filter>;
-    block?: InputMaybe<Block_height>;
-    subgraphError?: _SubgraphErrorPolicy_;
-};
-export type SubscriptionepochArgs = {
-    id: Scalars['ID'];
-    block?: InputMaybe<Block_height>;
-    subgraphError?: _SubgraphErrorPolicy_;
-};
-export type SubscriptionepochesArgs = {
-    skip?: InputMaybe<Scalars['Int']>;
-    first?: InputMaybe<Scalars['Int']>;
-    orderBy?: InputMaybe<Epoch_orderBy>;
-    orderDirection?: InputMaybe<OrderDirection>;
-    where?: InputMaybe<Epoch_filter>;
-    block?: InputMaybe<Block_height>;
-    subgraphError?: _SubgraphErrorPolicy_;
-};
-export type SubscriptionepochCounterArgs = {
-    id: Scalars['ID'];
-    block?: InputMaybe<Block_height>;
-    subgraphError?: _SubgraphErrorPolicy_;
-};
-export type SubscriptionepochCountersArgs = {
-    skip?: InputMaybe<Scalars['Int']>;
-    first?: InputMaybe<Scalars['Int']>;
-    orderBy?: InputMaybe<EpochCounter_orderBy>;
-    orderDirection?: InputMaybe<OrderDirection>;
-    where?: InputMaybe<EpochCounter_filter>;
+    where?: InputMaybe<StakeHistory_filter>;
     block?: InputMaybe<Block_height>;
     subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -496,6 +451,21 @@ export type SubscriptiondelegationsArgs = {
     block?: InputMaybe<Block_height>;
     subgraphError?: _SubgraphErrorPolicy_;
 };
+export type SubscriptionsimplePREApplicationArgs = {
+    id: Scalars['ID'];
+    block?: InputMaybe<Block_height>;
+    subgraphError?: _SubgraphErrorPolicy_;
+};
+export type SubscriptionsimplePREApplicationsArgs = {
+    skip?: InputMaybe<Scalars['Int']>;
+    first?: InputMaybe<Scalars['Int']>;
+    orderBy?: InputMaybe<SimplePREApplication_orderBy>;
+    orderDirection?: InputMaybe<OrderDirection>;
+    where?: InputMaybe<SimplePREApplication_filter>;
+    block?: InputMaybe<Block_height>;
+    subgraphError?: _SubgraphErrorPolicy_;
+};
+export type Aggregation_interval = 'hour' | 'day';
 export type BlockChangedFilter = {
     number_gte: Scalars['Int'];
 };
@@ -666,12 +636,14 @@ export type Account_filter = {
 export type Account_orderBy = 'id' | 'stakes' | 'delegatee' | 'delegatee__id' | 'delegatee__totalWeight' | 'delegatee__liquidWeight';
 /** AppAuthHistory stores each change in the stake's authorization of apps */
 export type AppAuthHistory = {
-    /** IS is <staking provider address>-<application address>-<block number> */
+    /** ID is <staking provider address>-<application address>-<block number> */
     id: Scalars['ID'];
     /** AppAuthorization of this update in the authorization */
     appAuthorization: AppAuthorization;
     /** Amount of total T authorized by staking provider to the application in this block */
     amount: Scalars['BigInt'];
+    /** Amount of T that has been increased or decreased */
+    eventAmount: Scalars['BigInt'];
     /** Type of event that caused this update */
     eventType: Scalars['String'];
     /** Block in which this authorization update became effective */
@@ -717,6 +689,14 @@ export type AppAuthHistory_filter = {
     amount_lte?: InputMaybe<Scalars['BigInt']>;
     amount_in?: InputMaybe<Array<Scalars['BigInt']>>;
     amount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+    eventAmount?: InputMaybe<Scalars['BigInt']>;
+    eventAmount_not?: InputMaybe<Scalars['BigInt']>;
+    eventAmount_gt?: InputMaybe<Scalars['BigInt']>;
+    eventAmount_lt?: InputMaybe<Scalars['BigInt']>;
+    eventAmount_gte?: InputMaybe<Scalars['BigInt']>;
+    eventAmount_lte?: InputMaybe<Scalars['BigInt']>;
+    eventAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
+    eventAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
     eventType?: InputMaybe<Scalars['String']>;
     eventType_not?: InputMaybe<Scalars['String']>;
     eventType_gt?: InputMaybe<Scalars['String']>;
@@ -758,7 +738,7 @@ export type AppAuthHistory_filter = {
     and?: InputMaybe<Array<InputMaybe<AppAuthHistory_filter>>>;
     or?: InputMaybe<Array<InputMaybe<AppAuthHistory_filter>>>;
 };
-export type AppAuthHistory_orderBy = 'id' | 'appAuthorization' | 'appAuthorization__id' | 'appAuthorization__appAddress' | 'appAuthorization__amount' | 'appAuthorization__amountDeauthorizingTo' | 'appAuthorization__appName' | 'amount' | 'eventType' | 'blockNumber' | 'timestamp';
+export type AppAuthHistory_orderBy = 'id' | 'appAuthorization' | 'appAuthorization__id' | 'appAuthorization__appAddress' | 'appAuthorization__amount' | 'appAuthorization__amountDeauthorizing' | 'appAuthorization__appName' | 'amount' | 'eventAmount' | 'eventType' | 'blockNumber' | 'timestamp';
 /** AppAuthorizations represents the stake authorizations to Threshold apps */
 export type AppAuthorization = {
     /** ID is <staking provider address>-<application address> */
@@ -769,8 +749,8 @@ export type AppAuthorization = {
     stake: StakeData;
     /** Amount of total T currently authorized to the application */
     amount: Scalars['BigInt'];
-    /** Amount of T that will remain after the deauthorization process */
-    amountDeauthorizingTo: Scalars['BigInt'];
+    /** Amount of T that is being deauthorized */
+    amountDeauthorizing: Scalars['BigInt'];
     /** Application name (if known) */
     appName?: Maybe<Scalars['String']>;
 };
@@ -822,14 +802,14 @@ export type AppAuthorization_filter = {
     amount_lte?: InputMaybe<Scalars['BigInt']>;
     amount_in?: InputMaybe<Array<Scalars['BigInt']>>;
     amount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-    amountDeauthorizingTo?: InputMaybe<Scalars['BigInt']>;
-    amountDeauthorizingTo_not?: InputMaybe<Scalars['BigInt']>;
-    amountDeauthorizingTo_gt?: InputMaybe<Scalars['BigInt']>;
-    amountDeauthorizingTo_lt?: InputMaybe<Scalars['BigInt']>;
-    amountDeauthorizingTo_gte?: InputMaybe<Scalars['BigInt']>;
-    amountDeauthorizingTo_lte?: InputMaybe<Scalars['BigInt']>;
-    amountDeauthorizingTo_in?: InputMaybe<Array<Scalars['BigInt']>>;
-    amountDeauthorizingTo_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+    amountDeauthorizing?: InputMaybe<Scalars['BigInt']>;
+    amountDeauthorizing_not?: InputMaybe<Scalars['BigInt']>;
+    amountDeauthorizing_gt?: InputMaybe<Scalars['BigInt']>;
+    amountDeauthorizing_lt?: InputMaybe<Scalars['BigInt']>;
+    amountDeauthorizing_gte?: InputMaybe<Scalars['BigInt']>;
+    amountDeauthorizing_lte?: InputMaybe<Scalars['BigInt']>;
+    amountDeauthorizing_in?: InputMaybe<Array<Scalars['BigInt']>>;
+    amountDeauthorizing_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
     appName?: InputMaybe<Scalars['String']>;
     appName_not?: InputMaybe<Scalars['String']>;
     appName_gt?: InputMaybe<Scalars['String']>;
@@ -855,7 +835,7 @@ export type AppAuthorization_filter = {
     and?: InputMaybe<Array<InputMaybe<AppAuthorization_filter>>>;
     or?: InputMaybe<Array<InputMaybe<AppAuthorization_filter>>>;
 };
-export type AppAuthorization_orderBy = 'id' | 'appAddress' | 'stake' | 'stake__id' | 'stake__beneficiary' | 'stake__authorizer' | 'stake__tStake' | 'stake__keepInTStake' | 'stake__nuInTStake' | 'stake__totalStaked' | 'amount' | 'amountDeauthorizingTo' | 'appName';
+export type AppAuthorization_orderBy = 'id' | 'appAddress' | 'stake' | 'stake__id' | 'stake__beneficiary' | 'stake__authorizer' | 'stake__stakedAmount' | 'amount' | 'amountDeauthorizing' | 'appName';
 /** DAOMetric represents the liquid and staked T tokens in Threshold Network DAO */
 export type DAOMetric = {
     /** ID is 'dao-metrics' (singleton entity) */
@@ -922,175 +902,6 @@ export type Delegation_filter = {
     or?: InputMaybe<Array<InputMaybe<Delegation_filter>>>;
 };
 export type Delegation_orderBy = 'id' | 'totalWeight';
-/** Epoch represents the staking status of the network at each time instant */
-export type Epoch = {
-    /** ID is a counter number starting at 0 */
-    id: Scalars['ID'];
-    /** UNIX timestamp in which this epoch begins */
-    timestamp: Scalars['BigInt'];
-    /** Duration of this epoch in seconds */
-    duration?: Maybe<Scalars['BigInt']>;
-    /** T total amount resulted of all stakes in this epoch */
-    totalAmount: Scalars['BigInt'];
-    /** List of active stakes during this epoch */
-    stakes?: Maybe<Array<EpochStake>>;
-};
-/** Epoch represents the staking status of the network at each time instant */
-export type EpochstakesArgs = {
-    skip?: InputMaybe<Scalars['Int']>;
-    first?: InputMaybe<Scalars['Int']>;
-    orderBy?: InputMaybe<EpochStake_orderBy>;
-    orderDirection?: InputMaybe<OrderDirection>;
-    where?: InputMaybe<EpochStake_filter>;
-};
-/** EpochCounter represents the amount of epochs up to this moment */
-export type EpochCounter = {
-    /** ID is 'epoch-counter' (singleton entity) */
-    id: Scalars['ID'];
-    count: Scalars['Int'];
-};
-export type EpochCounter_filter = {
-    id?: InputMaybe<Scalars['ID']>;
-    id_not?: InputMaybe<Scalars['ID']>;
-    id_gt?: InputMaybe<Scalars['ID']>;
-    id_lt?: InputMaybe<Scalars['ID']>;
-    id_gte?: InputMaybe<Scalars['ID']>;
-    id_lte?: InputMaybe<Scalars['ID']>;
-    id_in?: InputMaybe<Array<Scalars['ID']>>;
-    id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-    count?: InputMaybe<Scalars['Int']>;
-    count_not?: InputMaybe<Scalars['Int']>;
-    count_gt?: InputMaybe<Scalars['Int']>;
-    count_lt?: InputMaybe<Scalars['Int']>;
-    count_gte?: InputMaybe<Scalars['Int']>;
-    count_lte?: InputMaybe<Scalars['Int']>;
-    count_in?: InputMaybe<Array<Scalars['Int']>>;
-    count_not_in?: InputMaybe<Array<Scalars['Int']>>;
-    /** Filter for the block changed event. */
-    _change_block?: InputMaybe<BlockChangedFilter>;
-    and?: InputMaybe<Array<InputMaybe<EpochCounter_filter>>>;
-    or?: InputMaybe<Array<InputMaybe<EpochCounter_filter>>>;
-};
-export type EpochCounter_orderBy = 'id' | 'count';
-/** EpochStake represents a single stake in a single epoch */
-export type EpochStake = {
-    /** ID is the staking provider's ETH address + epoch counter */
-    id: Scalars['ID'];
-    epoch: Epoch;
-    stakingProvider: Scalars['Bytes'];
-    owner: Scalars['Bytes'];
-    amount: Scalars['BigInt'];
-};
-export type EpochStake_filter = {
-    id?: InputMaybe<Scalars['ID']>;
-    id_not?: InputMaybe<Scalars['ID']>;
-    id_gt?: InputMaybe<Scalars['ID']>;
-    id_lt?: InputMaybe<Scalars['ID']>;
-    id_gte?: InputMaybe<Scalars['ID']>;
-    id_lte?: InputMaybe<Scalars['ID']>;
-    id_in?: InputMaybe<Array<Scalars['ID']>>;
-    id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-    epoch?: InputMaybe<Scalars['String']>;
-    epoch_not?: InputMaybe<Scalars['String']>;
-    epoch_gt?: InputMaybe<Scalars['String']>;
-    epoch_lt?: InputMaybe<Scalars['String']>;
-    epoch_gte?: InputMaybe<Scalars['String']>;
-    epoch_lte?: InputMaybe<Scalars['String']>;
-    epoch_in?: InputMaybe<Array<Scalars['String']>>;
-    epoch_not_in?: InputMaybe<Array<Scalars['String']>>;
-    epoch_contains?: InputMaybe<Scalars['String']>;
-    epoch_contains_nocase?: InputMaybe<Scalars['String']>;
-    epoch_not_contains?: InputMaybe<Scalars['String']>;
-    epoch_not_contains_nocase?: InputMaybe<Scalars['String']>;
-    epoch_starts_with?: InputMaybe<Scalars['String']>;
-    epoch_starts_with_nocase?: InputMaybe<Scalars['String']>;
-    epoch_not_starts_with?: InputMaybe<Scalars['String']>;
-    epoch_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
-    epoch_ends_with?: InputMaybe<Scalars['String']>;
-    epoch_ends_with_nocase?: InputMaybe<Scalars['String']>;
-    epoch_not_ends_with?: InputMaybe<Scalars['String']>;
-    epoch_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-    epoch_?: InputMaybe<Epoch_filter>;
-    stakingProvider?: InputMaybe<Scalars['Bytes']>;
-    stakingProvider_not?: InputMaybe<Scalars['Bytes']>;
-    stakingProvider_gt?: InputMaybe<Scalars['Bytes']>;
-    stakingProvider_lt?: InputMaybe<Scalars['Bytes']>;
-    stakingProvider_gte?: InputMaybe<Scalars['Bytes']>;
-    stakingProvider_lte?: InputMaybe<Scalars['Bytes']>;
-    stakingProvider_in?: InputMaybe<Array<Scalars['Bytes']>>;
-    stakingProvider_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
-    stakingProvider_contains?: InputMaybe<Scalars['Bytes']>;
-    stakingProvider_not_contains?: InputMaybe<Scalars['Bytes']>;
-    owner?: InputMaybe<Scalars['Bytes']>;
-    owner_not?: InputMaybe<Scalars['Bytes']>;
-    owner_gt?: InputMaybe<Scalars['Bytes']>;
-    owner_lt?: InputMaybe<Scalars['Bytes']>;
-    owner_gte?: InputMaybe<Scalars['Bytes']>;
-    owner_lte?: InputMaybe<Scalars['Bytes']>;
-    owner_in?: InputMaybe<Array<Scalars['Bytes']>>;
-    owner_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
-    owner_contains?: InputMaybe<Scalars['Bytes']>;
-    owner_not_contains?: InputMaybe<Scalars['Bytes']>;
-    amount?: InputMaybe<Scalars['BigInt']>;
-    amount_not?: InputMaybe<Scalars['BigInt']>;
-    amount_gt?: InputMaybe<Scalars['BigInt']>;
-    amount_lt?: InputMaybe<Scalars['BigInt']>;
-    amount_gte?: InputMaybe<Scalars['BigInt']>;
-    amount_lte?: InputMaybe<Scalars['BigInt']>;
-    amount_in?: InputMaybe<Array<Scalars['BigInt']>>;
-    amount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-    /** Filter for the block changed event. */
-    _change_block?: InputMaybe<BlockChangedFilter>;
-    and?: InputMaybe<Array<InputMaybe<EpochStake_filter>>>;
-    or?: InputMaybe<Array<InputMaybe<EpochStake_filter>>>;
-};
-export type EpochStake_orderBy = 'id' | 'epoch' | 'epoch__id' | 'epoch__timestamp' | 'epoch__duration' | 'epoch__totalAmount' | 'stakingProvider' | 'owner' | 'amount';
-export type Epoch_filter = {
-    id?: InputMaybe<Scalars['ID']>;
-    id_not?: InputMaybe<Scalars['ID']>;
-    id_gt?: InputMaybe<Scalars['ID']>;
-    id_lt?: InputMaybe<Scalars['ID']>;
-    id_gte?: InputMaybe<Scalars['ID']>;
-    id_lte?: InputMaybe<Scalars['ID']>;
-    id_in?: InputMaybe<Array<Scalars['ID']>>;
-    id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-    timestamp?: InputMaybe<Scalars['BigInt']>;
-    timestamp_not?: InputMaybe<Scalars['BigInt']>;
-    timestamp_gt?: InputMaybe<Scalars['BigInt']>;
-    timestamp_lt?: InputMaybe<Scalars['BigInt']>;
-    timestamp_gte?: InputMaybe<Scalars['BigInt']>;
-    timestamp_lte?: InputMaybe<Scalars['BigInt']>;
-    timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
-    timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-    duration?: InputMaybe<Scalars['BigInt']>;
-    duration_not?: InputMaybe<Scalars['BigInt']>;
-    duration_gt?: InputMaybe<Scalars['BigInt']>;
-    duration_lt?: InputMaybe<Scalars['BigInt']>;
-    duration_gte?: InputMaybe<Scalars['BigInt']>;
-    duration_lte?: InputMaybe<Scalars['BigInt']>;
-    duration_in?: InputMaybe<Array<Scalars['BigInt']>>;
-    duration_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-    totalAmount?: InputMaybe<Scalars['BigInt']>;
-    totalAmount_not?: InputMaybe<Scalars['BigInt']>;
-    totalAmount_gt?: InputMaybe<Scalars['BigInt']>;
-    totalAmount_lt?: InputMaybe<Scalars['BigInt']>;
-    totalAmount_gte?: InputMaybe<Scalars['BigInt']>;
-    totalAmount_lte?: InputMaybe<Scalars['BigInt']>;
-    totalAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
-    totalAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-    stakes?: InputMaybe<Array<Scalars['String']>>;
-    stakes_not?: InputMaybe<Array<Scalars['String']>>;
-    stakes_contains?: InputMaybe<Array<Scalars['String']>>;
-    stakes_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
-    stakes_not_contains?: InputMaybe<Array<Scalars['String']>>;
-    stakes_not_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
-    stakes_?: InputMaybe<EpochStake_filter>;
-    /** Filter for the block changed event. */
-    _change_block?: InputMaybe<BlockChangedFilter>;
-    and?: InputMaybe<Array<InputMaybe<Epoch_filter>>>;
-    or?: InputMaybe<Array<InputMaybe<Epoch_filter>>>;
-};
-export type Epoch_orderBy = 'id' | 'timestamp' | 'duration' | 'totalAmount' | 'stakes';
 /** MinStakeAmount represents the minimum amount of tokens to stake */
 export type MinStakeAmount = {
     /** ID is min-stake + transaction hash in which the amount changed */
@@ -1145,16 +956,19 @@ export type StakeData = {
     owner: Account;
     beneficiary: Scalars['Bytes'];
     authorizer: Scalars['Bytes'];
-    /** Staked native T token amount */
-    tStake: Scalars['BigInt'];
-    /** Staked legacy KEEP token amount converted to T */
-    keepInTStake: Scalars['BigInt'];
-    /** Staked legacy Nu token amount converted to T */
-    nuInTStake: Scalars['BigInt'];
-    /** Staked T token total amount (T + KEEP in T + Nu in T) */
-    totalStaked: Scalars['BigInt'];
+    /** Staked T token total amount */
+    stakedAmount: Scalars['BigInt'];
     delegatee?: Maybe<StakeDelegation>;
+    stakeHistory?: Maybe<Array<StakeHistory>>;
     authorizations?: Maybe<Array<AppAuthorization>>;
+};
+/** StakeData represents the information about each stake */
+export type StakeDatastakeHistoryArgs = {
+    skip?: InputMaybe<Scalars['Int']>;
+    first?: InputMaybe<Scalars['Int']>;
+    orderBy?: InputMaybe<StakeHistory_orderBy>;
+    orderDirection?: InputMaybe<OrderDirection>;
+    where?: InputMaybe<StakeHistory_filter>;
 };
 /** StakeData represents the information about each stake */
 export type StakeDataauthorizationsArgs = {
@@ -1214,38 +1028,14 @@ export type StakeData_filter = {
     authorizer_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
     authorizer_contains?: InputMaybe<Scalars['Bytes']>;
     authorizer_not_contains?: InputMaybe<Scalars['Bytes']>;
-    tStake?: InputMaybe<Scalars['BigInt']>;
-    tStake_not?: InputMaybe<Scalars['BigInt']>;
-    tStake_gt?: InputMaybe<Scalars['BigInt']>;
-    tStake_lt?: InputMaybe<Scalars['BigInt']>;
-    tStake_gte?: InputMaybe<Scalars['BigInt']>;
-    tStake_lte?: InputMaybe<Scalars['BigInt']>;
-    tStake_in?: InputMaybe<Array<Scalars['BigInt']>>;
-    tStake_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-    keepInTStake?: InputMaybe<Scalars['BigInt']>;
-    keepInTStake_not?: InputMaybe<Scalars['BigInt']>;
-    keepInTStake_gt?: InputMaybe<Scalars['BigInt']>;
-    keepInTStake_lt?: InputMaybe<Scalars['BigInt']>;
-    keepInTStake_gte?: InputMaybe<Scalars['BigInt']>;
-    keepInTStake_lte?: InputMaybe<Scalars['BigInt']>;
-    keepInTStake_in?: InputMaybe<Array<Scalars['BigInt']>>;
-    keepInTStake_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-    nuInTStake?: InputMaybe<Scalars['BigInt']>;
-    nuInTStake_not?: InputMaybe<Scalars['BigInt']>;
-    nuInTStake_gt?: InputMaybe<Scalars['BigInt']>;
-    nuInTStake_lt?: InputMaybe<Scalars['BigInt']>;
-    nuInTStake_gte?: InputMaybe<Scalars['BigInt']>;
-    nuInTStake_lte?: InputMaybe<Scalars['BigInt']>;
-    nuInTStake_in?: InputMaybe<Array<Scalars['BigInt']>>;
-    nuInTStake_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-    totalStaked?: InputMaybe<Scalars['BigInt']>;
-    totalStaked_not?: InputMaybe<Scalars['BigInt']>;
-    totalStaked_gt?: InputMaybe<Scalars['BigInt']>;
-    totalStaked_lt?: InputMaybe<Scalars['BigInt']>;
-    totalStaked_gte?: InputMaybe<Scalars['BigInt']>;
-    totalStaked_lte?: InputMaybe<Scalars['BigInt']>;
-    totalStaked_in?: InputMaybe<Array<Scalars['BigInt']>>;
-    totalStaked_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+    stakedAmount?: InputMaybe<Scalars['BigInt']>;
+    stakedAmount_not?: InputMaybe<Scalars['BigInt']>;
+    stakedAmount_gt?: InputMaybe<Scalars['BigInt']>;
+    stakedAmount_lt?: InputMaybe<Scalars['BigInt']>;
+    stakedAmount_gte?: InputMaybe<Scalars['BigInt']>;
+    stakedAmount_lte?: InputMaybe<Scalars['BigInt']>;
+    stakedAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
+    stakedAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
     delegatee?: InputMaybe<Scalars['String']>;
     delegatee_not?: InputMaybe<Scalars['String']>;
     delegatee_gt?: InputMaybe<Scalars['String']>;
@@ -1267,13 +1057,14 @@ export type StakeData_filter = {
     delegatee_not_ends_with?: InputMaybe<Scalars['String']>;
     delegatee_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
     delegatee_?: InputMaybe<StakeDelegation_filter>;
+    stakeHistory_?: InputMaybe<StakeHistory_filter>;
     authorizations_?: InputMaybe<AppAuthorization_filter>;
     /** Filter for the block changed event. */
     _change_block?: InputMaybe<BlockChangedFilter>;
     and?: InputMaybe<Array<InputMaybe<StakeData_filter>>>;
     or?: InputMaybe<Array<InputMaybe<StakeData_filter>>>;
 };
-export type StakeData_orderBy = 'id' | 'owner' | 'owner__id' | 'beneficiary' | 'authorizer' | 'tStake' | 'keepInTStake' | 'nuInTStake' | 'totalStaked' | 'delegatee' | 'delegatee__id' | 'delegatee__totalWeight' | 'authorizations';
+export type StakeData_orderBy = 'id' | 'owner' | 'owner__id' | 'beneficiary' | 'authorizer' | 'stakedAmount' | 'delegatee' | 'delegatee__id' | 'delegatee__totalWeight' | 'stakeHistory' | 'authorizations';
 /** StakeDelegation represents the delegatee to whom the Stake DAO voting power has been delegated */
 export type StakeDelegation = Delegation & {
     /** ID is delegatee ETH address */
@@ -1314,6 +1105,111 @@ export type StakeDelegation_filter = {
     or?: InputMaybe<Array<InputMaybe<StakeDelegation_filter>>>;
 };
 export type StakeDelegation_orderBy = 'id' | 'totalWeight' | 'stakeDelegators';
+/** History of each stake */
+export type StakeHistory = {
+    /** ID is <staking provider address>-<block number> */
+    id: Scalars['ID'];
+    /** Stake data of the staking provider */
+    stake: StakeData;
+    /** The amount that has been added or reduced */
+    eventAmount: Scalars['BigInt'];
+    /** The total staked amount at this time */
+    stakedAmount: Scalars['BigInt'];
+    /** The event that updated the staked amount: Staked, ToppedUp or Unstaked */
+    eventType: Scalars['String'];
+    /** The Ethereum block number in which the stake was updated */
+    blockNumber: Scalars['BigInt'];
+    /** The timestamp in which the stake was updated */
+    timestamp: Scalars['BigInt'];
+};
+export type StakeHistory_filter = {
+    id?: InputMaybe<Scalars['ID']>;
+    id_not?: InputMaybe<Scalars['ID']>;
+    id_gt?: InputMaybe<Scalars['ID']>;
+    id_lt?: InputMaybe<Scalars['ID']>;
+    id_gte?: InputMaybe<Scalars['ID']>;
+    id_lte?: InputMaybe<Scalars['ID']>;
+    id_in?: InputMaybe<Array<Scalars['ID']>>;
+    id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+    stake?: InputMaybe<Scalars['String']>;
+    stake_not?: InputMaybe<Scalars['String']>;
+    stake_gt?: InputMaybe<Scalars['String']>;
+    stake_lt?: InputMaybe<Scalars['String']>;
+    stake_gte?: InputMaybe<Scalars['String']>;
+    stake_lte?: InputMaybe<Scalars['String']>;
+    stake_in?: InputMaybe<Array<Scalars['String']>>;
+    stake_not_in?: InputMaybe<Array<Scalars['String']>>;
+    stake_contains?: InputMaybe<Scalars['String']>;
+    stake_contains_nocase?: InputMaybe<Scalars['String']>;
+    stake_not_contains?: InputMaybe<Scalars['String']>;
+    stake_not_contains_nocase?: InputMaybe<Scalars['String']>;
+    stake_starts_with?: InputMaybe<Scalars['String']>;
+    stake_starts_with_nocase?: InputMaybe<Scalars['String']>;
+    stake_not_starts_with?: InputMaybe<Scalars['String']>;
+    stake_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+    stake_ends_with?: InputMaybe<Scalars['String']>;
+    stake_ends_with_nocase?: InputMaybe<Scalars['String']>;
+    stake_not_ends_with?: InputMaybe<Scalars['String']>;
+    stake_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+    stake_?: InputMaybe<StakeData_filter>;
+    eventAmount?: InputMaybe<Scalars['BigInt']>;
+    eventAmount_not?: InputMaybe<Scalars['BigInt']>;
+    eventAmount_gt?: InputMaybe<Scalars['BigInt']>;
+    eventAmount_lt?: InputMaybe<Scalars['BigInt']>;
+    eventAmount_gte?: InputMaybe<Scalars['BigInt']>;
+    eventAmount_lte?: InputMaybe<Scalars['BigInt']>;
+    eventAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
+    eventAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+    stakedAmount?: InputMaybe<Scalars['BigInt']>;
+    stakedAmount_not?: InputMaybe<Scalars['BigInt']>;
+    stakedAmount_gt?: InputMaybe<Scalars['BigInt']>;
+    stakedAmount_lt?: InputMaybe<Scalars['BigInt']>;
+    stakedAmount_gte?: InputMaybe<Scalars['BigInt']>;
+    stakedAmount_lte?: InputMaybe<Scalars['BigInt']>;
+    stakedAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
+    stakedAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+    eventType?: InputMaybe<Scalars['String']>;
+    eventType_not?: InputMaybe<Scalars['String']>;
+    eventType_gt?: InputMaybe<Scalars['String']>;
+    eventType_lt?: InputMaybe<Scalars['String']>;
+    eventType_gte?: InputMaybe<Scalars['String']>;
+    eventType_lte?: InputMaybe<Scalars['String']>;
+    eventType_in?: InputMaybe<Array<Scalars['String']>>;
+    eventType_not_in?: InputMaybe<Array<Scalars['String']>>;
+    eventType_contains?: InputMaybe<Scalars['String']>;
+    eventType_contains_nocase?: InputMaybe<Scalars['String']>;
+    eventType_not_contains?: InputMaybe<Scalars['String']>;
+    eventType_not_contains_nocase?: InputMaybe<Scalars['String']>;
+    eventType_starts_with?: InputMaybe<Scalars['String']>;
+    eventType_starts_with_nocase?: InputMaybe<Scalars['String']>;
+    eventType_not_starts_with?: InputMaybe<Scalars['String']>;
+    eventType_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+    eventType_ends_with?: InputMaybe<Scalars['String']>;
+    eventType_ends_with_nocase?: InputMaybe<Scalars['String']>;
+    eventType_not_ends_with?: InputMaybe<Scalars['String']>;
+    eventType_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+    blockNumber?: InputMaybe<Scalars['BigInt']>;
+    blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+    blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+    blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+    blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+    blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+    blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+    blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+    timestamp?: InputMaybe<Scalars['BigInt']>;
+    timestamp_not?: InputMaybe<Scalars['BigInt']>;
+    timestamp_gt?: InputMaybe<Scalars['BigInt']>;
+    timestamp_lt?: InputMaybe<Scalars['BigInt']>;
+    timestamp_gte?: InputMaybe<Scalars['BigInt']>;
+    timestamp_lte?: InputMaybe<Scalars['BigInt']>;
+    timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+    timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+    /** Filter for the block changed event. */
+    _change_block?: InputMaybe<BlockChangedFilter>;
+    and?: InputMaybe<Array<InputMaybe<StakeHistory_filter>>>;
+    or?: InputMaybe<Array<InputMaybe<StakeHistory_filter>>>;
+};
+export type StakeHistory_orderBy = 'id' | 'stake' | 'stake__id' | 'stake__beneficiary' | 'stake__authorizer' | 'stake__stakedAmount' | 'eventAmount' | 'stakedAmount' | 'eventType' | 'blockNumber' | 'timestamp';
 /** TACo commitments made by a staking provider */
 export type TACoCommitment = {
     /** ID is the staking provider address */
@@ -1404,6 +1300,70 @@ export type TokenholderDelegation_filter = {
     or?: InputMaybe<Array<InputMaybe<TokenholderDelegation_filter>>>;
 };
 export type TokenholderDelegation_orderBy = 'id' | 'totalWeight' | 'liquidWeight' | 'delegators';
+/** SimplePREApplication represents the state of Simple Proxy ReEncryption operators */
+export type SimplePREApplication = {
+    /** ID is the staking provider ETH address */
+    id: Scalars['ID'];
+    /** Operator's ETH address */
+    operator: Scalars['Bytes'];
+    /** Stake address related to this PRE operator */
+    stake: Scalars['Bytes'];
+    /** UNIX timestamp in which an operator was bonded for this staking provider for first time */
+    bondedTimestamp?: Maybe<Scalars['BigInt']>;
+    /** UNIX timestamp in which an operator was confirmed for this staking provider for first time */
+    confirmedTimestamp?: Maybe<Scalars['BigInt']>;
+};
+export type SimplePREApplication_filter = {
+    id?: InputMaybe<Scalars['ID']>;
+    id_not?: InputMaybe<Scalars['ID']>;
+    id_gt?: InputMaybe<Scalars['ID']>;
+    id_lt?: InputMaybe<Scalars['ID']>;
+    id_gte?: InputMaybe<Scalars['ID']>;
+    id_lte?: InputMaybe<Scalars['ID']>;
+    id_in?: InputMaybe<Array<Scalars['ID']>>;
+    id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+    operator?: InputMaybe<Scalars['Bytes']>;
+    operator_not?: InputMaybe<Scalars['Bytes']>;
+    operator_gt?: InputMaybe<Scalars['Bytes']>;
+    operator_lt?: InputMaybe<Scalars['Bytes']>;
+    operator_gte?: InputMaybe<Scalars['Bytes']>;
+    operator_lte?: InputMaybe<Scalars['Bytes']>;
+    operator_in?: InputMaybe<Array<Scalars['Bytes']>>;
+    operator_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
+    operator_contains?: InputMaybe<Scalars['Bytes']>;
+    operator_not_contains?: InputMaybe<Scalars['Bytes']>;
+    stake?: InputMaybe<Scalars['Bytes']>;
+    stake_not?: InputMaybe<Scalars['Bytes']>;
+    stake_gt?: InputMaybe<Scalars['Bytes']>;
+    stake_lt?: InputMaybe<Scalars['Bytes']>;
+    stake_gte?: InputMaybe<Scalars['Bytes']>;
+    stake_lte?: InputMaybe<Scalars['Bytes']>;
+    stake_in?: InputMaybe<Array<Scalars['Bytes']>>;
+    stake_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
+    stake_contains?: InputMaybe<Scalars['Bytes']>;
+    stake_not_contains?: InputMaybe<Scalars['Bytes']>;
+    bondedTimestamp?: InputMaybe<Scalars['BigInt']>;
+    bondedTimestamp_not?: InputMaybe<Scalars['BigInt']>;
+    bondedTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
+    bondedTimestamp_lt?: InputMaybe<Scalars['BigInt']>;
+    bondedTimestamp_gte?: InputMaybe<Scalars['BigInt']>;
+    bondedTimestamp_lte?: InputMaybe<Scalars['BigInt']>;
+    bondedTimestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+    bondedTimestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+    confirmedTimestamp?: InputMaybe<Scalars['BigInt']>;
+    confirmedTimestamp_not?: InputMaybe<Scalars['BigInt']>;
+    confirmedTimestamp_gt?: InputMaybe<Scalars['BigInt']>;
+    confirmedTimestamp_lt?: InputMaybe<Scalars['BigInt']>;
+    confirmedTimestamp_gte?: InputMaybe<Scalars['BigInt']>;
+    confirmedTimestamp_lte?: InputMaybe<Scalars['BigInt']>;
+    confirmedTimestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+    confirmedTimestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+    /** Filter for the block changed event. */
+    _change_block?: InputMaybe<BlockChangedFilter>;
+    and?: InputMaybe<Array<InputMaybe<SimplePREApplication_filter>>>;
+    or?: InputMaybe<Array<InputMaybe<SimplePREApplication_filter>>>;
+};
+export type SimplePREApplication_orderBy = 'id' | 'operator' | 'stake' | 'bondedTimestamp' | 'confirmedTimestamp';
 export type WithIndex<TObject> = TObject & Record<string, any>;
 export type ResolversObject<TObject> = WithIndex<TObject>;
 export type ResolverTypeWrapper<T> = Promise<T> | T;
@@ -1445,6 +1405,7 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 export type ResolversTypes = ResolversObject<{
     Query: ResolverTypeWrapper<{}>;
     Subscription: ResolverTypeWrapper<{}>;
+    Aggregation_interval: Aggregation_interval;
     BigDecimal: ResolverTypeWrapper<Scalars['BigDecimal']>;
     BigInt: ResolverTypeWrapper<Scalars['BigInt']>;
     BlockChangedFilter: BlockChangedFilter;
@@ -1478,15 +1439,6 @@ export type ResolversTypes = ResolversObject<{
     Delegation: ResolversTypes['StakeDelegation'] | ResolversTypes['TokenholderDelegation'];
     Delegation_filter: Delegation_filter;
     Delegation_orderBy: Delegation_orderBy;
-    Epoch: ResolverTypeWrapper<Epoch>;
-    EpochCounter: ResolverTypeWrapper<EpochCounter>;
-    EpochCounter_filter: EpochCounter_filter;
-    EpochCounter_orderBy: EpochCounter_orderBy;
-    EpochStake: ResolverTypeWrapper<EpochStake>;
-    EpochStake_filter: EpochStake_filter;
-    EpochStake_orderBy: EpochStake_orderBy;
-    Epoch_filter: Epoch_filter;
-    Epoch_orderBy: Epoch_orderBy;
     MinStakeAmount: ResolverTypeWrapper<MinStakeAmount>;
     MinStakeAmount_filter: MinStakeAmount_filter;
     MinStakeAmount_orderBy: MinStakeAmount_orderBy;
@@ -1496,12 +1448,18 @@ export type ResolversTypes = ResolversObject<{
     StakeDelegation: ResolverTypeWrapper<StakeDelegation>;
     StakeDelegation_filter: StakeDelegation_filter;
     StakeDelegation_orderBy: StakeDelegation_orderBy;
+    StakeHistory: ResolverTypeWrapper<StakeHistory>;
+    StakeHistory_filter: StakeHistory_filter;
+    StakeHistory_orderBy: StakeHistory_orderBy;
     TACoCommitment: ResolverTypeWrapper<TACoCommitment>;
     TACoCommitment_filter: TACoCommitment_filter;
     TACoCommitment_orderBy: TACoCommitment_orderBy;
     TokenholderDelegation: ResolverTypeWrapper<TokenholderDelegation>;
     TokenholderDelegation_filter: TokenholderDelegation_filter;
     TokenholderDelegation_orderBy: TokenholderDelegation_orderBy;
+    SimplePREApplication: ResolverTypeWrapper<SimplePREApplication>;
+    SimplePREApplication_filter: SimplePREApplication_filter;
+    SimplePREApplication_orderBy: SimplePREApplication_orderBy;
 }>;
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = ResolversObject<{
@@ -1532,22 +1490,20 @@ export type ResolversParentTypes = ResolversObject<{
     DAOMetric_filter: DAOMetric_filter;
     Delegation: ResolversParentTypes['StakeDelegation'] | ResolversParentTypes['TokenholderDelegation'];
     Delegation_filter: Delegation_filter;
-    Epoch: Epoch;
-    EpochCounter: EpochCounter;
-    EpochCounter_filter: EpochCounter_filter;
-    EpochStake: EpochStake;
-    EpochStake_filter: EpochStake_filter;
-    Epoch_filter: Epoch_filter;
     MinStakeAmount: MinStakeAmount;
     MinStakeAmount_filter: MinStakeAmount_filter;
     StakeData: StakeData;
     StakeData_filter: StakeData_filter;
     StakeDelegation: StakeDelegation;
     StakeDelegation_filter: StakeDelegation_filter;
+    StakeHistory: StakeHistory;
+    StakeHistory_filter: StakeHistory_filter;
     TACoCommitment: TACoCommitment;
     TACoCommitment_filter: TACoCommitment_filter;
     TokenholderDelegation: TokenholderDelegation;
     TokenholderDelegation_filter: TokenholderDelegation_filter;
+    SimplePREApplication: SimplePREApplication;
+    SimplePREApplication_filter: SimplePREApplication_filter;
 }>;
 export type entityDirectiveArgs = {};
 export type entityDirectiveResolver<Result, Parent, ContextType = MeshContext, Args = entityDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
@@ -1567,12 +1523,8 @@ export type QueryResolvers<ContextType = MeshContext, ParentType extends Resolve
     accounts?: Resolver<Array<ResolversTypes['Account']>, ParentType, ContextType, RequireFields<QueryaccountsArgs, 'skip' | 'first' | 'subgraphError'>>;
     stakeData?: Resolver<Maybe<ResolversTypes['StakeData']>, ParentType, ContextType, RequireFields<QuerystakeDataArgs, 'id' | 'subgraphError'>>;
     stakeDatas?: Resolver<Array<ResolversTypes['StakeData']>, ParentType, ContextType, RequireFields<QuerystakeDatasArgs, 'skip' | 'first' | 'subgraphError'>>;
-    epochStake?: Resolver<Maybe<ResolversTypes['EpochStake']>, ParentType, ContextType, RequireFields<QueryepochStakeArgs, 'id' | 'subgraphError'>>;
-    epochStakes?: Resolver<Array<ResolversTypes['EpochStake']>, ParentType, ContextType, RequireFields<QueryepochStakesArgs, 'skip' | 'first' | 'subgraphError'>>;
-    epoch?: Resolver<Maybe<ResolversTypes['Epoch']>, ParentType, ContextType, RequireFields<QueryepochArgs, 'id' | 'subgraphError'>>;
-    epoches?: Resolver<Array<ResolversTypes['Epoch']>, ParentType, ContextType, RequireFields<QueryepochesArgs, 'skip' | 'first' | 'subgraphError'>>;
-    epochCounter?: Resolver<Maybe<ResolversTypes['EpochCounter']>, ParentType, ContextType, RequireFields<QueryepochCounterArgs, 'id' | 'subgraphError'>>;
-    epochCounters?: Resolver<Array<ResolversTypes['EpochCounter']>, ParentType, ContextType, RequireFields<QueryepochCountersArgs, 'skip' | 'first' | 'subgraphError'>>;
+    stakeHistory?: Resolver<Maybe<ResolversTypes['StakeHistory']>, ParentType, ContextType, RequireFields<QuerystakeHistoryArgs, 'id' | 'subgraphError'>>;
+    stakeHistories?: Resolver<Array<ResolversTypes['StakeHistory']>, ParentType, ContextType, RequireFields<QuerystakeHistoriesArgs, 'skip' | 'first' | 'subgraphError'>>;
     appAuthorization?: Resolver<Maybe<ResolversTypes['AppAuthorization']>, ParentType, ContextType, RequireFields<QueryappAuthorizationArgs, 'id' | 'subgraphError'>>;
     appAuthorizations?: Resolver<Array<ResolversTypes['AppAuthorization']>, ParentType, ContextType, RequireFields<QueryappAuthorizationsArgs, 'skip' | 'first' | 'subgraphError'>>;
     appAuthHistory?: Resolver<Maybe<ResolversTypes['AppAuthHistory']>, ParentType, ContextType, RequireFields<QueryappAuthHistoryArgs, 'id' | 'subgraphError'>>;
@@ -1589,6 +1541,8 @@ export type QueryResolvers<ContextType = MeshContext, ParentType extends Resolve
     tacoCommitments?: Resolver<Array<ResolversTypes['TACoCommitment']>, ParentType, ContextType, RequireFields<QuerytacoCommitmentsArgs, 'skip' | 'first' | 'subgraphError'>>;
     delegation?: Resolver<Maybe<ResolversTypes['Delegation']>, ParentType, ContextType, RequireFields<QuerydelegationArgs, 'id' | 'subgraphError'>>;
     delegations?: Resolver<Array<ResolversTypes['Delegation']>, ParentType, ContextType, RequireFields<QuerydelegationsArgs, 'skip' | 'first' | 'subgraphError'>>;
+    simplePREApplication?: Resolver<Maybe<ResolversTypes['SimplePREApplication']>, ParentType, ContextType, RequireFields<QuerysimplePREApplicationArgs, 'id' | 'subgraphError'>>;
+    simplePREApplications?: Resolver<Array<ResolversTypes['SimplePREApplication']>, ParentType, ContextType, RequireFields<QuerysimplePREApplicationsArgs, 'skip' | 'first' | 'subgraphError'>>;
 }>;
 export type SubscriptionResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['Subscription'] = ResolversParentTypes['Subscription']> = ResolversObject<{
     tacoOperator?: SubscriptionResolver<Maybe<ResolversTypes['TACoOperator']>, "tacoOperator", ParentType, ContextType, RequireFields<SubscriptiontacoOperatorArgs, 'id' | 'subgraphError'>>;
@@ -1598,12 +1552,8 @@ export type SubscriptionResolvers<ContextType = MeshContext, ParentType extends 
     accounts?: SubscriptionResolver<Array<ResolversTypes['Account']>, "accounts", ParentType, ContextType, RequireFields<SubscriptionaccountsArgs, 'skip' | 'first' | 'subgraphError'>>;
     stakeData?: SubscriptionResolver<Maybe<ResolversTypes['StakeData']>, "stakeData", ParentType, ContextType, RequireFields<SubscriptionstakeDataArgs, 'id' | 'subgraphError'>>;
     stakeDatas?: SubscriptionResolver<Array<ResolversTypes['StakeData']>, "stakeDatas", ParentType, ContextType, RequireFields<SubscriptionstakeDatasArgs, 'skip' | 'first' | 'subgraphError'>>;
-    epochStake?: SubscriptionResolver<Maybe<ResolversTypes['EpochStake']>, "epochStake", ParentType, ContextType, RequireFields<SubscriptionepochStakeArgs, 'id' | 'subgraphError'>>;
-    epochStakes?: SubscriptionResolver<Array<ResolversTypes['EpochStake']>, "epochStakes", ParentType, ContextType, RequireFields<SubscriptionepochStakesArgs, 'skip' | 'first' | 'subgraphError'>>;
-    epoch?: SubscriptionResolver<Maybe<ResolversTypes['Epoch']>, "epoch", ParentType, ContextType, RequireFields<SubscriptionepochArgs, 'id' | 'subgraphError'>>;
-    epoches?: SubscriptionResolver<Array<ResolversTypes['Epoch']>, "epoches", ParentType, ContextType, RequireFields<SubscriptionepochesArgs, 'skip' | 'first' | 'subgraphError'>>;
-    epochCounter?: SubscriptionResolver<Maybe<ResolversTypes['EpochCounter']>, "epochCounter", ParentType, ContextType, RequireFields<SubscriptionepochCounterArgs, 'id' | 'subgraphError'>>;
-    epochCounters?: SubscriptionResolver<Array<ResolversTypes['EpochCounter']>, "epochCounters", ParentType, ContextType, RequireFields<SubscriptionepochCountersArgs, 'skip' | 'first' | 'subgraphError'>>;
+    stakeHistory?: SubscriptionResolver<Maybe<ResolversTypes['StakeHistory']>, "stakeHistory", ParentType, ContextType, RequireFields<SubscriptionstakeHistoryArgs, 'id' | 'subgraphError'>>;
+    stakeHistories?: SubscriptionResolver<Array<ResolversTypes['StakeHistory']>, "stakeHistories", ParentType, ContextType, RequireFields<SubscriptionstakeHistoriesArgs, 'skip' | 'first' | 'subgraphError'>>;
     appAuthorization?: SubscriptionResolver<Maybe<ResolversTypes['AppAuthorization']>, "appAuthorization", ParentType, ContextType, RequireFields<SubscriptionappAuthorizationArgs, 'id' | 'subgraphError'>>;
     appAuthorizations?: SubscriptionResolver<Array<ResolversTypes['AppAuthorization']>, "appAuthorizations", ParentType, ContextType, RequireFields<SubscriptionappAuthorizationsArgs, 'skip' | 'first' | 'subgraphError'>>;
     appAuthHistory?: SubscriptionResolver<Maybe<ResolversTypes['AppAuthHistory']>, "appAuthHistory", ParentType, ContextType, RequireFields<SubscriptionappAuthHistoryArgs, 'id' | 'subgraphError'>>;
@@ -1620,6 +1570,8 @@ export type SubscriptionResolvers<ContextType = MeshContext, ParentType extends 
     tacoCommitments?: SubscriptionResolver<Array<ResolversTypes['TACoCommitment']>, "tacoCommitments", ParentType, ContextType, RequireFields<SubscriptiontacoCommitmentsArgs, 'skip' | 'first' | 'subgraphError'>>;
     delegation?: SubscriptionResolver<Maybe<ResolversTypes['Delegation']>, "delegation", ParentType, ContextType, RequireFields<SubscriptiondelegationArgs, 'id' | 'subgraphError'>>;
     delegations?: SubscriptionResolver<Array<ResolversTypes['Delegation']>, "delegations", ParentType, ContextType, RequireFields<SubscriptiondelegationsArgs, 'skip' | 'first' | 'subgraphError'>>;
+    simplePREApplication?: SubscriptionResolver<Maybe<ResolversTypes['SimplePREApplication']>, "simplePREApplication", ParentType, ContextType, RequireFields<SubscriptionsimplePREApplicationArgs, 'id' | 'subgraphError'>>;
+    simplePREApplications?: SubscriptionResolver<Array<ResolversTypes['SimplePREApplication']>, "simplePREApplications", ParentType, ContextType, RequireFields<SubscriptionsimplePREApplicationsArgs, 'skip' | 'first' | 'subgraphError'>>;
 }>;
 export interface BigDecimalScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['BigDecimal'], any> {
     name: 'BigDecimal';
@@ -1665,6 +1617,7 @@ export type AppAuthHistoryResolvers<ContextType = MeshContext, ParentType extend
     id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
     appAuthorization?: Resolver<ResolversTypes['AppAuthorization'], ParentType, ContextType>;
     amount?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
+    eventAmount?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
     eventType?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
     blockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
     timestamp?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
@@ -1675,7 +1628,7 @@ export type AppAuthorizationResolvers<ContextType = MeshContext, ParentType exte
     appAddress?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
     stake?: Resolver<ResolversTypes['StakeData'], ParentType, ContextType>;
     amount?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
-    amountDeauthorizingTo?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
+    amountDeauthorizing?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
     appName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
     __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
@@ -1690,27 +1643,6 @@ export type DelegationResolvers<ContextType = MeshContext, ParentType extends Re
     id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
     totalWeight?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
 }>;
-export type EpochResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['Epoch'] = ResolversParentTypes['Epoch']> = ResolversObject<{
-    id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-    timestamp?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
-    duration?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-    totalAmount?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
-    stakes?: Resolver<Maybe<Array<ResolversTypes['EpochStake']>>, ParentType, ContextType, RequireFields<EpochstakesArgs, 'skip' | 'first'>>;
-    __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-export type EpochCounterResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['EpochCounter'] = ResolversParentTypes['EpochCounter']> = ResolversObject<{
-    id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-    count?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-    __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-export type EpochStakeResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['EpochStake'] = ResolversParentTypes['EpochStake']> = ResolversObject<{
-    id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-    epoch?: Resolver<ResolversTypes['Epoch'], ParentType, ContextType>;
-    stakingProvider?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
-    owner?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
-    amount?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
-    __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
 export type MinStakeAmountResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['MinStakeAmount'] = ResolversParentTypes['MinStakeAmount']> = ResolversObject<{
     id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
     amount?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
@@ -1723,11 +1655,9 @@ export type StakeDataResolvers<ContextType = MeshContext, ParentType extends Res
     owner?: Resolver<ResolversTypes['Account'], ParentType, ContextType>;
     beneficiary?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
     authorizer?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
-    tStake?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
-    keepInTStake?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
-    nuInTStake?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
-    totalStaked?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
+    stakedAmount?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
     delegatee?: Resolver<Maybe<ResolversTypes['StakeDelegation']>, ParentType, ContextType>;
+    stakeHistory?: Resolver<Maybe<Array<ResolversTypes['StakeHistory']>>, ParentType, ContextType, RequireFields<StakeDatastakeHistoryArgs, 'skip' | 'first'>>;
     authorizations?: Resolver<Maybe<Array<ResolversTypes['AppAuthorization']>>, ParentType, ContextType, RequireFields<StakeDataauthorizationsArgs, 'skip' | 'first'>>;
     __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
@@ -1735,6 +1665,16 @@ export type StakeDelegationResolvers<ContextType = MeshContext, ParentType exten
     id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
     totalWeight?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
     stakeDelegators?: Resolver<Maybe<Array<ResolversTypes['StakeData']>>, ParentType, ContextType, RequireFields<StakeDelegationstakeDelegatorsArgs, 'skip' | 'first'>>;
+    __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+export type StakeHistoryResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['StakeHistory'] = ResolversParentTypes['StakeHistory']> = ResolversObject<{
+    id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+    stake?: Resolver<ResolversTypes['StakeData'], ParentType, ContextType>;
+    eventAmount?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
+    stakedAmount?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
+    eventType?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+    blockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
+    timestamp?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
     __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 export type TACoCommitmentResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['TACoCommitment'] = ResolversParentTypes['TACoCommitment']> = ResolversObject<{
@@ -1748,6 +1688,14 @@ export type TokenholderDelegationResolvers<ContextType = MeshContext, ParentType
     totalWeight?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
     liquidWeight?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
     delegators?: Resolver<Maybe<Array<ResolversTypes['Account']>>, ParentType, ContextType, RequireFields<TokenholderDelegationdelegatorsArgs, 'skip' | 'first'>>;
+    __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+export type SimplePREApplicationResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['SimplePREApplication'] = ResolversParentTypes['SimplePREApplication']> = ResolversObject<{
+    id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+    operator?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
+    stake?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
+    bondedTimestamp?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+    confirmedTimestamp?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
     __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 export type Resolvers<ContextType = MeshContext> = ResolversObject<{
@@ -1765,21 +1713,20 @@ export type Resolvers<ContextType = MeshContext> = ResolversObject<{
     AppAuthorization?: AppAuthorizationResolvers<ContextType>;
     DAOMetric?: DAOMetricResolvers<ContextType>;
     Delegation?: DelegationResolvers<ContextType>;
-    Epoch?: EpochResolvers<ContextType>;
-    EpochCounter?: EpochCounterResolvers<ContextType>;
-    EpochStake?: EpochStakeResolvers<ContextType>;
     MinStakeAmount?: MinStakeAmountResolvers<ContextType>;
     StakeData?: StakeDataResolvers<ContextType>;
     StakeDelegation?: StakeDelegationResolvers<ContextType>;
+    StakeHistory?: StakeHistoryResolvers<ContextType>;
     TACoCommitment?: TACoCommitmentResolvers<ContextType>;
     TokenholderDelegation?: TokenholderDelegationResolvers<ContextType>;
+    SimplePREApplication?: SimplePREApplicationResolvers<ContextType>;
 }>;
 export type DirectiveResolvers<ContextType = MeshContext> = ResolversObject<{
     entity?: entityDirectiveResolver<any, any, ContextType>;
     subgraphId?: subgraphIdDirectiveResolver<any, any, ContextType>;
     derivedFrom?: derivedFromDirectiveResolver<any, any, ContextType>;
 }>;
-export type MeshContext = ThresholdStakingPolygonTypes.Context & DevelopmentThresholdSubgraphTypes.Context & BaseMeshContext;
+export type MeshContext = ThresholdStakingPolygonTypes.Context & DevelopmentThresholdSubgraphTypes.Context & SimpleTypes.Context & BaseMeshContext;
 export declare const rawServeConfig: YamlConfig.Config['serve'];
 export declare function getMeshOptions(): Promise<GetMeshOptions>;
 export declare function createBuiltMeshHTTPHandler<TServerContext = {}>(): MeshHTTPHandler<TServerContext>;
@@ -1787,9 +1734,33 @@ export declare function getBuiltGraphClient(): Promise<MeshInstance>;
 export declare const execute: ExecuteMeshFn;
 export declare const subscribe: SubscribeMeshFn;
 export declare function getBuiltGraphSDK<TGlobalContext = any, TOperationContext = any>(globalContext?: TGlobalContext): {
-    LegacyKeepStakesQuery(variables?: Exact<{
+    RBAuthHistoryQuery(variables?: Exact<{
+        startTimestamp?: any;
+        endTimestamp?: any;
+        first?: number;
+        skip?: number;
+    }>, options?: TOperationContext): Promise<RBAuthHistoryQueryQuery>;
+    TbtcAuthHistoryQuery(variables?: Exact<{
+        startTimestamp?: any;
+        endTimestamp?: any;
+        first?: number;
+        skip?: number;
+    }>, options?: TOperationContext): Promise<TbtcAuthHistoryQueryQuery>;
+    TACOAuthHistoryQuery(variables?: Exact<{
+        startTimestamp?: any;
+        endTimestamp?: any;
+        first?: number;
+        skip?: number;
+    }>, options?: TOperationContext): Promise<TACOAuthHistoryQueryQuery>;
+    PREOpsBeforeLegacyDeactQuery(variables?: Exact<{
         blockNumber?: number;
-    }>, options?: TOperationContext): Promise<LegacyKeepStakesQueryQuery>;
+    }>, options?: TOperationContext): Promise<PREOpsBeforeLegacyDeactQueryQuery>;
+    StakeHistoryBetweenTwoDatesQuery(variables?: Exact<{
+        startTimestamp?: any;
+        endTimestamp?: any;
+        first?: number;
+        skip?: number;
+    }>, options?: TOperationContext): Promise<StakeHistoryBetweenTwoDatesQueryQuery>;
     TACoAuthHistoryQuery(variables?: Exact<{
         endTimestamp?: any;
         first?: number;
@@ -1801,12 +1772,60 @@ export declare function getBuiltGraphSDK<TGlobalContext = any, TOperationContext
         skip?: number;
     }>, options?: TOperationContext): Promise<TACoOperatorsQuery>;
 };
-export type LegacyKeepStakesQueryQueryVariables = Exact<{
+export type RBAuthHistoryQueryQueryVariables = Exact<{
+    startTimestamp?: InputMaybe<Scalars['BigInt']>;
+    endTimestamp?: InputMaybe<Scalars['BigInt']>;
+    first?: InputMaybe<Scalars['Int']>;
+    skip?: InputMaybe<Scalars['Int']>;
+}>;
+export type RBAuthHistoryQueryQuery = {
+    appAuthHistories: Array<(Pick<AppAuthHistory, 'timestamp' | 'amount' | 'eventAmount' | 'blockNumber' | 'eventType'> & {
+        appAuthorization: (Pick<AppAuthorization, 'appName'> & {
+            stake: Pick<StakeData, 'id' | 'beneficiary'>;
+        });
+    })>;
+};
+export type TbtcAuthHistoryQueryQueryVariables = Exact<{
+    startTimestamp?: InputMaybe<Scalars['BigInt']>;
+    endTimestamp?: InputMaybe<Scalars['BigInt']>;
+    first?: InputMaybe<Scalars['Int']>;
+    skip?: InputMaybe<Scalars['Int']>;
+}>;
+export type TbtcAuthHistoryQueryQuery = {
+    appAuthHistories: Array<(Pick<AppAuthHistory, 'timestamp' | 'amount' | 'eventAmount' | 'blockNumber' | 'eventType'> & {
+        appAuthorization: (Pick<AppAuthorization, 'appName'> & {
+            stake: Pick<StakeData, 'id' | 'beneficiary'>;
+        });
+    })>;
+};
+export type TACOAuthHistoryQueryQueryVariables = Exact<{
+    startTimestamp?: InputMaybe<Scalars['BigInt']>;
+    endTimestamp?: InputMaybe<Scalars['BigInt']>;
+    first?: InputMaybe<Scalars['Int']>;
+    skip?: InputMaybe<Scalars['Int']>;
+}>;
+export type TACOAuthHistoryQueryQuery = {
+    appAuthHistories: Array<(Pick<AppAuthHistory, 'timestamp' | 'amount' | 'eventAmount' | 'blockNumber' | 'eventType'> & {
+        appAuthorization: (Pick<AppAuthorization, 'appName'> & {
+            stake: Pick<StakeData, 'id' | 'beneficiary'>;
+        });
+    })>;
+};
+export type PREOpsBeforeLegacyDeactQueryQueryVariables = Exact<{
     blockNumber?: InputMaybe<Scalars['Int']>;
 }>;
-export type LegacyKeepStakesQueryQuery = {
-    accounts: Array<(Pick<Account, 'id'> & {
-        stakes?: Maybe<Array<Pick<StakeData, 'id' | 'keepInTStake' | 'tStake' | 'totalStaked'>>>;
+export type PREOpsBeforeLegacyDeactQueryQuery = {
+    simplePREApplications: Array<Pick<SimplePREApplication, 'id' | 'operator' | 'confirmedTimestamp'>>;
+};
+export type StakeHistoryBetweenTwoDatesQueryQueryVariables = Exact<{
+    startTimestamp?: InputMaybe<Scalars['BigInt']>;
+    endTimestamp?: InputMaybe<Scalars['BigInt']>;
+    first?: InputMaybe<Scalars['Int']>;
+    skip?: InputMaybe<Scalars['Int']>;
+}>;
+export type StakeHistoryBetweenTwoDatesQueryQuery = {
+    stakeDatas: Array<(Pick<StakeData, 'id' | 'beneficiary'> & {
+        stakeHistory?: Maybe<Array<Pick<StakeHistory, 'stakedAmount' | 'timestamp' | 'eventType' | 'blockNumber' | 'eventAmount'>>>;
     })>;
 };
 export type TACoAuthHistoryQueryQueryVariables = Exact<{
@@ -1829,8 +1848,32 @@ export type TACoOperatorsQueryVariables = Exact<{
 export type TACoOperatorsQuery = {
     tacoOperators: Array<Pick<TACoOperator, 'id' | 'operator' | 'confirmedTimestampFirstOperator'>>;
 };
-export declare const LegacyKeepStakesQueryDocument: DocumentNode<LegacyKeepStakesQueryQuery, Exact<{
+export declare const RBAuthHistoryQueryDocument: DocumentNode<RBAuthHistoryQueryQuery, Exact<{
+    startTimestamp?: InputMaybe<Scalars['BigInt']>;
+    endTimestamp?: InputMaybe<Scalars['BigInt']>;
+    first?: InputMaybe<Scalars['Int']>;
+    skip?: InputMaybe<Scalars['Int']>;
+}>>;
+export declare const TbtcAuthHistoryQueryDocument: DocumentNode<TbtcAuthHistoryQueryQuery, Exact<{
+    startTimestamp?: InputMaybe<Scalars['BigInt']>;
+    endTimestamp?: InputMaybe<Scalars['BigInt']>;
+    first?: InputMaybe<Scalars['Int']>;
+    skip?: InputMaybe<Scalars['Int']>;
+}>>;
+export declare const TACOAuthHistoryQueryDocument: DocumentNode<TACOAuthHistoryQueryQuery, Exact<{
+    startTimestamp?: InputMaybe<Scalars['BigInt']>;
+    endTimestamp?: InputMaybe<Scalars['BigInt']>;
+    first?: InputMaybe<Scalars['Int']>;
+    skip?: InputMaybe<Scalars['Int']>;
+}>>;
+export declare const PREOpsBeforeLegacyDeactQueryDocument: DocumentNode<PREOpsBeforeLegacyDeactQueryQuery, Exact<{
     blockNumber?: InputMaybe<Scalars['Int']>;
+}>>;
+export declare const StakeHistoryBetweenTwoDatesQueryDocument: DocumentNode<StakeHistoryBetweenTwoDatesQueryQuery, Exact<{
+    startTimestamp?: InputMaybe<Scalars['BigInt']>;
+    endTimestamp?: InputMaybe<Scalars['BigInt']>;
+    first?: InputMaybe<Scalars['Int']>;
+    skip?: InputMaybe<Scalars['Int']>;
 }>>;
 export declare const TACoAuthHistoryQueryDocument: DocumentNode<TACoAuthHistoryQueryQuery, Exact<{
     endTimestamp?: InputMaybe<Scalars['BigInt']>;
@@ -1844,7 +1887,11 @@ export declare const TACoOperatorsDocument: DocumentNode<TACoOperatorsQuery, Exa
 }>>;
 export type Requester<C = {}, E = unknown> = <R, V>(doc: DocumentNode, vars?: V, options?: C) => Promise<R> | AsyncIterable<R>;
 export declare function getSdk<C, E>(requester: Requester<C, E>): {
-    LegacyKeepStakesQuery(variables?: LegacyKeepStakesQueryQueryVariables, options?: C): Promise<LegacyKeepStakesQueryQuery>;
+    RBAuthHistoryQuery(variables?: RBAuthHistoryQueryQueryVariables, options?: C): Promise<RBAuthHistoryQueryQuery>;
+    TbtcAuthHistoryQuery(variables?: TbtcAuthHistoryQueryQueryVariables, options?: C): Promise<TbtcAuthHistoryQueryQuery>;
+    TACOAuthHistoryQuery(variables?: TACOAuthHistoryQueryQueryVariables, options?: C): Promise<TACOAuthHistoryQueryQuery>;
+    PREOpsBeforeLegacyDeactQuery(variables?: PREOpsBeforeLegacyDeactQueryQueryVariables, options?: C): Promise<PREOpsBeforeLegacyDeactQueryQuery>;
+    StakeHistoryBetweenTwoDatesQuery(variables?: StakeHistoryBetweenTwoDatesQueryQueryVariables, options?: C): Promise<StakeHistoryBetweenTwoDatesQueryQuery>;
     TACoAuthHistoryQuery(variables?: TACoAuthHistoryQueryQueryVariables, options?: C): Promise<TACoAuthHistoryQueryQuery>;
     TACoOperators(variables?: TACoOperatorsQueryVariables, options?: C): Promise<TACoOperatorsQuery>;
 };

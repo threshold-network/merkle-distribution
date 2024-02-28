@@ -13,6 +13,7 @@ import { MeshStore, FsStoreStorageAdapter } from '@graphql-mesh/store';
 import { path as pathModule } from '@graphql-mesh/cross-helpers';
 import * as importedModule$0 from "./sources/threshold-staking-polygon/introspectionSchema.json";
 import * as importedModule$1 from "./sources/development-threshold-subgraph/introspectionSchema.json";
+import * as importedModule$2 from "./sources/simple/introspectionSchema.json";
 import { fileURLToPath } from '@graphql-mesh/utils';
 const baseDir = pathModule.join(pathModule.dirname(fileURLToPath(import.meta.url)), '..');
 const importFn = (moduleId) => {
@@ -22,6 +23,8 @@ const importFn = (moduleId) => {
             return Promise.resolve(importedModule$0);
         case ".graphclient/sources/development-threshold-subgraph/introspectionSchema.json":
             return Promise.resolve(importedModule$1);
+        case ".graphclient/sources/simple/introspectionSchema.json":
+            return Promise.resolve(importedModule$2);
         default:
             return Promise.reject(new Error(`Cannot find module '${relativeModuleId}'.`));
     }
@@ -51,10 +54,11 @@ export async function getMeshOptions() {
     const additionalEnvelopPlugins = [];
     const developmentThresholdSubgraphTransforms = [];
     const thresholdStakingPolygonTransforms = [];
+    const simpleTransforms = [];
     const additionalTypeDefs = [];
     const developmentThresholdSubgraphHandler = new GraphqlHandler({
         name: "development-threshold-subgraph",
-        config: { "endpoint": "https://api.studio.thegraph.com/query/24143/development-threshold-subgraph/0.9.7" },
+        config: { "endpoint": "https://subgraph.satsuma-prod.com/276a55924ce0/nucypher--102994/mainnet/api" },
         baseDir,
         cache,
         pubsub,
@@ -72,6 +76,21 @@ export async function getMeshOptions() {
         logger: logger.child("threshold-staking-polygon"),
         importFn,
     });
+    const simpleHandler = new GraphqlHandler({
+        name: "simple",
+        config: { "endpoint": "https://api.studio.thegraph.com/query/24143/simple-pre-application/version/latest" },
+        baseDir,
+        cache,
+        pubsub,
+        store: sourcesStore.child("simple"),
+        logger: logger.child("simple"),
+        importFn,
+    });
+    sources[2] = {
+        name: 'simple',
+        handler: simpleHandler,
+        transforms: simpleTransforms
+    };
     developmentThresholdSubgraphTransforms[0] = new AutoPaginationTransform({
         apiName: "development-threshold-subgraph",
         config: { "validateSchema": true },
@@ -120,11 +139,35 @@ export async function getMeshOptions() {
         get documents() {
             return [
                 {
-                    document: LegacyKeepStakesQueryDocument,
+                    document: RbAuthHistoryQueryDocument,
                     get rawSDL() {
-                        return printWithCache(LegacyKeepStakesQueryDocument);
+                        return printWithCache(RbAuthHistoryQueryDocument);
                     },
-                    location: 'LegacyKeepStakesQueryDocument.graphql'
+                    location: 'RbAuthHistoryQueryDocument.graphql'
+                }, {
+                    document: TbtcAuthHistoryQueryDocument,
+                    get rawSDL() {
+                        return printWithCache(TbtcAuthHistoryQueryDocument);
+                    },
+                    location: 'TbtcAuthHistoryQueryDocument.graphql'
+                }, {
+                    document: TacoAuthHistoryQueryDocument,
+                    get rawSDL() {
+                        return printWithCache(TacoAuthHistoryQueryDocument);
+                    },
+                    location: 'TacoAuthHistoryQueryDocument.graphql'
+                }, {
+                    document: PreOpsBeforeLegacyDeactQueryDocument,
+                    get rawSDL() {
+                        return printWithCache(PreOpsBeforeLegacyDeactQueryDocument);
+                    },
+                    location: 'PreOpsBeforeLegacyDeactQueryDocument.graphql'
+                }, {
+                    document: StakeHistoryBetweenTwoDatesQueryDocument,
+                    get rawSDL() {
+                        return printWithCache(StakeHistoryBetweenTwoDatesQueryDocument);
+                    },
+                    location: 'StakeHistoryBetweenTwoDatesQueryDocument.graphql'
                 }, {
                     document: TaCoAuthHistoryQueryDocument,
                     get rawSDL() {
@@ -169,18 +212,94 @@ export function getBuiltGraphSDK(globalContext) {
     const sdkRequester$ = getBuiltGraphClient().then(({ sdkRequesterFactory }) => sdkRequesterFactory(globalContext));
     return getSdk((...args) => sdkRequester$.then(sdkRequester => sdkRequester(...args)));
 }
-export const LegacyKeepStakesQueryDocument = gql `
-    query LegacyKeepStakesQuery($blockNumber: Int) {
-  accounts(
-    block: {number: $blockNumber}
-    where: {stakes_: {keepInTStake_gt: "0"}}
+export const RBAuthHistoryQueryDocument = gql `
+    query RBAuthHistoryQuery($startTimestamp: BigInt, $endTimestamp: BigInt, $first: Int = 1000, $skip: Int = 0) {
+  appAuthHistories(
+    where: {timestamp_gte: $startTimestamp, timestamp_lt: $endTimestamp, appAuthorization_: {appName: "Random Beacon"}}
+    first: $first
+    skip: $skip
   ) {
+    timestamp
+    amount
+    eventAmount
+    blockNumber
+    eventType
+    appAuthorization {
+      stake {
+        id
+        beneficiary
+      }
+      appName
+    }
+  }
+}
+    `;
+export const TbtcAuthHistoryQueryDocument = gql `
+    query TbtcAuthHistoryQuery($startTimestamp: BigInt, $endTimestamp: BigInt, $first: Int = 1000, $skip: Int = 0) {
+  appAuthHistories(
+    where: {timestamp_gte: $startTimestamp, timestamp_lt: $endTimestamp, appAuthorization_: {appName: "tBTC"}}
+    first: $first
+    skip: $skip
+  ) {
+    timestamp
+    amount
+    eventAmount
+    blockNumber
+    eventType
+    appAuthorization {
+      stake {
+        id
+        beneficiary
+      }
+      appName
+    }
+  }
+}
+    `;
+export const TACOAuthHistoryQueryDocument = gql `
+    query TACOAuthHistoryQuery($startTimestamp: BigInt, $endTimestamp: BigInt, $first: Int = 1000, $skip: Int = 0) {
+  appAuthHistories(
+    where: {timestamp_gte: $startTimestamp, timestamp_lt: $endTimestamp, appAuthorization_: {appName: "TACo"}}
+    first: $first
+    skip: $skip
+  ) {
+    timestamp
+    amount
+    eventAmount
+    blockNumber
+    eventType
+    appAuthorization {
+      stake {
+        id
+        beneficiary
+      }
+      appName
+    }
+  }
+}
+    `;
+export const PREOpsBeforeLegacyDeactQueryDocument = gql `
+    query PREOpsBeforeLegacyDeactQuery($blockNumber: Int) {
+  simplePREApplications(first: 1000, block: {number: $blockNumber}) {
     id
-    stakes {
-      id
-      keepInTStake
-      tStake
-      totalStaked
+    operator
+    confirmedTimestamp
+  }
+}
+    `;
+export const StakeHistoryBetweenTwoDatesQueryDocument = gql `
+    query StakeHistoryBetweenTwoDatesQuery($startTimestamp: BigInt, $endTimestamp: BigInt, $first: Int = 1000, $skip: Int = 0) {
+  stakeDatas(first: $first, skip: $skip) {
+    id
+    beneficiary
+    stakeHistory(
+      where: {timestamp_gte: $startTimestamp, timestamp_lt: $endTimestamp}
+    ) {
+      stakedAmount
+      timestamp
+      eventType
+      blockNumber
+      eventAmount
     }
   }
 }
@@ -221,8 +340,20 @@ export const TACoOperatorsDocument = gql `
     `;
 export function getSdk(requester) {
     return {
-        LegacyKeepStakesQuery(variables, options) {
-            return requester(LegacyKeepStakesQueryDocument, variables, options);
+        RBAuthHistoryQuery(variables, options) {
+            return requester(RBAuthHistoryQueryDocument, variables, options);
+        },
+        TbtcAuthHistoryQuery(variables, options) {
+            return requester(TbtcAuthHistoryQueryDocument, variables, options);
+        },
+        TACOAuthHistoryQuery(variables, options) {
+            return requester(TACOAuthHistoryQueryDocument, variables, options);
+        },
+        PREOpsBeforeLegacyDeactQuery(variables, options) {
+            return requester(PREOpsBeforeLegacyDeactQueryDocument, variables, options);
+        },
+        StakeHistoryBetweenTwoDatesQuery(variables, options) {
+            return requester(StakeHistoryBetweenTwoDatesQueryDocument, variables, options);
         },
         TACoAuthHistoryQuery(variables, options) {
             return requester(TACoAuthHistoryQueryDocument, variables, options);

@@ -87,12 +87,14 @@ export type Account_orderBy =
 
 /** AppAuthHistory stores each change in the stake's authorization of apps */
 export type AppAuthHistory = {
-  /** IS is <staking provider address>-<application address>-<block number> */
+  /** ID is <staking provider address>-<application address>-<block number> */
   id: Scalars['ID'];
   /** AppAuthorization of this update in the authorization */
   appAuthorization: AppAuthorization;
   /** Amount of total T authorized by staking provider to the application in this block */
   amount: Scalars['BigInt'];
+  /** Amount of T that has been increased or decreased */
+  eventAmount: Scalars['BigInt'];
   /** Type of event that caused this update */
   eventType: Scalars['String'];
   /** Block in which this authorization update became effective */
@@ -139,6 +141,14 @@ export type AppAuthHistory_filter = {
   amount_lte?: InputMaybe<Scalars['BigInt']>;
   amount_in?: InputMaybe<Array<Scalars['BigInt']>>;
   amount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  eventAmount?: InputMaybe<Scalars['BigInt']>;
+  eventAmount_not?: InputMaybe<Scalars['BigInt']>;
+  eventAmount_gt?: InputMaybe<Scalars['BigInt']>;
+  eventAmount_lt?: InputMaybe<Scalars['BigInt']>;
+  eventAmount_gte?: InputMaybe<Scalars['BigInt']>;
+  eventAmount_lte?: InputMaybe<Scalars['BigInt']>;
+  eventAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  eventAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   eventType?: InputMaybe<Scalars['String']>;
   eventType_not?: InputMaybe<Scalars['String']>;
   eventType_gt?: InputMaybe<Scalars['String']>;
@@ -187,9 +197,10 @@ export type AppAuthHistory_orderBy =
   | 'appAuthorization__id'
   | 'appAuthorization__appAddress'
   | 'appAuthorization__amount'
-  | 'appAuthorization__amountDeauthorizingTo'
+  | 'appAuthorization__amountDeauthorizing'
   | 'appAuthorization__appName'
   | 'amount'
+  | 'eventAmount'
   | 'eventType'
   | 'blockNumber'
   | 'timestamp';
@@ -204,8 +215,8 @@ export type AppAuthorization = {
   stake: StakeData;
   /** Amount of total T currently authorized to the application */
   amount: Scalars['BigInt'];
-  /** Amount of T that will remain after the deauthorization process */
-  amountDeauthorizingTo: Scalars['BigInt'];
+  /** Amount of T that is being deauthorized */
+  amountDeauthorizing: Scalars['BigInt'];
   /** Application name (if known) */
   appName?: Maybe<Scalars['String']>;
 };
@@ -258,14 +269,14 @@ export type AppAuthorization_filter = {
   amount_lte?: InputMaybe<Scalars['BigInt']>;
   amount_in?: InputMaybe<Array<Scalars['BigInt']>>;
   amount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  amountDeauthorizingTo?: InputMaybe<Scalars['BigInt']>;
-  amountDeauthorizingTo_not?: InputMaybe<Scalars['BigInt']>;
-  amountDeauthorizingTo_gt?: InputMaybe<Scalars['BigInt']>;
-  amountDeauthorizingTo_lt?: InputMaybe<Scalars['BigInt']>;
-  amountDeauthorizingTo_gte?: InputMaybe<Scalars['BigInt']>;
-  amountDeauthorizingTo_lte?: InputMaybe<Scalars['BigInt']>;
-  amountDeauthorizingTo_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  amountDeauthorizingTo_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  amountDeauthorizing?: InputMaybe<Scalars['BigInt']>;
+  amountDeauthorizing_not?: InputMaybe<Scalars['BigInt']>;
+  amountDeauthorizing_gt?: InputMaybe<Scalars['BigInt']>;
+  amountDeauthorizing_lt?: InputMaybe<Scalars['BigInt']>;
+  amountDeauthorizing_gte?: InputMaybe<Scalars['BigInt']>;
+  amountDeauthorizing_lte?: InputMaybe<Scalars['BigInt']>;
+  amountDeauthorizing_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  amountDeauthorizing_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   appName?: InputMaybe<Scalars['String']>;
   appName_not?: InputMaybe<Scalars['String']>;
   appName_gt?: InputMaybe<Scalars['String']>;
@@ -299,12 +310,9 @@ export type AppAuthorization_orderBy =
   | 'stake__id'
   | 'stake__beneficiary'
   | 'stake__authorizer'
-  | 'stake__tStake'
-  | 'stake__keepInTStake'
-  | 'stake__nuInTStake'
-  | 'stake__totalStaked'
+  | 'stake__stakedAmount'
   | 'amount'
-  | 'amountDeauthorizingTo'
+  | 'amountDeauthorizing'
   | 'appName';
 
 export type BlockChangedFilter = {
@@ -394,202 +402,6 @@ export type Delegation_orderBy =
   | 'id'
   | 'totalWeight';
 
-/** Epoch represents the staking status of the network at each time instant */
-export type Epoch = {
-  /** ID is a counter number starting at 0 */
-  id: Scalars['ID'];
-  /** UNIX timestamp in which this epoch begins */
-  timestamp: Scalars['BigInt'];
-  /** Duration of this epoch in seconds */
-  duration?: Maybe<Scalars['BigInt']>;
-  /** T total amount resulted of all stakes in this epoch */
-  totalAmount: Scalars['BigInt'];
-  /** List of active stakes during this epoch */
-  stakes?: Maybe<Array<EpochStake>>;
-};
-
-
-/** Epoch represents the staking status of the network at each time instant */
-export type EpochstakesArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<EpochStake_orderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  where?: InputMaybe<EpochStake_filter>;
-};
-
-/** EpochCounter represents the amount of epochs up to this moment */
-export type EpochCounter = {
-  /** ID is 'epoch-counter' (singleton entity) */
-  id: Scalars['ID'];
-  count: Scalars['Int'];
-};
-
-export type EpochCounter_filter = {
-  id?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  count?: InputMaybe<Scalars['Int']>;
-  count_not?: InputMaybe<Scalars['Int']>;
-  count_gt?: InputMaybe<Scalars['Int']>;
-  count_lt?: InputMaybe<Scalars['Int']>;
-  count_gte?: InputMaybe<Scalars['Int']>;
-  count_lte?: InputMaybe<Scalars['Int']>;
-  count_in?: InputMaybe<Array<Scalars['Int']>>;
-  count_not_in?: InputMaybe<Array<Scalars['Int']>>;
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<EpochCounter_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<EpochCounter_filter>>>;
-};
-
-export type EpochCounter_orderBy =
-  | 'id'
-  | 'count';
-
-/** EpochStake represents a single stake in a single epoch */
-export type EpochStake = {
-  /** ID is the staking provider's ETH address + epoch counter */
-  id: Scalars['ID'];
-  epoch: Epoch;
-  stakingProvider: Scalars['Bytes'];
-  owner: Scalars['Bytes'];
-  amount: Scalars['BigInt'];
-};
-
-export type EpochStake_filter = {
-  id?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  epoch?: InputMaybe<Scalars['String']>;
-  epoch_not?: InputMaybe<Scalars['String']>;
-  epoch_gt?: InputMaybe<Scalars['String']>;
-  epoch_lt?: InputMaybe<Scalars['String']>;
-  epoch_gte?: InputMaybe<Scalars['String']>;
-  epoch_lte?: InputMaybe<Scalars['String']>;
-  epoch_in?: InputMaybe<Array<Scalars['String']>>;
-  epoch_not_in?: InputMaybe<Array<Scalars['String']>>;
-  epoch_contains?: InputMaybe<Scalars['String']>;
-  epoch_contains_nocase?: InputMaybe<Scalars['String']>;
-  epoch_not_contains?: InputMaybe<Scalars['String']>;
-  epoch_not_contains_nocase?: InputMaybe<Scalars['String']>;
-  epoch_starts_with?: InputMaybe<Scalars['String']>;
-  epoch_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  epoch_not_starts_with?: InputMaybe<Scalars['String']>;
-  epoch_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  epoch_ends_with?: InputMaybe<Scalars['String']>;
-  epoch_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  epoch_not_ends_with?: InputMaybe<Scalars['String']>;
-  epoch_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  epoch_?: InputMaybe<Epoch_filter>;
-  stakingProvider?: InputMaybe<Scalars['Bytes']>;
-  stakingProvider_not?: InputMaybe<Scalars['Bytes']>;
-  stakingProvider_gt?: InputMaybe<Scalars['Bytes']>;
-  stakingProvider_lt?: InputMaybe<Scalars['Bytes']>;
-  stakingProvider_gte?: InputMaybe<Scalars['Bytes']>;
-  stakingProvider_lte?: InputMaybe<Scalars['Bytes']>;
-  stakingProvider_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  stakingProvider_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  stakingProvider_contains?: InputMaybe<Scalars['Bytes']>;
-  stakingProvider_not_contains?: InputMaybe<Scalars['Bytes']>;
-  owner?: InputMaybe<Scalars['Bytes']>;
-  owner_not?: InputMaybe<Scalars['Bytes']>;
-  owner_gt?: InputMaybe<Scalars['Bytes']>;
-  owner_lt?: InputMaybe<Scalars['Bytes']>;
-  owner_gte?: InputMaybe<Scalars['Bytes']>;
-  owner_lte?: InputMaybe<Scalars['Bytes']>;
-  owner_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  owner_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  owner_contains?: InputMaybe<Scalars['Bytes']>;
-  owner_not_contains?: InputMaybe<Scalars['Bytes']>;
-  amount?: InputMaybe<Scalars['BigInt']>;
-  amount_not?: InputMaybe<Scalars['BigInt']>;
-  amount_gt?: InputMaybe<Scalars['BigInt']>;
-  amount_lt?: InputMaybe<Scalars['BigInt']>;
-  amount_gte?: InputMaybe<Scalars['BigInt']>;
-  amount_lte?: InputMaybe<Scalars['BigInt']>;
-  amount_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  amount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<EpochStake_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<EpochStake_filter>>>;
-};
-
-export type EpochStake_orderBy =
-  | 'id'
-  | 'epoch'
-  | 'epoch__id'
-  | 'epoch__timestamp'
-  | 'epoch__duration'
-  | 'epoch__totalAmount'
-  | 'stakingProvider'
-  | 'owner'
-  | 'amount';
-
-export type Epoch_filter = {
-  id?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  timestamp?: InputMaybe<Scalars['BigInt']>;
-  timestamp_not?: InputMaybe<Scalars['BigInt']>;
-  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
-  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
-  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
-  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
-  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  duration?: InputMaybe<Scalars['BigInt']>;
-  duration_not?: InputMaybe<Scalars['BigInt']>;
-  duration_gt?: InputMaybe<Scalars['BigInt']>;
-  duration_lt?: InputMaybe<Scalars['BigInt']>;
-  duration_gte?: InputMaybe<Scalars['BigInt']>;
-  duration_lte?: InputMaybe<Scalars['BigInt']>;
-  duration_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  duration_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  totalAmount?: InputMaybe<Scalars['BigInt']>;
-  totalAmount_not?: InputMaybe<Scalars['BigInt']>;
-  totalAmount_gt?: InputMaybe<Scalars['BigInt']>;
-  totalAmount_lt?: InputMaybe<Scalars['BigInt']>;
-  totalAmount_gte?: InputMaybe<Scalars['BigInt']>;
-  totalAmount_lte?: InputMaybe<Scalars['BigInt']>;
-  totalAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  totalAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  stakes?: InputMaybe<Array<Scalars['String']>>;
-  stakes_not?: InputMaybe<Array<Scalars['String']>>;
-  stakes_contains?: InputMaybe<Array<Scalars['String']>>;
-  stakes_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
-  stakes_not_contains?: InputMaybe<Array<Scalars['String']>>;
-  stakes_not_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
-  stakes_?: InputMaybe<EpochStake_filter>;
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<Epoch_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<Epoch_filter>>>;
-};
-
-export type Epoch_orderBy =
-  | 'id'
-  | 'timestamp'
-  | 'duration'
-  | 'totalAmount'
-  | 'stakes';
-
 /** MinStakeAmount represents the minimum amount of tokens to stake */
 export type MinStakeAmount = {
   /** ID is min-stake + transaction hash in which the amount changed */
@@ -654,12 +466,8 @@ export type Query = {
   accounts: Array<Account>;
   stakeData?: Maybe<StakeData>;
   stakeDatas: Array<StakeData>;
-  epochStake?: Maybe<EpochStake>;
-  epochStakes: Array<EpochStake>;
-  epoch?: Maybe<Epoch>;
-  epoches: Array<Epoch>;
-  epochCounter?: Maybe<EpochCounter>;
-  epochCounters: Array<EpochCounter>;
+  stakeHistory?: Maybe<StakeHistory>;
+  stakeHistories: Array<StakeHistory>;
   appAuthorization?: Maybe<AppAuthorization>;
   appAuthorizations: Array<AppAuthorization>;
   appAuthHistory?: Maybe<AppAuthHistory>;
@@ -719,55 +527,19 @@ export type QuerystakeDatasArgs = {
 };
 
 
-export type QueryepochStakeArgs = {
+export type QuerystakeHistoryArgs = {
   id: Scalars['ID'];
   block?: InputMaybe<Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type QueryepochStakesArgs = {
+export type QuerystakeHistoriesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<EpochStake_orderBy>;
+  orderBy?: InputMaybe<StakeHistory_orderBy>;
   orderDirection?: InputMaybe<OrderDirection>;
-  where?: InputMaybe<EpochStake_filter>;
-  block?: InputMaybe<Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type QueryepochArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type QueryepochesArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<Epoch_orderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  where?: InputMaybe<Epoch_filter>;
-  block?: InputMaybe<Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type QueryepochCounterArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type QueryepochCountersArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<EpochCounter_orderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  where?: InputMaybe<EpochCounter_filter>;
+  where?: InputMaybe<StakeHistory_filter>;
   block?: InputMaybe<Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -946,16 +718,21 @@ export type StakeData = {
   owner: Account;
   beneficiary: Scalars['Bytes'];
   authorizer: Scalars['Bytes'];
-  /** Staked native T token amount */
-  tStake: Scalars['BigInt'];
-  /** Staked legacy KEEP token amount converted to T */
-  keepInTStake: Scalars['BigInt'];
-  /** Staked legacy Nu token amount converted to T */
-  nuInTStake: Scalars['BigInt'];
-  /** Staked T token total amount (T + KEEP in T + Nu in T) */
-  totalStaked: Scalars['BigInt'];
+  /** Staked T token total amount */
+  stakedAmount: Scalars['BigInt'];
   delegatee?: Maybe<StakeDelegation>;
+  stakeHistory?: Maybe<Array<StakeHistory>>;
   authorizations?: Maybe<Array<AppAuthorization>>;
+};
+
+
+/** StakeData represents the information about each stake */
+export type StakeDatastakeHistoryArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<StakeHistory_orderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  where?: InputMaybe<StakeHistory_filter>;
 };
 
 
@@ -1018,38 +795,14 @@ export type StakeData_filter = {
   authorizer_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
   authorizer_contains?: InputMaybe<Scalars['Bytes']>;
   authorizer_not_contains?: InputMaybe<Scalars['Bytes']>;
-  tStake?: InputMaybe<Scalars['BigInt']>;
-  tStake_not?: InputMaybe<Scalars['BigInt']>;
-  tStake_gt?: InputMaybe<Scalars['BigInt']>;
-  tStake_lt?: InputMaybe<Scalars['BigInt']>;
-  tStake_gte?: InputMaybe<Scalars['BigInt']>;
-  tStake_lte?: InputMaybe<Scalars['BigInt']>;
-  tStake_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  tStake_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  keepInTStake?: InputMaybe<Scalars['BigInt']>;
-  keepInTStake_not?: InputMaybe<Scalars['BigInt']>;
-  keepInTStake_gt?: InputMaybe<Scalars['BigInt']>;
-  keepInTStake_lt?: InputMaybe<Scalars['BigInt']>;
-  keepInTStake_gte?: InputMaybe<Scalars['BigInt']>;
-  keepInTStake_lte?: InputMaybe<Scalars['BigInt']>;
-  keepInTStake_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  keepInTStake_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  nuInTStake?: InputMaybe<Scalars['BigInt']>;
-  nuInTStake_not?: InputMaybe<Scalars['BigInt']>;
-  nuInTStake_gt?: InputMaybe<Scalars['BigInt']>;
-  nuInTStake_lt?: InputMaybe<Scalars['BigInt']>;
-  nuInTStake_gte?: InputMaybe<Scalars['BigInt']>;
-  nuInTStake_lte?: InputMaybe<Scalars['BigInt']>;
-  nuInTStake_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  nuInTStake_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  totalStaked?: InputMaybe<Scalars['BigInt']>;
-  totalStaked_not?: InputMaybe<Scalars['BigInt']>;
-  totalStaked_gt?: InputMaybe<Scalars['BigInt']>;
-  totalStaked_lt?: InputMaybe<Scalars['BigInt']>;
-  totalStaked_gte?: InputMaybe<Scalars['BigInt']>;
-  totalStaked_lte?: InputMaybe<Scalars['BigInt']>;
-  totalStaked_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  totalStaked_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  stakedAmount?: InputMaybe<Scalars['BigInt']>;
+  stakedAmount_not?: InputMaybe<Scalars['BigInt']>;
+  stakedAmount_gt?: InputMaybe<Scalars['BigInt']>;
+  stakedAmount_lt?: InputMaybe<Scalars['BigInt']>;
+  stakedAmount_gte?: InputMaybe<Scalars['BigInt']>;
+  stakedAmount_lte?: InputMaybe<Scalars['BigInt']>;
+  stakedAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  stakedAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   delegatee?: InputMaybe<Scalars['String']>;
   delegatee_not?: InputMaybe<Scalars['String']>;
   delegatee_gt?: InputMaybe<Scalars['String']>;
@@ -1071,6 +824,7 @@ export type StakeData_filter = {
   delegatee_not_ends_with?: InputMaybe<Scalars['String']>;
   delegatee_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
   delegatee_?: InputMaybe<StakeDelegation_filter>;
+  stakeHistory_?: InputMaybe<StakeHistory_filter>;
   authorizations_?: InputMaybe<AppAuthorization_filter>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
@@ -1084,13 +838,11 @@ export type StakeData_orderBy =
   | 'owner__id'
   | 'beneficiary'
   | 'authorizer'
-  | 'tStake'
-  | 'keepInTStake'
-  | 'nuInTStake'
-  | 'totalStaked'
+  | 'stakedAmount'
   | 'delegatee'
   | 'delegatee__id'
   | 'delegatee__totalWeight'
+  | 'stakeHistory'
   | 'authorizations';
 
 /** StakeDelegation represents the delegatee to whom the Stake DAO voting power has been delegated */
@@ -1141,17 +893,132 @@ export type StakeDelegation_orderBy =
   | 'totalWeight'
   | 'stakeDelegators';
 
+/** History of each stake */
+export type StakeHistory = {
+  /** ID is <staking provider address>-<block number> */
+  id: Scalars['ID'];
+  /** Stake data of the staking provider */
+  stake: StakeData;
+  /** The amount that has been added or reduced */
+  eventAmount: Scalars['BigInt'];
+  /** The total staked amount at this time */
+  stakedAmount: Scalars['BigInt'];
+  /** The event that updated the staked amount: Staked, ToppedUp or Unstaked */
+  eventType: Scalars['String'];
+  /** The Ethereum block number in which the stake was updated */
+  blockNumber: Scalars['BigInt'];
+  /** The timestamp in which the stake was updated */
+  timestamp: Scalars['BigInt'];
+};
+
+export type StakeHistory_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  stake?: InputMaybe<Scalars['String']>;
+  stake_not?: InputMaybe<Scalars['String']>;
+  stake_gt?: InputMaybe<Scalars['String']>;
+  stake_lt?: InputMaybe<Scalars['String']>;
+  stake_gte?: InputMaybe<Scalars['String']>;
+  stake_lte?: InputMaybe<Scalars['String']>;
+  stake_in?: InputMaybe<Array<Scalars['String']>>;
+  stake_not_in?: InputMaybe<Array<Scalars['String']>>;
+  stake_contains?: InputMaybe<Scalars['String']>;
+  stake_contains_nocase?: InputMaybe<Scalars['String']>;
+  stake_not_contains?: InputMaybe<Scalars['String']>;
+  stake_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  stake_starts_with?: InputMaybe<Scalars['String']>;
+  stake_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  stake_not_starts_with?: InputMaybe<Scalars['String']>;
+  stake_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  stake_ends_with?: InputMaybe<Scalars['String']>;
+  stake_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  stake_not_ends_with?: InputMaybe<Scalars['String']>;
+  stake_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  stake_?: InputMaybe<StakeData_filter>;
+  eventAmount?: InputMaybe<Scalars['BigInt']>;
+  eventAmount_not?: InputMaybe<Scalars['BigInt']>;
+  eventAmount_gt?: InputMaybe<Scalars['BigInt']>;
+  eventAmount_lt?: InputMaybe<Scalars['BigInt']>;
+  eventAmount_gte?: InputMaybe<Scalars['BigInt']>;
+  eventAmount_lte?: InputMaybe<Scalars['BigInt']>;
+  eventAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  eventAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  stakedAmount?: InputMaybe<Scalars['BigInt']>;
+  stakedAmount_not?: InputMaybe<Scalars['BigInt']>;
+  stakedAmount_gt?: InputMaybe<Scalars['BigInt']>;
+  stakedAmount_lt?: InputMaybe<Scalars['BigInt']>;
+  stakedAmount_gte?: InputMaybe<Scalars['BigInt']>;
+  stakedAmount_lte?: InputMaybe<Scalars['BigInt']>;
+  stakedAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  stakedAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  eventType?: InputMaybe<Scalars['String']>;
+  eventType_not?: InputMaybe<Scalars['String']>;
+  eventType_gt?: InputMaybe<Scalars['String']>;
+  eventType_lt?: InputMaybe<Scalars['String']>;
+  eventType_gte?: InputMaybe<Scalars['String']>;
+  eventType_lte?: InputMaybe<Scalars['String']>;
+  eventType_in?: InputMaybe<Array<Scalars['String']>>;
+  eventType_not_in?: InputMaybe<Array<Scalars['String']>>;
+  eventType_contains?: InputMaybe<Scalars['String']>;
+  eventType_contains_nocase?: InputMaybe<Scalars['String']>;
+  eventType_not_contains?: InputMaybe<Scalars['String']>;
+  eventType_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  eventType_starts_with?: InputMaybe<Scalars['String']>;
+  eventType_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  eventType_not_starts_with?: InputMaybe<Scalars['String']>;
+  eventType_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  eventType_ends_with?: InputMaybe<Scalars['String']>;
+  eventType_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  eventType_not_ends_with?: InputMaybe<Scalars['String']>;
+  eventType_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp?: InputMaybe<Scalars['BigInt']>;
+  timestamp_not?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lt?: InputMaybe<Scalars['BigInt']>;
+  timestamp_gte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_lte?: InputMaybe<Scalars['BigInt']>;
+  timestamp_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<StakeHistory_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<StakeHistory_filter>>>;
+};
+
+export type StakeHistory_orderBy =
+  | 'id'
+  | 'stake'
+  | 'stake__id'
+  | 'stake__beneficiary'
+  | 'stake__authorizer'
+  | 'stake__stakedAmount'
+  | 'eventAmount'
+  | 'stakedAmount'
+  | 'eventType'
+  | 'blockNumber'
+  | 'timestamp';
+
 export type Subscription = {
   account?: Maybe<Account>;
   accounts: Array<Account>;
   stakeData?: Maybe<StakeData>;
   stakeDatas: Array<StakeData>;
-  epochStake?: Maybe<EpochStake>;
-  epochStakes: Array<EpochStake>;
-  epoch?: Maybe<Epoch>;
-  epoches: Array<Epoch>;
-  epochCounter?: Maybe<EpochCounter>;
-  epochCounters: Array<EpochCounter>;
+  stakeHistory?: Maybe<StakeHistory>;
+  stakeHistories: Array<StakeHistory>;
   appAuthorization?: Maybe<AppAuthorization>;
   appAuthorizations: Array<AppAuthorization>;
   appAuthHistory?: Maybe<AppAuthHistory>;
@@ -1211,55 +1078,19 @@ export type SubscriptionstakeDatasArgs = {
 };
 
 
-export type SubscriptionepochStakeArgs = {
+export type SubscriptionstakeHistoryArgs = {
   id: Scalars['ID'];
   block?: InputMaybe<Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type SubscriptionepochStakesArgs = {
+export type SubscriptionstakeHistoriesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<EpochStake_orderBy>;
+  orderBy?: InputMaybe<StakeHistory_orderBy>;
   orderDirection?: InputMaybe<OrderDirection>;
-  where?: InputMaybe<EpochStake_filter>;
-  block?: InputMaybe<Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type SubscriptionepochArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type SubscriptionepochesArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<Epoch_orderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  where?: InputMaybe<Epoch_filter>;
-  block?: InputMaybe<Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type SubscriptionepochCounterArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type SubscriptionepochCountersArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<EpochCounter_orderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  where?: InputMaybe<EpochCounter_filter>;
+  where?: InputMaybe<StakeHistory_filter>;
   block?: InputMaybe<Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -1636,17 +1467,9 @@ export type _SubgraphErrorPolicy_ =
   /** null **/
   stakeDatas: InContextSdkMethod<Query['stakeDatas'], QuerystakeDatasArgs, MeshContext>,
   /** null **/
-  epochStake: InContextSdkMethod<Query['epochStake'], QueryepochStakeArgs, MeshContext>,
+  stakeHistory: InContextSdkMethod<Query['stakeHistory'], QuerystakeHistoryArgs, MeshContext>,
   /** null **/
-  epochStakes: InContextSdkMethod<Query['epochStakes'], QueryepochStakesArgs, MeshContext>,
-  /** null **/
-  epoch: InContextSdkMethod<Query['epoch'], QueryepochArgs, MeshContext>,
-  /** null **/
-  epoches: InContextSdkMethod<Query['epoches'], QueryepochesArgs, MeshContext>,
-  /** null **/
-  epochCounter: InContextSdkMethod<Query['epochCounter'], QueryepochCounterArgs, MeshContext>,
-  /** null **/
-  epochCounters: InContextSdkMethod<Query['epochCounters'], QueryepochCountersArgs, MeshContext>,
+  stakeHistories: InContextSdkMethod<Query['stakeHistories'], QuerystakeHistoriesArgs, MeshContext>,
   /** null **/
   appAuthorization: InContextSdkMethod<Query['appAuthorization'], QueryappAuthorizationArgs, MeshContext>,
   /** null **/
@@ -1701,17 +1524,9 @@ export type _SubgraphErrorPolicy_ =
   /** null **/
   stakeDatas: InContextSdkMethod<Subscription['stakeDatas'], SubscriptionstakeDatasArgs, MeshContext>,
   /** null **/
-  epochStake: InContextSdkMethod<Subscription['epochStake'], SubscriptionepochStakeArgs, MeshContext>,
+  stakeHistory: InContextSdkMethod<Subscription['stakeHistory'], SubscriptionstakeHistoryArgs, MeshContext>,
   /** null **/
-  epochStakes: InContextSdkMethod<Subscription['epochStakes'], SubscriptionepochStakesArgs, MeshContext>,
-  /** null **/
-  epoch: InContextSdkMethod<Subscription['epoch'], SubscriptionepochArgs, MeshContext>,
-  /** null **/
-  epoches: InContextSdkMethod<Subscription['epoches'], SubscriptionepochesArgs, MeshContext>,
-  /** null **/
-  epochCounter: InContextSdkMethod<Subscription['epochCounter'], SubscriptionepochCounterArgs, MeshContext>,
-  /** null **/
-  epochCounters: InContextSdkMethod<Subscription['epochCounters'], SubscriptionepochCountersArgs, MeshContext>,
+  stakeHistories: InContextSdkMethod<Subscription['stakeHistories'], SubscriptionstakeHistoriesArgs, MeshContext>,
   /** null **/
   appAuthorization: InContextSdkMethod<Subscription['appAuthorization'], SubscriptionappAuthorizationArgs, MeshContext>,
   /** null **/

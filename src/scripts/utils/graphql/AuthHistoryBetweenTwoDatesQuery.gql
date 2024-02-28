@@ -1,0 +1,62 @@
+query RBAuthHistoryQuery($startTimestamp: BigInt, $endTimestamp: BigInt, $first: Int = 1000, $skip: Int = 0) {
+  appAuthHistories(
+    where: {timestamp_gte: $startTimestamp, timestamp_lt: $endTimestamp, appAuthorization_: {appName: "Random Beacon"}}
+    first: $first
+    skip: $skip
+  ) {
+    timestamp
+    amount
+    eventAmount
+    blockNumber
+    eventType
+    appAuthorization {
+      stake {
+        id
+        beneficiary
+      }
+      appName
+    }
+  }
+}
+
+query TbtcAuthHistoryQuery($startTimestamp: BigInt, $endTimestamp: BigInt, $first: Int = 1000, $skip: Int = 0) {
+  appAuthHistories(
+    where: {timestamp_gte: $startTimestamp, timestamp_lt: $endTimestamp, appAuthorization_: {appName: "tBTC"}}
+    first: $first
+    skip: $skip
+  ) {
+    timestamp
+    amount
+    eventAmount
+    blockNumber
+    eventType
+    appAuthorization {
+      stake {
+        id
+        beneficiary
+      }
+      appName
+    }
+  }
+}
+
+query TACOAuthHistoryQuery($startTimestamp: BigInt, $endTimestamp: BigInt, $first: Int = 1000, $skip: Int = 0) {
+  appAuthHistories(
+    where: {timestamp_gte: $startTimestamp, timestamp_lt: $endTimestamp, appAuthorization_: {appName: "TACo"}}
+    first: $first
+    skip: $skip
+  ) {
+    timestamp
+    amount
+    eventAmount
+    blockNumber
+    eventType
+    appAuthorization {
+      stake {
+        id
+        beneficiary
+      }
+      appName
+    }
+  }
+}
