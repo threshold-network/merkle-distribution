@@ -6,11 +6,6 @@ require("dotenv").config()
 const fs = require("fs")
 const shell = require("shelljs")
 const BigNumber = require("bignumber.js")
-const ethers = require("ethers")
-const {
-  getLegacyKeepStakes,
-  getLegacyKeepRewards,
-} = require("./utils/legacy-keep-rewards.js")
 const MerkleDist = require("./utils/merkle_dist.js")
 const { getTACoRewards } = require("./utils/taco-rewards.js")
 
@@ -60,25 +55,6 @@ async function main() {
     earnedTACoRewards = await getTACoRewards(startTime, endTime, tacoWeight)
   }
 
-  // February 24th 2024 special case:
-  // February 23rd 2024 23:59:59 UTC is the deadline to complete the transition
-  // process for legacy Keep stakers.
-  //
-  // More info about transition period can be found:
-  // https://forum.threshold.network/t/transition-guide-for-legacy-stakers/719
-  //
-  // During the transition period (Nov 22nd 2023 to Feb 23rd 2024), the legacy
-  // Keep stakes haven't received any tBTC rewards.
-  // (see https://github.com/threshold-network/merkle-distribution/issues/112).
-  //
-  // So, Feb 24th 2024 distribution will distribute:
-  // 1. Rewards for the T tokens staked and authorized since Nov 22nd 23.
-  // 2. Rewards for the keepInT that has been migrated to T staking/authorizing:
-  // 2.1. In case that re-staking hasn't been completed, no keepInT rewards.
-  // 2.2. In case that re-staking has been completed, it will be considered that
-  //      it was staked the keepInT until re-staking time.
-
-  // February 24th special case: calculate the rewards for non-legacy-stakes
   // tBTCv2 rewards calculation
   if (tbtcv2Weight > 0) {
     console.log("Calculating tBTCv2 rewards...")
@@ -88,19 +64,6 @@ async function main() {
     )
     earnedTbtcv2Rewards = calculateTbtcv2Rewards(tbtcv2RewardsRaw, tbtcv2Weight)
   }
-
-  // Get the legacy Keep stakes
-  const blockNumber = 18624792 // Block height in which legacy stakes were deac
-  const legacyStakes = await getLegacyKeepStakes(blockNumber - 1)
-
-  // Delete the Keep legacy stakes in earned rewards
-  Object.keys(legacyStakes).map((legacyStake) => {
-    const legacyStakeAddress = ethers.utils.getAddress(legacyStake)
-    delete earnedTbtcv2Rewards[legacyStakeAddress]
-  })
-
-  const legacyRewards = await getLegacyKeepRewards()
-  earnedTbtcv2Rewards = { ...earnedTbtcv2Rewards, ...legacyRewards }
 
   // Add rewards earned to cumulative totals
   try {
