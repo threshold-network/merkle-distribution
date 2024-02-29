@@ -25,9 +25,6 @@ import {
   IS_VERSION_SATISFIED,
   PRECISION,
   OPERATORS_SEARCH_QUERY_STEP,
-  HUNDRED,
-  APR,
-  SECONDS_IN_YEAR,
 } from "./rewards-constants"
 import { InstanceParams } from "./types"
 import { Utils } from "./utils"
@@ -57,11 +54,11 @@ program
     "client releases in a rewards interval"
   )
   .requiredOption("-n, --network <name>", "network name")
-  .requiredOption("-o, --output <file>", "output JSON file")
   .requiredOption(
-    "-d, --output-details-path <path>",
-    "output JSON details path"
+    "-x, --operator-address <address>",
+    "Only report on staker address"
   )
+  .requiredOption("-d, --output-file <file>", "output JSON details path")
   .requiredOption("-q, --required-pre-params <number>", "required pre params")
   .requiredOption("-m, --required-uptime <percent>", "required uptime")
   .parse(process.argv)
@@ -75,8 +72,8 @@ const startRewardsTimestamp = parseInt(options.startTimestamp)
 const endRewardsTimestamp = parseInt(options.endTimestamp)
 const startRewardsBlock = parseInt(options.startBlock)
 const endRewardsBlock = parseInt(options.endBlock)
-const rewardsDataOutput = options.output
-const rewardsDetailsPath = options.outputDetailsPath
+const operatorAddress = options.operatorAddress
+const outputFile = options.outputFile
 const network = options.network
 const requiredPreParams = options.requiredPreParams
 const requiredUptime = options.requiredUptime // percent
@@ -96,7 +93,7 @@ const utils = new Utils(
   requiredPreParams
 )
 
-export async function calculateRewards() {
+export async function calculateRequirements() {
   if (Date.now() / 1000 < endRewardsTimestamp) {
     console.log("End time interval must be in the past")
     return "End time interval must be in the past"
@@ -108,10 +105,6 @@ export async function calculateRewards() {
   )
 
   const rewardsInterval = endRewardsTimestamp - startRewardsTimestamp
-  // periodic rate rounded and adjusted because BigNumber can't operate on floating numbers.
-  const periodicRate = Math.round(
-    APR * (rewardsInterval / SECONDS_IN_YEAR) * PRECISION
-  )
   const currentBlockNumber = await provider.getBlockNumber()
 
   // Query for bootstrap data that has peer instances grouped by operators
@@ -128,7 +121,6 @@ export async function calculateRewards() {
   ).data.result
 
   const operatorsData = new Array()
-  const rewardsData: any = {}
 
   const randomBeacon = new Contract(
     RandomBeaconAddress,
@@ -216,8 +208,22 @@ export async function calculateRewards() {
       .concat(postIntervalAuthorizationDecreasedRequestedEvents)
       .concat(postLegacyEvents)
 
-  for (let i = 0; i < bootstrapData.length; i++) {
-    const operatorAddress = bootstrapData[i].metric.chain_address
+  /// filter out operators we don't care about
+  const operators = bootstrapData.filter(
+    (bootstrapEntry: any) =>
+      bootstrapEntry.metric.chain_address.toLowerCase() ===
+      operatorAddress.toLowerCase()
+  )
+
+  if (!operators.length) {
+    console.log(
+      `No operator found for ${operatorAddress} in list of operator addresses: `
+    )
+    bootstrapData.forEach((o: any) => console.log(o.metric.chain_address))
+  }
+
+  for (let i = 0; i < operators.length; i++) {
+    const operatorAddress = operators[i].metric.chain_address
     let authorizations = new Map<string, BigNumber>() // application: value
     let requirements = new Map<string, boolean>() // factor: true | false
     let instancesData = new Map<string, InstanceParams>()
@@ -237,7 +243,6 @@ export async function calculateRewards() {
       )
       continue
     }
-    const { beneficiary } = await tokenStaking.rolesOf(stakingProvider)
 
     if (stakingProvider === ethers.constants.AddressZero) {
       console.log(
@@ -365,49 +370,26 @@ export async function calculateRewards() {
       )
     )
 
-    /// Start assembling peer data and weighted authorizations
     operatorData[stakingProvider] = {
       applications: Object.fromEntries(authorizations),
       instances: utils.convertToObject(instancesData),
       requirements: Object.fromEntries(requirements),
     }
 
-    if (
-      requirements.get(IS_BEACON_AUTHORIZED) &&
-      requirements.get(IS_TBTC_AUTHORIZED) &&
-      requirements.get(IS_UP_TIME_SATISFIED) &&
-      requirements.get(IS_PRE_PARAMS_SATISFIED) &&
-      requirements.get(IS_VERSION_SATISFIED)
-    ) {
-      const beacon = BigNumber.from(authorizations.get(BEACON_AUTHORIZATION))
-      const tbct = BigNumber.from(authorizations.get(TBTC_AUTHORIZATION))
-      let minApplicationAuthorization = beacon
-      if (beacon.gt(tbct)) {
-        minApplicationAuthorization = tbct
-      }
-
-      rewardsData[stakingProvider] = {
-        beneficiary: beneficiary,
-        // amount = min(beaconWeightedAuthorization, tbtcWeightedAuthorization) * clientUptimeCoefficient * periodicRate
-        amount: minApplicationAuthorization
-          .mul(uptimeCoefficient)
-          .mul(periodicRate)
-          .div(PRECISION) // coefficient was multiplied by PRECISION earlier
-          .div(PRECISION) // APR was multiplied by PRECISION earlier
-          .div(HUNDRED) // APR is in %
-          .toString(),
-      }
-    }
-
     operatorsData.push(operatorData)
   }
 
-  fs.writeFileSync(rewardsDataOutput, JSON.stringify(rewardsData, null, 4))
-  const detailsFileName = `${startRewardsTimestamp}-${endRewardsTimestamp}`
-  fs.writeFileSync(
-    rewardsDetailsPath + "/" + detailsFileName + ".json",
-    JSON.stringify(operatorsData, null, 4)
-  )
+  // insert params for requirements calculation as first element
+  operatorsData.unshift({
+    requiredUptime: requiredUptime,
+    operatorAddress: operatorAddress,
+    startRewardsBlock: startRewardsBlock,
+    endRewardsBlock: endRewardsBlock,
+    startRewardsTimestamp: startRewardsTimestamp,
+    endRewardsTimestamp: endRewardsTimestamp,
+  })
+
+  fs.writeFileSync(outputFile, JSON.stringify(operatorsData, null, 4))
 }
 
 // Special case: Dec 1st 23 distribution
@@ -453,4 +435,4 @@ export async function calculateRewards() {
 //   return legacyEvents
 // }
 
-calculateRewards()
+calculateRequirements()

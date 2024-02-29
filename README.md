@@ -37,6 +37,7 @@ In order to run the scripts, it's needed to have a `.env` file that includes:
 
 ```
 ETHERSCAN_TOKEN=<your Etherscan API token>
+POLYGON_RPC_URL=<RPC endpoint to Polygon mainnet>
 ```
 
 ## Claiming rewards
