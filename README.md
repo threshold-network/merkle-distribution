@@ -1,52 +1,31 @@
 # Threshold Network rewards Merkle distribution
 
-Solidity contract and scripts for Threshold Network rewards' distribution.
+Solidity contract and scripts for Threshold Network rewards distribution.
 
-In Cumulative Merkle Drop contract, each new token distribution replaces previous one and should
-contain the cumulative balances of all the participants. Cumulative claimed amount is used as
-invalidation for every participant.
+In the Cumulative Merkle Drop contract, each new token distribution replaces the previous one and
+contains the cumulative balances of all the participants. The cumulative claimed amount used in
+the contract will track the amount already claimed for each stake.
 
-## Structure
+The `distributions` folder contains the reward distributions already released.
 
-- `contracts`: Source code for contract
-- `test`: Hardhat contract tests.
-- `src/scripts`:
-  - `gen_rewards_dist.js`: generate new Merkle distribution for the Threshold Network rewards earned
-    in a specific period.
-  - `verify_proof.js`: verify Merkle proof of a distribution.
-  - `stake_history.js`: fetch the information of a particular staker, including staking history.
-  - `claimed_rewards.js`: calculate the Threshold rewards that has been already claimed.
-- `distributions`:Threshold staking rewards' distributions. Here it is contained the Merkle Root of
-  each distribution and the cumulative rewards earned by each stake.
-  - `YYYY-MM-DD/MerkleDist.json`: include the Merkle distribution itself: every stake that earned
-    rewards and its Merkle proofs. Also includes the Merkle Root. The amount shown here is the
-    accumulation of rewards earned over time.
-  - `YYYY-MM-DD/MerkleInput[].json`: include the rewards earned over time for each Threshold
-    application plus [bonus
-    rewards](https://forum.threshold.network/t/tip-020-interim-era-incentive-schemes-1-one-off-migration-stake-bonus-2-ongoing-stable-yield/297).
-  - `distributions.json`: include the cumulative rewards earned by all stakes shown on a monthly
-    basis.
+The `src` folder contains scripts to generate a new rewards distribution or to claim the rewards.
 
 ## Installation
+
+To run the scripts, it is needed to have installed node version > 18 and NPM.
 
 ```bash
 npm install
 ```
 
-In order to run the scripts, it's needed to have a `.env` file that includes:
+> **NOTE:** Scripts must be run from the repo root path, and not from the folder that contains them.
 
-```
-ETHERSCAN_TOKEN=<your Etherscan API token>
-```
-
-## Claiming rewards
+## Claiming rewards script
 
 We encourage you to use the [Threshold Network dashboard](https://dashboard.threshold.network/staking)
 to claim staking rewards.
 
 Alternatively, you can use the HardHat task `claim-rewards`:
-
-### Configuration
 
 A `.env` file must be set with the following parameters:
 
@@ -61,10 +40,11 @@ FORKING_URL=https://eth-mainnet.g.alchemy.com/v2/<API_KEY>
   staking rewards will be sent to its beneficiary address, and not to the claimer account. Claiming
   will spend some gas to make the transactions, so the claimer account must have some ether.
 - `MAINNET_RPC_URL`: Alchemy or Infura are recommended.
-- `FORKING_URL` is optional since it is used only for testing the claiming in HardHat local network.
-  It is necessary to use an archive node, so Alchemy is recommended.
+- `FORKING_URL` is optional since it is used only for testing the claiming in the HardHat local
+  network. It is necessary to use an archive node, so Alchemy is recommended.
 
-### Run claim-rewards
+
+#### Usage:
 
 To get help:
 
@@ -72,11 +52,8 @@ To get help:
 npx hardhat claim-rewards --help
 ```
 
-#### Usage:
-
 ```bash
-npx hardhat [--network <network>] claim-rewards \
-  [--beneficiary <address>] [--staking-provider <address>]
+npx hardhat [--network <network>] claim-rewards [--beneficiary <address>] [--staking-provider <address>]
 ```
 
 #### Examples:
@@ -104,68 +81,29 @@ npx hardhat --network mainnet claim-rewards \
   --beneficiary 0xB63853FaD9533AB4518dD1a5FA21bE2988D66508
 ```
 
-- If no network is specified, the transaction will be executed in HardHat local network but using
-  mainnet current state. This can be useful for testing:
+- If no network is specified, the transaction will be executed in test mode: HardHat local network
+that forks with the mainnet current stake will be used. This can be useful to know if the
+transaction execution will be correct without actually sending the transaction.
 
 ```bash
 npx hardhat claim-rewards \
   --staking-provider 0xc2d9433D3dC58881a6F8e0A0448Ce191B838f7DA
 ```
 
-## Run scripts
+## Rewards distribution generation script
 
-> **NOTE:** Scripts must be run from the repo root, and not from the folder that contains them.
+A `.env` file must be set with the following parameters:
 
-### gen_rewards_dist script
+```
+ETHERSCAN_TOKEN=<your Etherscan API token>
+```
 
 This script calculates the Threshold Network rewards earned during a specific period, adds them to
 the previous distributions, and generates a new distribution that contains the cumulative rewards.
 
-Note that some script's parameters (rewards weights, start time, end time, last distribution path...) must be changed in the script before running it.
+Note that some script's parameters (rewards weights, start time, end time, last distribution path)
+must be replaced in the script before running it.
 
 ```bash
 node src/scripts/gen_rewards_dist.js
 ```
-
-### stake_history script
-
-This script fetches the information of a particular staker, including staking history.
-
-```bash
-node src/scripts/stake_history <0x-prefixed staking provider address>
-```
-
-## Run Hardhat tests
-
-```bash
-npx hardhat test
-```
-
-## Deploy
-
-To deploy to the Sepolia test network you will need a `.env` that looks similar to:
-
-```
-SEPOLIA_RPC_URL="https://sepolia.infura.io/v3/bd76xxxxxxxxxxxxxxxxxxxxxxxxxff0"
-SEPOLIA_PRIVATE_KEY="3d3ad2xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx87b"
-ETHERSCAN_TOKEN="M5xxxxxxxxxxxxxxxxxxxxxxxxxxxxxSMV"
-```
-
-You can then run
-
-```bash
-npx hardhat --network sepolia deploy
-```
-
-The contract will be deployed and the source code will be verified on etherscan.
-
-## Test Deployment
-
-In order to run a test deployment:
-
-```bash
-npx hardhat --network mainnet_test deploy
-```
-
-This will use the deployment script in `deploy-test`.
-The difference is that it also deploys a mock Token contract, which makes testing on mainnet possible.
