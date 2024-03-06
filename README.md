@@ -107,3 +107,19 @@ must be replaced in the script before running it.
 ```bash
 node src/scripts/gen_rewards_dist.js
 ```
+
+### Contributions
+
+This script uses [subgraphs](https://thegraph.com/explorer) for querying data about stakes and
+calculating the appropriate rewards. These subgraphs are queried using
+(`graph-client`)[https://thegraph.com/docs/en/querying/graph-client/README/] since this library
+supports auto-pagination, retry, fallback, etc.
+
+Modification or addition of new subgraphs must be done in `.graphclientrc.yml`. Also, new queries
+must be added to this file in addition to `src/script/graphql` folder.
+
+Every time the subgraph queries are modified, these must be recompiled:
+
+```bash
+yarn graphclient build --fileType json
+```
