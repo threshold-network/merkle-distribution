@@ -13,10 +13,6 @@ sources:
     transforms:
       - autoPagination:
           validateSchema: true
-  - name: simple
-    handler:
-      graphql:
-        endpoint: https://api.studio.thegraph.com/query/24143/simple-pre-application/version/latest
 documents:
   - ./src/scripts/utils/graphql/TACoAuthHistoryQuery.gql
   - ./src/scripts/utils/graphql/TACoOperators.gql

@@ -11,20 +11,17 @@ import { createMeshHTTPHandler } from '@graphql-mesh/http';
 import { getMesh } from '@graphql-mesh/runtime';
 import { MeshStore, FsStoreStorageAdapter } from '@graphql-mesh/store';
 import { path as pathModule } from '@graphql-mesh/cross-helpers';
-import * as importedModule$0 from "./sources/threshold-staking-polygon/introspectionSchema.json";
-import * as importedModule$1 from "./sources/development-threshold-subgraph/introspectionSchema.json";
-import * as importedModule$2 from "./sources/simple/introspectionSchema.json";
+import * as importedModule$0 from "./sources/development-threshold-subgraph/introspectionSchema.json";
+import * as importedModule$1 from "./sources/threshold-staking-polygon/introspectionSchema.json";
 import { fileURLToPath } from '@graphql-mesh/utils';
 const baseDir = pathModule.join(pathModule.dirname(fileURLToPath(import.meta.url)), '..');
 const importFn = (moduleId) => {
     const relativeModuleId = (pathModule.isAbsolute(moduleId) ? pathModule.relative(baseDir, moduleId) : moduleId).split('\\').join('/').replace(baseDir + '/', '');
     switch (relativeModuleId) {
-        case ".graphclient/sources/threshold-staking-polygon/introspectionSchema.json":
-            return Promise.resolve(importedModule$0);
         case ".graphclient/sources/development-threshold-subgraph/introspectionSchema.json":
+            return Promise.resolve(importedModule$0);
+        case ".graphclient/sources/threshold-staking-polygon/introspectionSchema.json":
             return Promise.resolve(importedModule$1);
-        case ".graphclient/sources/simple/introspectionSchema.json":
-            return Promise.resolve(importedModule$2);
         default:
             return Promise.reject(new Error(`Cannot find module '${relativeModuleId}'.`));
     }
@@ -54,7 +51,6 @@ export async function getMeshOptions() {
     const additionalEnvelopPlugins = [];
     const developmentThresholdSubgraphTransforms = [];
     const thresholdStakingPolygonTransforms = [];
-    const simpleTransforms = [];
     const additionalTypeDefs = [];
     const developmentThresholdSubgraphHandler = new GraphqlHandler({
         name: "development-threshold-subgraph",
@@ -76,21 +72,6 @@ export async function getMeshOptions() {
         logger: logger.child("threshold-staking-polygon"),
         importFn,
     });
-    const simpleHandler = new GraphqlHandler({
-        name: "simple",
-        config: { "endpoint": "https://api.studio.thegraph.com/query/24143/simple-pre-application/version/latest" },
-        baseDir,
-        cache,
-        pubsub,
-        store: sourcesStore.child("simple"),
-        logger: logger.child("simple"),
-        importFn,
-    });
-    sources[2] = {
-        name: 'simple',
-        handler: simpleHandler,
-        transforms: simpleTransforms
-    };
     developmentThresholdSubgraphTransforms[0] = new AutoPaginationTransform({
         apiName: "development-threshold-subgraph",
         config: { "validateSchema": true },
@@ -156,12 +137,6 @@ export async function getMeshOptions() {
                         return printWithCache(TacoAuthHistoryQueryDocument);
                     },
                     location: 'TacoAuthHistoryQueryDocument.graphql'
-                }, {
-                    document: PreOpsBeforeLegacyDeactQueryDocument,
-                    get rawSDL() {
-                        return printWithCache(PreOpsBeforeLegacyDeactQueryDocument);
-                    },
-                    location: 'PreOpsBeforeLegacyDeactQueryDocument.graphql'
                 }, {
                     document: StakeHistoryBetweenTwoDatesQueryDocument,
                     get rawSDL() {
@@ -278,15 +253,6 @@ export const TACOAuthHistoryQueryDocument = gql `
   }
 }
     `;
-export const PREOpsBeforeLegacyDeactQueryDocument = gql `
-    query PREOpsBeforeLegacyDeactQuery($blockNumber: Int) {
-  simplePREApplications(first: 1000, block: {number: $blockNumber}) {
-    id
-    operator
-    confirmedTimestamp
-  }
-}
-    `;
 export const StakeHistoryBetweenTwoDatesQueryDocument = gql `
     query StakeHistoryBetweenTwoDatesQuery($startTimestamp: BigInt, $endTimestamp: BigInt, $first: Int = 1000, $skip: Int = 0) {
   stakeDatas(first: $first, skip: $skip) {
@@ -348,9 +314,6 @@ export function getSdk(requester) {
         },
         TACOAuthHistoryQuery(variables, options) {
             return requester(TACOAuthHistoryQueryDocument, variables, options);
-        },
-        PREOpsBeforeLegacyDeactQuery(variables, options) {
-            return requester(PREOpsBeforeLegacyDeactQueryDocument, variables, options);
         },
         StakeHistoryBetweenTwoDatesQuery(variables, options) {
             return requester(StakeHistoryBetweenTwoDatesQueryDocument, variables, options);
