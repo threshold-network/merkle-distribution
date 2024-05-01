@@ -76,7 +76,7 @@ const prometheusAPI = options.api
 // Since the release of tBTC client v2.0.0, the versioning strategy has changed.
 // Previous versions had a -mX suffix, but this is no longer the case.
 // From now on, the versioning system is semantic versioning https://semver.org/
-// without suffixes, where it is mandatory the update of the client for new minor
+// without suffixes, where the update of the client is mandatory for new minor
 // versions, but optional for new patch versions.
 // Since this distribution of rewards (May 1st 2024) accepts as valid three
 // versions, one of the old versioning system (v2.0.0-m7) and two of the new
