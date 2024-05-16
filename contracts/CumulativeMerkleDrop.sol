@@ -6,6 +6,7 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
+import "./interfaces/IApplication.sol";
 import "./interfaces/ICumulativeMerkleDrop.sol";
 
 
@@ -18,6 +19,11 @@ contract CumulativeMerkleDrop is Ownable, ICumulativeMerkleDrop {
 
     bytes32 public override merkleRoot;
     mapping(address => uint256) public cumulativeClaimed;
+
+    // TODO: Generalize to an array of IApplication in the future.
+    // For the moment, it will only be used for TACo app.
+    IApplication public immutable application;
+
     struct Claim {
         address stakingProvider;
         address beneficiary;
@@ -25,11 +31,19 @@ contract CumulativeMerkleDrop is Ownable, ICumulativeMerkleDrop {
         bytes32[] proof;
     }
 
-    constructor(address token_, address rewardsHolder_, address newOwner) {
+    constructor(
+        address token_,
+        IApplication application_,
+        address rewardsHolder_,
+        address newOwner
+    ) {
         require(IERC20(token_).totalSupply() > 0, "Token contract must be set");
         require(rewardsHolder_ != address(0), "Rewards Holder must be an address");
+        require(address(application_) != address(0), "Application must be an address");
+        
         transferOwnership(newOwner);
         token = token_;
+        application = application_;
         rewardsHolder = rewardsHolder_;
     }
 
