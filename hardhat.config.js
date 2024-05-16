@@ -40,6 +40,10 @@ module.exports = {
       mainnet: "0x9F6e831c8F8939DC0C830C6e492e7cEf4f9C2F5f",
       mainnet_test: 0,
     },
+    tacoApp: {
+      sepolia: "0xTBD",
+      mainnet: "0x0x347CC7ede7e5517bD47D20620B2CF1b406edcF07",
+    },
   },
   networks,
 }
