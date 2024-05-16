@@ -84,12 +84,38 @@ contract CumulativeMerkleDrop is Ownable, ICumulativeMerkleDrop {
         }
     }
 
+    function claimIncludingApps(
+        address stakingProvider,
+        address beneficiary,
+        uint256 cumulativeAmount,
+        bytes32 expectedMerkleRoot,
+        bytes32[] calldata merkleProof
+    ) public {
+        claim(stakingProvider, beneficiary, cumulativeAmount, expectedMerkleRoot, merkleProof);
+        application.withdrawRewards(stakingProvider);
+    }
+
     function batchClaim(
         bytes32 expectedMerkleRoot,
         Claim[] calldata Claims
     ) external {
         for (uint i; i < Claims.length; i++) {
             claim(
+                Claims[i].stakingProvider,
+                Claims[i].beneficiary,
+                Claims[i].amount,
+                expectedMerkleRoot,
+                Claims[i].proof
+            );
+        }
+    }
+
+    function batchClaimIncludingApps(
+        bytes32 expectedMerkleRoot,
+        Claim[] calldata Claims
+    ) external {
+        for (uint i; i < Claims.length; i++) {
+            claimIncludingApps(
                 Claims[i].stakingProvider,
                 Claims[i].beneficiary,
                 Claims[i].amount,
