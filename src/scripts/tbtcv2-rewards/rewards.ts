@@ -71,25 +71,7 @@ program
 const options = program.opts()
 const prometheusJob = options.job
 const prometheusAPI = options.api
-
-// May 1st 2024 distribution special case:
-// Since the release of tBTC client v2.0.0, the versioning strategy has changed.
-// Previous versions had a -mX suffix, but this is no longer the case.
-// From now on, the versioning system is semantic versioning https://semver.org/
-// without suffixes, where the update of the client is mandatory for new minor
-// versions, but optional for new patch versions.
-// Since this distribution of rewards (May 1st 2024) accepts as valid three
-// versions, one of the old versioning system (v2.0.0-m7) and two of the new
-// system (v2.0.0 and v2.0.1), we have implemented a workaround to support both
-// in this interim period.
-// After this distribution, the new semantic versioning system will be implemented.
-
-// const clientReleases = options.releases.split("|") // sorted from latest to oldest
-const clientReleases = [
-  "v2.0.0_1712275200", // v2.0.0 announced on April 5
-  "v2.0.0-m7_1707731729", // v2.0.0-m7 announced on Feb 12
-]
-
+const clientReleases = options.releases.split("|") // sorted from latest to oldest
 const startRewardsTimestamp = parseInt(options.startTimestamp)
 const endRewardsTimestamp = parseInt(options.endTimestamp)
 const startRewardsBlock = parseInt(options.startBlock)
@@ -391,11 +373,7 @@ export async function calculateRewards() {
       // All the instances must run on the latest version during the rewards
       // interval in Feb.
       for (let i = 0; i < instances.length; i++) {
-        // May 1st 2024 distribution special case:
-        if (
-          instances[i].buildVersion != "v2.0.0" ||
-          instances[i].buildVersion != "v2.0.1"
-        ) {
+        if (instances[i].buildVersion != latestClientTag) {
           requirements.set(IS_VERSION_SATISFIED, false)
         }
       }
@@ -410,11 +388,7 @@ export async function calculateRewards() {
       for (let i = instances.length - 1; i >= 0; i--) {
         if (
           instances[i].lastRegisteredTimestamp > upgradeCutoffDate &&
-          // May 1st 2024 distribution special case:
-          !(
-            instances[i].buildVersion === "v2.0.0" ||
-            instances[i].buildVersion === "v2.0.1"
-          )
+          !instances[i].buildVersion.includes(latestClientTag)
         ) {
           // After the cutoff day a node operator still run an instance with an
           // older version. No rewards.
@@ -427,12 +401,7 @@ export async function calculateRewards() {
           // upgrade cutoff date that happens to be right before the interval
           // end date. However, it might still be eligible for rewards because
           // of the uptime requirement.
-          // May 1st 2024 distribution special case:
-          if (
-            !["v2.0.1", "v2.0.0", "v2.0.0-m7"].includes(
-              instances[i].buildVersion
-            )
-          ) {
+          if (!eligibleClientTags.includes(instances[i].buildVersion)) {
             requirements.set(IS_VERSION_SATISFIED, false)
             // No need to check other instances because at least one instance run
             // on the older version than 2 latest allowed.
