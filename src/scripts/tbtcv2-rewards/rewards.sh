@@ -17,6 +17,8 @@ KEEP_CORE_REPO="https://github.com/keep-network/keep-core"
 REWARDS_DETAILS_PATH_DEFAULT="./rewards-details"
 REQUIRED_PRE_PARAMS_DEFAULT=500
 REQUIRED_UPTIME_DEFAULT=96 # percent
+
+# TODO: REMOVE THIS
 # Default should be 2. In rare cases when we release a hot fix and all 3 tags
 # become eligible in a given interval, then it can be set to 3.
 # Script supports up to 3 tags.
@@ -30,6 +32,7 @@ help() {
     "--prometheus-api <prometheus-api-address>" \
     "--prometheus-job <prometheus-job-name>" \
     "--etherscan-api <etherscan-api-url>" \
+    "--valid_versions <valid-versions>" \
     "--network <network-name>" \
     "--rewards-json <rewards-json-output-path>" \
     "--rewards-details-path <rewards-details-path" \
@@ -39,6 +42,7 @@ help() {
   echo -e "\t--rewards-start-date: Rewards interval start date formatted as UNIX timestamp"
   echo -e "\t--rewards-end-date: Rewards interval end date formatted as UNIX timestamp"
   echo -e "\t--etherscan-token: Etherscan API key token"
+  echo -e "\t--valid-versions: String containing valid tBTC versions with deadlines"
   echo -e "\nOptional command line arguments:\n"
   echo -e "\t--prometheus-api: Prometheus API. Default: ${PROMETHEUS_API_DEFAULT}"
   echo -e "\t--prometheus-job: Prometheus service discovery job name. Default: ${PROMETHEUS_JOB_DEFAULT}"
@@ -59,6 +63,7 @@ for arg in "$@"; do
   "--rewards-start-date") set -- "$@" "-k" ;;
   "--rewards-end-date") set -- "$@" "-e" ;;
   "--etherscan-token") set -- "$@" "-t" ;;
+  "--valid-versions") set -- "$@" "-v" ;;
   "--etherscan-api") set -- "$@" "-r" ;;
   "--prometheus-api") set -- "$@" "-a" ;;
   "--prometheus-job") set -- "$@" "-p" ;;
@@ -74,12 +79,13 @@ done
 
 # Parse short options
 OPTIND=1
-while getopts "k:e:t:r:a:p:n:o:d:s:m:h" opt; do
+while getopts "k:e:t:v:r:a:p:n:o:d:s:m:h" opt; do
   case "$opt" in
   k) rewards_start_date="$OPTARG" ;;
   e) rewards_end_date="$OPTARG" ;;
   t) etherscan_token="$OPTARG" ;;
   r) etherscan_api="$OPTARG" ;;
+  v) valid_versions="$OPTARG" ;;
   a) prometheus_api="$OPTARG" ;;
   p) prometheus_job="$OPTARG" ;;
   n) network="$OPTARG" ;;
@@ -100,6 +106,7 @@ PROMETHEUS_API=${prometheus_api:-${PROMETHEUS_API_DEFAULT}}
 PROMETHEUS_JOB=${prometheus_job:-${PROMETHEUS_JOB_DEFAULT}}
 REWARDS_JSON=${rewards_json:-${REWARDS_JSON_DEFAULT}}
 ETHERSCAN_API=${etherscan_api:-${ETHERSCAN_API_DEFAULT}}
+VALID_VERSIONS=${valid_versions:-""}
 NETWORK=${network:-${NETWORK_DEFAULT}}
 REWARDS_DETAILS_PATH=${rewards_details_path:-${REWARDS_DETAILS_PATH_DEFAULT}}
 REQUIRED_PRE_PARAMS=${required_pre_params:-${REQUIRED_PRE_PARAMS_DEFAULT}}
@@ -117,6 +124,11 @@ fi
 
 if [ "$ETHERSCAN_TOKEN" == "" ]; then
   printf "${LOG_WARNING_START}Etherscan API key token must be provided.${LOG_WARNING_END}"
+  help
+fi
+
+if [ "$VALID_VERSIONS" == "" ]; then
+  printf "${LOG_WARNING_START}Valid versions string must be provided.${LOG_WARNING_END}"
   help
 fi
 
@@ -145,37 +157,38 @@ endRewardsBlock=$(curl -s $endBlockApiCall | jq '.result|tonumber')
 printf "${LOG_START}Installing yarn dependencies...${LOG_END}"
 yarn install
 
-printf "${LOG_START}Retrieving client release tags...${LOG_END}"
-# Create a new git remote to fetch the release tags
-git remote remove keep-core-repo 2>/dev/null || true
-git remote add keep-core-repo ${KEEP_CORE_REPO}
-git fetch --tags --prune --quiet keep-core-repo
-allTags=($(git tag --sort=-version:refname --list 'v[0-9]*.*-m[0-9]'))
-printf "Found ${allTags[*]} tags"
-latestTag=${allTags[0]}
-latestTimestamp=($(git tag --sort=-version:refname --list 'v[0-9]*.*-m[0-9]' --format '%(creatordate:unix)' | head -n 1))
-latestTagTimestamp="${latestTag}_$latestTimestamp"
+# TODO: REMOVE THIS
+# printf "${LOG_START}Retrieving client release tags...${LOG_END}"
+# # Create a new git remote to fetch the release tags
+# git remote remove keep-core-repo 2>/dev/null || true
+# git remote add keep-core-repo ${KEEP_CORE_REPO}
+# git fetch --tags --prune --quiet keep-core-repo
+# allTags=($(git tag --sort=-version:refname --list 'v[0-9]*\.[0-9]*\.[0-9]'))
+# printf "Found ${allTags[*]} tags"
+# latestTag=${allTags[0]}
+# latestTimestamp=($(git tag --sort=-version:refname --list 'v[0-9]*\.[0-9]*\.[0-9]' --format '%(creatordate:unix)' | head -n 1))
+# latestTagTimestamp="${latestTag}_$latestTimestamp"
 
-# There are at least 2 tags available at this point of time
-secondToLatestTag=${allTags[1]}
-secondToLatestTagTimestamp="${secondToLatestTag}_$(git tag --sort=-version:refname --list 'v[0-9]*.*-m[0-9]' --format '%(creatordate:unix)' | head -n 2 | tail -1)"
+# # There are at least 2 tags available at this point of time
+# secondToLatestTag=${allTags[1]}
+# secondToLatestTagTimestamp="${secondToLatestTag}_$(git tag --sort=-version:refname --list 'v[0-9]*\.[0-9]*\.[0-9]' --format '%(creatordate:unix)' | head -n 2 | tail -1)"
 
-tagsInRewardInterval=()
-tagsInRewardInterval+=($latestTagTimestamp)
-tagsInRewardInterval+=($secondToLatestTagTimestamp)
+# tagsInRewardInterval=()
+# tagsInRewardInterval+=($latestTagTimestamp)
+# tagsInRewardInterval+=($secondToLatestTagTimestamp)
 
-if [ "$ELIGIBLE_NUMBER_OF_TAGS" -eq "3" ]; then
-  thirdToLatestTag=${allTags[2]}
-  thirdToLatestTagTimestamp="${thirdToLatestTag}_$(git tag --sort=-version:refname --list 'v[0-9]*.*-m[0-9]' --format '%(creatordate:unix)' | head -n 3 | tail -1)"
-  tagsInRewardInterval+=($thirdToLatestTagTimestamp)
-fi
+# if [ "$ELIGIBLE_NUMBER_OF_TAGS" -eq "3" ]; then
+#   thirdToLatestTag=${allTags[2]}
+#   thirdToLatestTagTimestamp="${thirdToLatestTag}_$(git tag --sort=-version:refname --list 'v[0-9]*\.[0-9]*\.[0-9]' --format '%(creatordate:unix)' | head -n 3 | tail -1)"
+#   tagsInRewardInterval+=($thirdToLatestTagTimestamp)
+# fi
 
-# Converting array to string so we can pass to the rewards-requirements.ts
-printf -v tags '%s|' "${tagsInRewardInterval[@]}"
-tagsTrimmed="${tags%?}" # remove "|" at the end
+# # Converting array to string so we can pass to the rewards-requirements.ts
+# printf -v tags '%s|' "${tagsInRewardInterval[@]}"
+# tagsTrimmed="${tags%?}" # remove "|" at the end
 
-# Removing created remote
-git remote remove keep-core-repo
+# # Removing created remote
+# git remote remove keep-core-repo
 
 # Run script
 printf "${LOG_START}Fetching peers data...${LOG_END}"
@@ -187,7 +200,7 @@ ETHERSCAN_TOKEN=${ETHERSCAN_TOKEN} yarn rewards \
   --end-timestamp $REWARDS_END_DATE \
   --start-block $startRewardsBlock \
   --end-block $endRewardsBlock \
-  --releases $tagsTrimmed \
+  --valid-versions $VALID_VERSIONS \
   --network ${NETWORK} \
   --output ${REWARDS_JSON} \
   --output-details-path ${REWARDS_DETAILS_PATH} \
