@@ -15,10 +15,12 @@ const tbtcv2Weight = 0.75
 const startTime = new Date("2024-04-01T00:00:00+00:00").getTime() / 1000
 const endTime = new Date("2024-05-01T00:00:00+00:00").getTime() / 1000
 const lastDistribution = "2024-04-01"
-// tBTC valid versions and deadlines (if any) sorted from latests to oldest:
-// Example: v2.1.0 is the current version, v2.0.x are valid until 2024-06-01
-// Example v2.1.0|v2.0.1_1717200000|v2.0.0_1717200000|
-const tbtcValidVersions = "v2.0.1|v2.0.0"
+// tBTC valid versions and deadlines (if any) sorted from latests to oldest.
+// Example: v2.1.x is the current version, v2.0.x is valid until 2024-06-01:
+// v2.1.0|v2.0.0_1717200000
+// Note that we only care about major and minor versions, so not updating to a
+// new patch version will not disqualify the stake for rewards.
+const tbtcValidVersions = "v2.0.0"
 
 const etherscanApiKey = process.env.ETHERSCAN_TOKEN
 const tbtcv2ScriptPath = "src/scripts/tbtcv2-rewards/"
