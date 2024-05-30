@@ -18,12 +18,6 @@ REWARDS_DETAILS_PATH_DEFAULT="./rewards-details"
 REQUIRED_PRE_PARAMS_DEFAULT=500
 REQUIRED_UPTIME_DEFAULT=96 # percent
 
-# TODO: REMOVE THIS
-# Default should be 2. In rare cases when we release a hot fix and all 3 tags
-# become eligible in a given interval, then it can be set to 3.
-# Script supports up to 3 tags.
-ELIGIBLE_NUMBER_OF_TAGS=2
-
 help() {
   echo -e "\nUsage: $0" \
     "--rewards-start-date <rewards-start-date timestamp>" \
@@ -156,39 +150,6 @@ endRewardsBlock=$(curl -s $endBlockApiCall | jq '.result|tonumber')
 
 printf "${LOG_START}Installing yarn dependencies...${LOG_END}"
 yarn install
-
-# TODO: REMOVE THIS
-# printf "${LOG_START}Retrieving client release tags...${LOG_END}"
-# # Create a new git remote to fetch the release tags
-# git remote remove keep-core-repo 2>/dev/null || true
-# git remote add keep-core-repo ${KEEP_CORE_REPO}
-# git fetch --tags --prune --quiet keep-core-repo
-# allTags=($(git tag --sort=-version:refname --list 'v[0-9]*\.[0-9]*\.[0-9]'))
-# printf "Found ${allTags[*]} tags"
-# latestTag=${allTags[0]}
-# latestTimestamp=($(git tag --sort=-version:refname --list 'v[0-9]*\.[0-9]*\.[0-9]' --format '%(creatordate:unix)' | head -n 1))
-# latestTagTimestamp="${latestTag}_$latestTimestamp"
-
-# # There are at least 2 tags available at this point of time
-# secondToLatestTag=${allTags[1]}
-# secondToLatestTagTimestamp="${secondToLatestTag}_$(git tag --sort=-version:refname --list 'v[0-9]*\.[0-9]*\.[0-9]' --format '%(creatordate:unix)' | head -n 2 | tail -1)"
-
-# tagsInRewardInterval=()
-# tagsInRewardInterval+=($latestTagTimestamp)
-# tagsInRewardInterval+=($secondToLatestTagTimestamp)
-
-# if [ "$ELIGIBLE_NUMBER_OF_TAGS" -eq "3" ]; then
-#   thirdToLatestTag=${allTags[2]}
-#   thirdToLatestTagTimestamp="${thirdToLatestTag}_$(git tag --sort=-version:refname --list 'v[0-9]*\.[0-9]*\.[0-9]' --format '%(creatordate:unix)' | head -n 3 | tail -1)"
-#   tagsInRewardInterval+=($thirdToLatestTagTimestamp)
-# fi
-
-# # Converting array to string so we can pass to the rewards-requirements.ts
-# printf -v tags '%s|' "${tagsInRewardInterval[@]}"
-# tagsTrimmed="${tags%?}" # remove "|" at the end
-
-# # Removing created remote
-# git remote remove keep-core-repo
 
 # Run script
 printf "${LOG_START}Fetching peers data...${LOG_END}"

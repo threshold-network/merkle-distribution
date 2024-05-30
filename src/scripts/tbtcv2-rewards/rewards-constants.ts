@@ -1,4 +1,3 @@
-export const ALLOWED_UPGRADE_DELAY = 1814400 // 3 weeks in sec (default value)
 export const OPERATORS_SEARCH_QUERY_STEP = 600 // 10min in sec
 export const IS_BEACON_AUTHORIZED = "isBeaconAuthorized"
 export const BEACON_AUTHORIZATION = "beaconAuthorization"
