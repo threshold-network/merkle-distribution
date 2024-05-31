@@ -20,41 +20,38 @@ rewards interval
 ## Client build version
 
 Node operators must stay updated with the latest keep-core client releases to
-receive rewards. The cutoff day for a new version is calculated by adding three
-weeks to its tag creation date, which can be verified by executing the command
-`git show <tag>`.
+receive rewards. The cutoff day for a new version is specified with
+`--valid-versions` parameter following this schema:
 
-Note: There is an exception for the month of February, where a cutoff day to
-upgrade a client from `v2.0.0-m1` to `v2.0.0-m2` is until February 27th.
-
-Here are a few examples to demonstrate the build version requirement.
+The versions must be specified following this schema:
 
 ```
-E.g. 1
-                          v1                v1 or v2
-         ---------------------------------\|-------|
-Timeline -|--------------------------------*-------|->
-        May1                             May25   May31
-                                          v2
-Where:
-Rewards interval: May 1 - May 31
-v2 is released on May 25
-delay = 14 days
-v2 + delay = May24 + 14 days = June 8
-Between May 1 - May 25 a client runs on v1
-Between May 25 - May 31 a client is allowed to run on v1 or v2
+<version1>|<version2>_<version2Deadline>|<version3>_<version3Dealine> ...
+```
 
-E.g. 2
-                 v1 or v2                    v2
-         --/------------------\|---------------------------|
-Timeline -*--------|-----------*---------------------------|->
-        May25    June1       June8                      June30
-          v2               (v2+delay)
 Where:
-Rewards interval: June 1 - June 30
-v2 is released on May 25
-delay = 14 days
-v2 + delay = May 25 + 14 days = June 8
-Between June 1 - June 8 a client is allowed to run v1 or v2
-Between June 8 - June 30 a client is allowed to run only v2
+
+- The versions must be sorted from latest to oldest.
+- <versionDeadline> is the deadline in UNIX timestamp until the version is valid.
+
+Examples:
+
+- For this release distribution, only v2.1.0 (and patch versions v2.1.1, v2.1.2, etc) are valid:
+
+```js
+const tbtcValidVersions = "v2.1.0"
+```
+
+- We are calculating June 2024 rewards. v2.1.x is the current version and v2.0.x is valid until
+2024-06-15:
+
+```js
+const tbtcValidVersions = "v2.1.0|v2.0.0_1718409600"
+```
+
+- We are calculating June 2024 rewards. v2.2.x is the current version. v2.1.x is valid until
+2024-06-20. v2.0.x is valid until 2024-06-10:
+
+```js
+const tbtcValidVersions = "v2.2.0|v2.1.0_1718841600|v2.0.0_1717977600"
 ```

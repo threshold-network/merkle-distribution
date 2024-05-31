@@ -101,11 +101,47 @@ ETHERSCAN_TOKEN=<your Etherscan API token>
 This script calculates the Threshold Network rewards earned during a specific period, adds them to
 the previous distributions, and generates a new distribution that contains the cumulative rewards.
 
+```bash
+node src/scripts/gen_rewards_dist.js
+```
+
 Note that some script's parameters (rewards weights, start time, end time, last distribution path)
 must be replaced in the script before running it.
 
-```bash
-node src/scripts/gen_rewards_dist.js
+### Valid versions
+
+Additionally, the tBTC client valid versions must be specified. The `tbtcValidVersions` variable
+must be set for each distribution release. The versions must be specified following this schema:
+
+```
+<version1>|<version2>_<version2Deadline>|<version3>_<version3Dealine> ...
+```
+
+Where:
+
+- The versions must be sorted from latest to oldest.
+- <versionDeadline> is the deadline in UNIX timestamp until the version is valid.
+
+Examples:
+
+- For this release distribution, only v2.1.0 (and patch versions v2.1.1, v2.1.2, etc) are valid:
+
+```js
+const tbtcValidVersions = "v2.1.0"
+```
+
+- We are calculating June 2024 rewards. v2.1.x is the current version and v2.0.x is valid until
+2024-06-15:
+
+```js
+const tbtcValidVersions = "v2.1.0|v2.0.0_1718409600"
+```
+
+- We are calculating June 2024 rewards. v2.2.x is the current version. v2.1.x is valid until
+2024-06-20. v2.0.x is valid until 2024-06-10:
+
+```js
+const tbtcValidVersions = "v2.2.0|v2.1.0_1718841600|v2.0.0_1717977600"
 ```
 
 ### Contributions
