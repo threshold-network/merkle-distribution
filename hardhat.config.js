@@ -42,7 +42,7 @@ module.exports = {
     },
     tacoApp: {
       sepolia: "0xTBD",
-      mainnet: "0x0x347CC7ede7e5517bD47D20620B2CF1b406edcF07",
+      mainnet: "0x347CC7ede7e5517bD47D20620B2CF1b406edcF07",
     },
   },
   networks,
