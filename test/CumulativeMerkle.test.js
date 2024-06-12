@@ -1,5 +1,6 @@
 const { ethers } = require("hardhat")
 const { expect } = require("chai")
+const { before, beforeEach, describe, it } = require("mocha")
 const { MerkleTree } = require("merkletreejs")
 const fc = require("fast-check")
 const keccak256 = require("keccak256")
@@ -32,7 +33,7 @@ describe("Cumulative Merkle Distribution", function () {
     token = await Token.deploy()
   })
 
-  context("when set Merkle Root for first time", async function () {
+  describe("when set Merkle Root for first time", async function () {
     let merkleDist
 
     beforeEach(async function () {
