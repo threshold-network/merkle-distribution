@@ -9,7 +9,6 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./interfaces/IApplication.sol";
 import "./interfaces/ICumulativeMerkleDrop.sol";
 
-
 contract CumulativeMerkleDrop is Ownable, ICumulativeMerkleDrop {
     using SafeERC20 for IERC20;
     using MerkleProof for bytes32[];
@@ -38,8 +37,14 @@ contract CumulativeMerkleDrop is Ownable, ICumulativeMerkleDrop {
         address newOwner
     ) {
         require(IERC20(token_).totalSupply() > 0, "Token contract must be set");
-        require(rewardsHolder_ != address(0), "Rewards Holder must be an address");
-        require(address(application_) != address(0), "Application must be an address");
+        require(
+            rewardsHolder_ != address(0),
+            "Rewards Holder must be an address"
+        );
+        require(
+            address(application_) != address(0),
+            "Application must be an address"
+        );
 
         transferOwnership(newOwner);
         token = token_;
@@ -53,7 +58,10 @@ contract CumulativeMerkleDrop is Ownable, ICumulativeMerkleDrop {
     }
 
     function setRewardsHolder(address rewardsHolder_) external onlyOwner {
-        require(rewardsHolder_ != address(0), "Rewards holder must be an address");
+        require(
+            rewardsHolder_ != address(0),
+            "Rewards holder must be an address"
+        );
         emit RewardsHolderUpdated(rewardsHolder, rewardsHolder_);
         rewardsHolder = rewardsHolder_;
     }
@@ -68,7 +76,9 @@ contract CumulativeMerkleDrop is Ownable, ICumulativeMerkleDrop {
         require(merkleRoot == expectedMerkleRoot, "Merkle root was updated");
 
         // Verify the merkle proof
-        bytes32 leaf = keccak256(abi.encodePacked(stakingProvider, beneficiary, cumulativeAmount));
+        bytes32 leaf = keccak256(
+            abi.encodePacked(stakingProvider, beneficiary, cumulativeAmount)
+        );
         require(verify(merkleProof, expectedMerkleRoot, leaf), "Invalid proof");
 
         // Mark it claimed
@@ -80,7 +90,12 @@ contract CumulativeMerkleDrop is Ownable, ICumulativeMerkleDrop {
         unchecked {
             uint256 amount = cumulativeAmount - preclaimed;
             IERC20(token).safeTransferFrom(rewardsHolder, beneficiary, amount);
-            emit Claimed(stakingProvider, amount, beneficiary, expectedMerkleRoot);
+            emit Claimed(
+                stakingProvider,
+                amount,
+                beneficiary,
+                expectedMerkleRoot
+            );
         }
     }
 
@@ -91,7 +106,13 @@ contract CumulativeMerkleDrop is Ownable, ICumulativeMerkleDrop {
         bytes32 expectedMerkleRoot,
         bytes32[] calldata merkleProof
     ) public {
-        claim(stakingProvider, beneficiary, cumulativeAmount, expectedMerkleRoot, merkleProof);
+        claim(
+            stakingProvider,
+            beneficiary,
+            cumulativeAmount,
+            expectedMerkleRoot,
+            merkleProof
+        );
         application.withdrawRewards(stakingProvider);
     }
 
@@ -125,7 +146,11 @@ contract CumulativeMerkleDrop is Ownable, ICumulativeMerkleDrop {
         }
     }
 
-    function verify(bytes32[] calldata merkleProof, bytes32 root, bytes32 leaf) public pure returns (bool) {
+    function verify(
+        bytes32[] calldata merkleProof,
+        bytes32 root,
+        bytes32 leaf
+    ) public pure returns (bool) {
         return merkleProof.verify(root, leaf);
     }
 }
