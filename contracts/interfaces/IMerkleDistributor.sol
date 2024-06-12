@@ -4,7 +4,7 @@ pragma solidity ^0.8.9;
 pragma abicoder v1;
 
 // Allows anyone to claim a token if they exist in a merkle root.
-interface ICumulativeMerkleDrop {
+interface IMerkleDistributor {
     // This event is triggered whenever a call to #setMerkleRoot succeeds.
     event MerkelRootUpdated(bytes32 oldMerkleRoot, bytes32 newMerkleRoot);
     // This event is triggered whenever a call to #claim succeeds.

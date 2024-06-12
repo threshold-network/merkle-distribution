@@ -7,9 +7,9 @@ import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import "./interfaces/IApplication.sol";
-import "./interfaces/ICumulativeMerkleDrop.sol";
+import "./interfaces/IMerkleDistributor.sol";
 
-contract CumulativeMerkleDrop is Ownable, ICumulativeMerkleDrop {
+contract MerkleDistributor is Ownable, IMerkleDistributor {
     using SafeERC20 for IERC20;
     using MerkleProof for bytes32[];
 
