@@ -4,6 +4,7 @@ require("@nomiclabs/hardhat-etherscan")
 require("hardhat-deploy")
 require("solidity-coverage")
 require("hardhat-gas-reporter")
+require("hardhat-ignore-warnings")
 require("dotenv").config()
 require("./src/tasks/claim_rewards")
 
