@@ -17,11 +17,13 @@ contract MerkleDistributor is Ownable, IMerkleDistributor {
     address public rewardsHolder;
 
     bytes32 public override merkleRoot;
-    mapping(address => uint256) public cumulativeClaimed;
+    mapping(address => uint256) internal newCumulativeClaimed;
 
     // TODO: Generalize to an array of IApplication in the future.
     // For the moment, it will only be used for TACo app.
     IApplication public immutable application;
+
+    IMerkleDistributor public immutable oldMerkleDistributor;
 
     struct Claim {
         address stakingProvider;
@@ -33,6 +35,7 @@ contract MerkleDistributor is Ownable, IMerkleDistributor {
     constructor(
         address token_,
         IApplication application_,
+        IMerkleDistributor _oldMerkleDistributor,
         address rewardsHolder_,
         address newOwner
     ) {
@@ -45,11 +48,16 @@ contract MerkleDistributor is Ownable, IMerkleDistributor {
             address(application_) != address(0),
             "Application must be an address"
         );
+        require(
+            token_ == _oldMerkleDistributor.token(),
+            "Incompatible old MerkleDistributor"
+        );
 
         transferOwnership(newOwner);
         token = token_;
         application = application_;
         rewardsHolder = rewardsHolder_;
+        oldMerkleDistributor = _oldMerkleDistributor;
     }
 
     function setMerkleRoot(bytes32 merkleRoot_) external override onlyOwner {
@@ -64,6 +72,17 @@ contract MerkleDistributor is Ownable, IMerkleDistributor {
         );
         emit RewardsHolderUpdated(rewardsHolder, rewardsHolder_);
         rewardsHolder = rewardsHolder_;
+    }
+
+    function cumulativeClaimed(
+        address stakingProvider
+    ) public view returns(uint256) {
+        uint256 newAmount = newCumulativeClaimed[stakingProvider];
+        if(newAmount > 0){
+            return newAmount;
+        } else {
+            return oldMerkleDistributor.cumulativeClaimed(stakingProvider);
+        }
     }
 
     function claim(
@@ -81,10 +100,11 @@ contract MerkleDistributor is Ownable, IMerkleDistributor {
         );
         require(verify(merkleProof, expectedMerkleRoot, leaf), "Invalid proof");
 
-        // Mark it claimed
-        uint256 preclaimed = cumulativeClaimed[stakingProvider];
+        // Mark it claimed (potentially taking into consideration state in old
+        // MerkleDistribution contract)
+        uint256 preclaimed = cumulativeClaimed(stakingProvider);
         require(preclaimed < cumulativeAmount, "Nothing to claim");
-        cumulativeClaimed[stakingProvider] = cumulativeAmount;
+        newCumulativeClaimed[stakingProvider] = cumulativeAmount;
 
         // Send the token
         unchecked {
