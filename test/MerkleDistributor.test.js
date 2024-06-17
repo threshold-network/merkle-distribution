@@ -33,7 +33,7 @@ describe("Merkle Distribution", function () {
     const Token = await ethers.getContractFactory("TokenMock")
     const ApplicationMock = await ethers.getContractFactory("ApplicationMock")
     token = await Token.deploy()
-    application = await ApplicationMock.deploy()
+    application = await ApplicationMock.deploy(token.address)
   })
 
   describe("when deploy MerkleDistributor", async function () {
@@ -42,7 +42,7 @@ describe("Merkle Distribution", function () {
     let rewardsHolder
 
     beforeEach(async function () {
-      ;[owner, rewardsHolder] = await ethers.getSigners()
+      [owner, rewardsHolder] = await ethers.getSigners()
       await token.mint(rewardsHolder.address, 10)
       MerkleDist = await ethers.getContractFactory("MerkleDistributor")
     })
