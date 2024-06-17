@@ -85,7 +85,7 @@ contract MerkleDistributor is Ownable, IMerkleDistributor {
         }
     }
 
-    function claim(
+    function claimWithoutApps(
         address stakingProvider,
         address beneficiary,
         uint256 cumulativeAmount,
@@ -119,14 +119,14 @@ contract MerkleDistributor is Ownable, IMerkleDistributor {
         }
     }
 
-    function claimIncludingApps(
+    function claim(
         address stakingProvider,
         address beneficiary,
         uint256 cumulativeAmount,
         bytes32 expectedMerkleRoot,
         bytes32[] calldata merkleProof
     ) public {
-        claim(
+        claimWithoutApps(
             stakingProvider,
             beneficiary,
             cumulativeAmount,
@@ -136,12 +136,12 @@ contract MerkleDistributor is Ownable, IMerkleDistributor {
         application.withdrawRewards(stakingProvider);
     }
 
-    function batchClaim(
+    function batchClaimWithoutApps(
         bytes32 expectedMerkleRoot,
         Claim[] calldata Claims
     ) external {
         for (uint i; i < Claims.length; i++) {
-            claim(
+            claimWithoutApps(
                 Claims[i].stakingProvider,
                 Claims[i].beneficiary,
                 Claims[i].amount,
@@ -151,12 +151,12 @@ contract MerkleDistributor is Ownable, IMerkleDistributor {
         }
     }
 
-    function batchClaimIncludingApps(
+    function batchClaim(
         bytes32 expectedMerkleRoot,
         Claim[] calldata Claims
     ) external {
         for (uint i; i < Claims.length; i++) {
-            claimIncludingApps(
+            claim(
                 Claims[i].stakingProvider,
                 Claims[i].beneficiary,
                 Claims[i].amount,
