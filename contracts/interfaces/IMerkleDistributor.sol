@@ -16,9 +16,12 @@ interface IMerkleDistributor {
     function token() external view returns (address);
     // Returns the merkle root of the merkle tree containing cumulative account balances available to claim.
     function merkleRoot() external view returns (bytes32);
+    // Returns the cumulative claimed rewards balance.
+    function cumulativeClaimed() external view returns(uint256);
+
     // Sets the merkle root of the merkle tree containing cumulative account balances available to claim.
     function setMerkleRoot(bytes32 merkleRoot_) external;
-
+    // Sets the address from where rewards are being pulled.
     function setRewardsHolder(address rewardsHolder_) external;
 
     // Claim the given amount of the token to the given address. Reverts if the inputs are invalid.
