@@ -5,8 +5,8 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@threshold-network/solidity-contracts/contracts/staking/IApplication.sol";
 
-import "./interfaces/IApplication.sol";
 import "./interfaces/IMerkleDistributor.sol";
 
 contract MerkleDistributor is Ownable, IMerkleDistributor {

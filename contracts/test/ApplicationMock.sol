@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.9;
 
-import "../interfaces/IApplication.sol";
+import "@threshold-network/solidity-contracts/contracts/staking/IApplication.sol";
 
 contract ApplicationMock is IApplication {
     function withdrawRewards(address stakingProvider) external {}
