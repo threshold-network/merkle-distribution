@@ -36,6 +36,80 @@ describe("Merkle Distribution", function () {
     application = await ApplicationMock.deploy()
   })
 
+  describe("when deploy MerkleDistributor", async function () {
+    let MerkleDist
+    let owner
+    let rewardsHolder
+
+    beforeEach(async function () {
+      ;[owner, rewardsHolder] = await ethers.getSigners()
+      await token.mint(rewardsHolder.address, 10)
+      MerkleDist = await ethers.getContractFactory("MerkleDistributor")
+    })
+
+    it("should be deployed", async function () {
+      const merkleDist = await MerkleDist.deploy(
+        token.address,
+        application.address,
+        rewardsHolder.address,
+        owner.address
+      )
+      expect(await merkleDist.token()).to.equal(token.address)
+      expect(await merkleDist.rewardsHolder()).to.equal(rewardsHolder.address)
+      expect(await merkleDist.application()).to.equal(application.address)
+      expect(await merkleDist.owner()).to.equal(owner.address)
+    })
+
+    it("should not be possible to deploy with no token address", async function () {
+      const tokenAddress = ethers.constants.AddressZero
+      await expect(
+        MerkleDist.deploy(
+          tokenAddress,
+          application.address,
+          rewardsHolder.address,
+          owner.address
+        )
+      ).to.be.reverted
+    })
+
+    it("should not be possible to deploy with no minted tokens", async function () {
+      const TokenWithNoMint = await ethers.getContractFactory("TokenMock")
+      const tokenWithNoMint = await TokenWithNoMint.deploy()
+      await expect(
+        MerkleDist.deploy(
+          tokenWithNoMint.address,
+          application.address,
+          rewardsHolder.address,
+          owner.address
+        )
+      ).to.be.revertedWith("Token contract must be set")
+    })
+
+    it("should not be possible to deploy with no rewards holder", async function () {
+      const rewardsHolder = ethers.constants.AddressZero
+      await expect(
+        MerkleDist.deploy(
+          token.address,
+          application.address,
+          rewardsHolder,
+          owner.address
+        )
+      ).to.be.revertedWith("Rewards Holder must be an address")
+    })
+
+    it("should not be possible to deploy with no application", async function () {
+      const applicationAddress = ethers.constants.AddressZero
+      await expect(
+        MerkleDist.deploy(
+          token.address,
+          applicationAddress,
+          rewardsHolder.address,
+          owner.address
+        )
+      ).to.be.revertedWith("Application must be an address")
+    })
+  })
+
   describe("when set Merkle Root for first time", async function () {
     let merkleDist
 
