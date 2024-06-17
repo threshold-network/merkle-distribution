@@ -2,10 +2,22 @@
 
 pragma solidity ^0.8.9;
 
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@threshold-network/solidity-contracts/contracts/staking/IApplication.sol";
 
 contract ApplicationMock is IApplication {
-    function withdrawRewards(address stakingProvider) external {}
+    IERC20 public immutable token;
+
+    constructor(IERC20 _token) {
+        token = _token;
+    }
+
+    // For simplicity, we are not considering beneficiaries in this mock:
+    // the staking provider address will receive the rewards
+    function withdrawRewards(address stakingProvider) external {
+        emit RewardsWithdrawn(stakingProvider, 10000);
+        token.transfer(stakingProvider, 10000);
+    }
 
     function authorizationIncreased(
         address stakingProvider,
@@ -30,7 +42,7 @@ contract ApplicationMock is IApplication {
         external
         view
         returns (uint96) {
-            return 1000000000000000000;
+            return 100000;
         }
 
     // solc-ignore-next-line func-mutability
