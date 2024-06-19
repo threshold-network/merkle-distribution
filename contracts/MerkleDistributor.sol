@@ -91,7 +91,7 @@ contract MerkleDistributor is Ownable, IMerkleDistributor {
         uint256 cumulativeAmount,
         bytes32 expectedMerkleRoot,
         bytes32[] calldata merkleProof
-    ) public override {
+    ) public {
         require(merkleRoot == expectedMerkleRoot, "Merkle root was updated");
 
         // Verify the merkle proof
