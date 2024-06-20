@@ -21,19 +21,30 @@ function onlyUnique(value, index, self) {
 
 describe("Merkle Distribution", function () {
   let Token
-  let ApplicationMock
   let token
+  let ApplicationMock
   let application
+  let MerkleDist
+  let OldMerkleDist
+  let oldMerkleDist
 
   before(async function () {
     // numRuns must be less or equal to the number of accounts in `dist`
     const numRuns = Object.keys(dist.claims).length
     fc.configureGlobal({ numRuns: numRuns, skipEqualValues: true })
 
+    const [owner, rewardsHolder] = await ethers.getSigners()
     Token = await ethers.getContractFactory("TokenMock")
     token = await Token.deploy()
     ApplicationMock = await ethers.getContractFactory("ApplicationMock")
     application = await ApplicationMock.deploy(token.address)
+    MerkleDist = await ethers.getContractFactory("MerkleDistributor")
+    OldMerkleDist = await ethers.getContractFactory("OldMerkleDistributor")
+    oldMerkleDist = await OldMerkleDist.deploy(
+      token.address,
+      rewardsHolder.address,
+      owner.address
+    )
   })
 
   describe("when deploy MerkleDistributor", async function () {
@@ -42,15 +53,15 @@ describe("Merkle Distribution", function () {
     let rewardsHolder
 
     beforeEach(async function () {
-      [owner, rewardsHolder] = await ethers.getSigners()
+      ;[owner, rewardsHolder] = await ethers.getSigners()
       await token.mint(rewardsHolder.address, 10)
-      MerkleDist = await ethers.getContractFactory("MerkleDistributor")
     })
 
     it("should be deployed", async function () {
       const merkleDist = await MerkleDist.deploy(
         token.address,
         application.address,
+        // TODO: deploy an old Merkle distributor
         rewardsHolder.address,
         owner.address
       )
@@ -114,7 +125,6 @@ describe("Merkle Distribution", function () {
     let merkleDist
 
     beforeEach(async function () {
-      const MerkleDist = await ethers.getContractFactory("MerkleDistributor")
       const [owner, rewardsHolder] = await ethers.getSigners()
       await token.mint(rewardsHolder.address, 10)
       merkleDist = await MerkleDist.deploy(
@@ -180,7 +190,6 @@ describe("Merkle Distribution", function () {
     })
 
     beforeEach(async function () {
-      const MerkleDist = await ethers.getContractFactory("MerkleDistributor")
       const [, rewardsHolder] = await ethers.getSigners()
       await token.mint(rewardsHolder.address, totalAmount)
       merkleDist = await MerkleDist.deploy(
@@ -271,7 +280,6 @@ describe("Merkle Distribution", function () {
     })
 
     beforeEach(async function () {
-      const MerkleDist = await ethers.getContractFactory("MerkleDistributor")
       const [owner, rewardsHolder] = await ethers.getSigners()
       await token.mint(rewardsHolder.address, totalAmount)
       merkleDist = await MerkleDist.deploy(
@@ -466,7 +474,6 @@ describe("Merkle Distribution", function () {
     })
 
     beforeEach(async function () {
-      const MerkleDist = await ethers.getContractFactory("MerkleDistributor")
       const [owner, rewardsHolder] = await ethers.getSigners()
       token = await Token.deploy()
       await token.mint(rewardsHolder.address, totalAmount)
@@ -624,7 +631,6 @@ describe("Merkle Distribution", function () {
     })
 
     beforeEach(async function () {
-      const MerkleDist = await ethers.getContractFactory("MerkleDistributor")
       const [owner, rewardsHolder] = await ethers.getSigners()
       await token.mint(rewardsHolder.address, 10)
       merkleDist = await MerkleDist.deploy(
