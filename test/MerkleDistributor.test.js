@@ -20,19 +20,19 @@ function onlyUnique(value, index, self) {
 }
 
 describe("Merkle Distribution", function () {
+  let Token
+  let ApplicationMock
   let token
   let application
 
-  before(function () {
+  before(async function () {
     // numRuns must be less or equal to the number of accounts in `dist`
     const numRuns = Object.keys(dist.claims).length
     fc.configureGlobal({ numRuns: numRuns, skipEqualValues: true })
-  })
 
-  beforeEach(async function () {
-    const Token = await ethers.getContractFactory("TokenMock")
-    const ApplicationMock = await ethers.getContractFactory("ApplicationMock")
+    Token = await ethers.getContractFactory("TokenMock")
     token = await Token.deploy()
+    ApplicationMock = await ethers.getContractFactory("ApplicationMock")
     application = await ApplicationMock.deploy(token.address)
   })
 
@@ -456,6 +456,7 @@ describe("Merkle Distribution", function () {
       // numRuns must be less or equal to the number of accounts in `cum_dist`
       const numRuns = Object.keys(cumDist.claims).length
       fc.configureGlobal({ numRuns: numRuns, skipEqualValues: true })
+
       merkleRoot = dist.merkleRoot
       cumulativeMerkleRoot = cumDist.merkleRoot
       totalAmount = ethers.BigNumber.from(dist.totalAmount)
@@ -467,6 +468,7 @@ describe("Merkle Distribution", function () {
     beforeEach(async function () {
       const MerkleDist = await ethers.getContractFactory("MerkleDistributor")
       const [owner, rewardsHolder] = await ethers.getSigners()
+      token = await Token.deploy()
       await token.mint(rewardsHolder.address, totalAmount)
       merkleDist = await MerkleDist.deploy(
         token.address,
