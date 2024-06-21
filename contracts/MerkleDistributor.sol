@@ -61,7 +61,7 @@ contract MerkleDistributor is Ownable, IMerkleDistributor {
     }
 
     function setMerkleRoot(bytes32 merkleRoot_) external override onlyOwner {
-        emit MerkelRootUpdated(merkleRoot, merkleRoot_);
+        emit MerkleRootUpdated(merkleRoot, merkleRoot_);
         merkleRoot = merkleRoot_;
     }
 

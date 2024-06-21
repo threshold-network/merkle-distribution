@@ -6,7 +6,7 @@ pragma abicoder v1;
 // Allows anyone to claim a token if they exist in a merkle root.
 interface IMerkleDistributor {
     // This event is triggered whenever a call to #setMerkleRoot succeeds.
-    event MerkelRootUpdated(bytes32 oldMerkleRoot, bytes32 newMerkleRoot);
+    event MerkleRootUpdated(bytes32 oldMerkleRoot, bytes32 newMerkleRoot);
     // This event is triggered whenever a call to #claim succeeds.
     event Claimed(address indexed stakingProvider, uint256 amount, address beneficiary, bytes32 merkleRoot);
     // This event is triggered whenever a call to #setRewardsHolder succeeds.
