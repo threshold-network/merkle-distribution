@@ -20,13 +20,10 @@ function onlyUnique(value, index, self) {
 }
 
 describe("Merkle Distribution", function () {
-  let Token
-  let token
-  let ApplicationMock
-  let application
-  let MerkleDist
-  let OldMerkleDist
-  let oldMerkleDist
+  let Token, token
+  let ApplicationMock, application
+  let MerkleDist, merkleDist
+  let OldMerkleDist, oldMerkleDist
   let owner, rewardsHolder
 
   before(async function () {
@@ -39,16 +36,24 @@ describe("Merkle Distribution", function () {
     rewardsHolder = _rewardsHolder
 
     Token = await ethers.getContractFactory("TokenMock")
-    token = await Token.deploy()
-    await token.mint(rewardsHolder.address, 1)
-
     ApplicationMock = await ethers.getContractFactory("ApplicationMock")
-    application = await ApplicationMock.deploy(token.address)
-
     MerkleDist = await ethers.getContractFactory("MerkleDistributor")
     OldMerkleDist = await ethers.getContractFactory("OldMerkleDistributor")
+  })
+
+  beforeEach(async function () {
+    token = await Token.deploy()
+    await token.mint(rewardsHolder.address, 1)
+    application = await ApplicationMock.deploy(token.address)
     oldMerkleDist = await OldMerkleDist.deploy(
       token.address,
+      rewardsHolder.address,
+      owner.address
+    )
+    merkleDist = await MerkleDist.deploy(
+      token.address,
+      application.address,
+      oldMerkleDist.address,
       rewardsHolder.address,
       owner.address
     )
@@ -119,27 +124,19 @@ describe("Merkle Distribution", function () {
         )
       ).to.be.revertedWith("Application must be an address")
     })
+
+    // TODO: should not be possible to deploy with no old Merkle Distributor
+
+    // TODO: should not be possible to deploy with incompatible old Merkle Distributor
   })
 
   describe("when set Merkle Root for first time", async function () {
-    let merkleDist
-
-    beforeEach(async function () {
-      merkleDist = await MerkleDist.deploy(
-        token.address,
-        application.address,
-        oldMerkleDist.address,
-        rewardsHolder.address,
-        owner.address
-      )
-    })
-
     it("should be 0 before setting it up", async function () {
       const contractMerkleRoot = await merkleDist.merkleRoot()
       expect(parseInt(contractMerkleRoot, 16)).to.equal(0)
     })
 
-    it("should be possible to be set a new one", async function () {
+    it("should be possible to be set a new Merkle Root", async function () {
       await fc.assert(
         fc.asyncProperty(
           fc.hexaString({ minLength: 64, maxLength: 64 }),
@@ -159,7 +156,7 @@ describe("Merkle Distribution", function () {
         "0xb2c0cd477fff5f352df19233236e02bac0c4170a783f11cd39589413132914cc"
       const tx = merkleDist.setMerkleRoot(nextMerkleRoot)
       await expect(tx)
-        .to.emit(merkleDist, "MerkelRootUpdated")
+        .to.emit(merkleDist, "MerkleRootUpdated")
         .withArgs(prevMerkleRoot, nextMerkleRoot)
     })
 
@@ -173,8 +170,7 @@ describe("Merkle Distribution", function () {
     })
   })
 
-  describe.skip("when batch claim tokens", async function () {
-    let merkleDist
+  describe("when calling batchClaimWithoutApps", async function () {
     let merkleRoot
     let totalAmount
     let proofAccounts
@@ -190,17 +186,10 @@ describe("Merkle Distribution", function () {
 
     beforeEach(async function () {
       await token.mint(rewardsHolder.address, totalAmount)
-      merkleDist = await MerkleDist.deploy(
-        token.address,
-        application.address,
-        oldMerkleDist.address,
-        rewardsHolder.address,
-        owner.address
-      )
-      await merkleDist.connect(owner).setMerkleRoot(merkleRoot)
       await token
         .connect(rewardsHolder)
         .approve(merkleDist.address, totalAmount)
+      await merkleDist.connect(owner).setMerkleRoot(merkleRoot)
     })
 
     it("should accounts get tokens", async function () {
@@ -234,10 +223,7 @@ describe("Merkle Distribution", function () {
                 async (beneficiary) => await token.balanceOf(beneficiary)
               )
             )
-            console.log("============= Before")
-            console.log(await token.balanceOf(rewardsHolder.address))
-            await merkleDist.batchClaim(merkleRoot, claimStructs)
-            console.log("============= After")
+            await merkleDist.batchClaimWithoutApps(merkleRoot, claimStructs)
 
             const afterBalancesHex = await Promise.all(
               claimBeneficiaries.map(
@@ -266,8 +252,7 @@ describe("Merkle Distribution", function () {
     })
   })
 
-  describe("when claiming tokens without app", async function () {
-    let merkleDist
+  describe("when calling claimWithoutApp", async function () {
     let merkleRoot
     let totalAmount
     let proofAccounts
@@ -284,17 +269,10 @@ describe("Merkle Distribution", function () {
 
     beforeEach(async function () {
       await token.mint(rewardsHolder.address, totalAmount)
-      merkleDist = await MerkleDist.deploy(
-        token.address,
-        application.address,
-        oldMerkleDist.address,
-        rewardsHolder.address,
-        owner.address
-      )
-      await merkleDist.setMerkleRoot(merkleRoot)
       await token
         .connect(rewardsHolder)
         .approve(merkleDist.address, totalAmount)
+      await merkleDist.setMerkleRoot(merkleRoot)
     })
 
     it("should be emitted an event", async function () {
@@ -454,14 +432,12 @@ describe("Merkle Distribution", function () {
     })
   })
 
+  // TODO: describe when calling claim (including apps)
+
   describe("when set a new Merkle Distribution (cumulative)", async function () {
-    let merkleDist
-    let merkleRoot
-    let cumulativeMerkleRoot
-    let totalAmount
-    let cumulativetotalAmount
-    let proofAccounts
-    let cumulativeProofAccounts
+    let merkleRoot, cumulativeMerkleRoot
+    let totalAmount, cumulativeTotalAmount
+    let proofAccounts, cumulativeProofAccounts
 
     before(function () {
       // numRuns must be less or equal to the number of accounts in `cum_dist`
@@ -471,24 +447,17 @@ describe("Merkle Distribution", function () {
       merkleRoot = dist.merkleRoot
       cumulativeMerkleRoot = cumDist.merkleRoot
       totalAmount = ethers.BigNumber.from(dist.totalAmount)
-      cumulativetotalAmount = ethers.BigNumber.from(cumDist.totalAmount)
+      cumulativeTotalAmount = ethers.BigNumber.from(cumDist.totalAmount)
       proofAccounts = Object.keys(dist.claims)
       cumulativeProofAccounts = Object.keys(cumDist.claims)
     })
 
     beforeEach(async function () {
       await token.mint(rewardsHolder.address, totalAmount)
-      merkleDist = await MerkleDist.deploy(
-        token.address,
-        application.address,
-        oldMerkleDist.address,
-        rewardsHolder.address,
-        owner.address
-      )
-      await merkleDist.setMerkleRoot(merkleRoot)
       await token
         .connect(rewardsHolder)
         .approve(merkleDist.address, totalAmount)
+      await merkleDist.setMerkleRoot(merkleRoot)
     })
 
     it("should be possible to set a new Merkle Root after claiming (without apps)", async function () {
@@ -575,12 +544,11 @@ describe("Merkle Distribution", function () {
       })
 
       it("should be possible to claim (without apps) new distribution tokens", async function () {
-        const [, rewardsHolder] = await ethers.getSigners()
-        await token.mint(rewardsHolder.address, cumulativetotalAmount)
+        await token.mint(rewardsHolder.address, cumulativeTotalAmount)
         await merkleDist.setMerkleRoot(cumulativeMerkleRoot)
         await token
           .connect(rewardsHolder)
-          .approve(merkleDist.address, cumulativetotalAmount)
+          .approve(merkleDist.address, cumulativeTotalAmount)
 
         await fc.assert(
           fc.asyncProperty(
@@ -593,7 +561,7 @@ describe("Merkle Distribution", function () {
               const claimProof = cumDist.claims[claimAccount].proof
               const claimBeneficiary = cumDist.claims[claimAccount].beneficiary
 
-              // add up all rewards from previous distribution
+              // add up all rewards sent to this beneificiary on previous distribution
               let prevReward = {}
               proofAccounts.forEach((account) => {
                 if (dist.claims[account].beneficiary === claimBeneficiary) {
@@ -624,7 +592,6 @@ describe("Merkle Distribution", function () {
   })
 
   describe("when verify Merkle Proof", async function () {
-    let merkleDist
     let merkleRoot
     let proofAccounts
 
@@ -634,14 +601,9 @@ describe("Merkle Distribution", function () {
       fc.configureGlobal({ numRuns: numRuns, skipEqualValues: true })
       merkleRoot = dist.merkleRoot
       proofAccounts = Object.keys(dist.claims)
+    })
 
-      merkleDist = await MerkleDist.deploy(
-        token.address,
-        application.address,
-        oldMerkleDist.address,
-        rewardsHolder.address,
-        owner.address
-      )
+    beforeEach(async function () {
       await merkleDist.setMerkleRoot(merkleRoot)
     })
 
