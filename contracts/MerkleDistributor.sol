@@ -85,6 +85,8 @@ contract MerkleDistributor is Ownable, IMerkleDistributor {
         }
     }
 
+    // Claim the rewards that come from the distributions generated periodically
+    // by the Merkle distribution script
     function claimWithoutApps(
         address stakingProvider,
         address beneficiary,
@@ -119,6 +121,9 @@ contract MerkleDistributor is Ownable, IMerkleDistributor {
         }
     }
 
+    // Claim the rewards that come from both the distributions generated
+    // periodically by the Merkle distribution script and also those generated
+    // by the Threshold application
     function claim(
         address stakingProvider,
         address beneficiary,
