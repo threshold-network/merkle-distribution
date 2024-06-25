@@ -7,6 +7,7 @@ const keccak256 = require("keccak256")
 
 const { dist } = require("./constants")
 const { cumDist } = require("./constants")
+const { loadFixture } = require("@nomicfoundation/hardhat-network-helpers")
 
 function genMerkleLeaf(account, beneficiary, amount) {
   const amountHex = ethers.BigNumber.from(amount).toHexString()
@@ -20,47 +21,63 @@ function onlyUnique(value, index, self) {
 }
 
 describe("Merkle Distribution", function () {
-  let Token, token
-  let ApplicationMock, application
-  let MerkleDist, merkleDist
-  let OldMerkleDist, oldMerkleDist
-  let owner, rewardsHolder
+  async function deployContractsFixture() {
+    const [owner, rewardsHolder] = await ethers.getSigners()
 
-  before(async function () {
-    // numRuns must be less or equal to the number of accounts in `dist`
-    const numRuns = Object.keys(dist.claims).length
-    fc.configureGlobal({ numRuns: numRuns, skipEqualValues: true })
+    const Token = await ethers.getContractFactory("TokenMock")
+    const ApplicationMock = await ethers.getContractFactory("ApplicationMock")
+    const MerkleDist = await ethers.getContractFactory("MerkleDistributor")
+    const OldMerkleDist = await ethers.getContractFactory(
+      "OldMerkleDistributor"
+    )
 
-    const [_owner, _rewardsHolder] = await ethers.getSigners()
-    owner = _owner
-    rewardsHolder = _rewardsHolder
-
-    Token = await ethers.getContractFactory("TokenMock")
-    ApplicationMock = await ethers.getContractFactory("ApplicationMock")
-    MerkleDist = await ethers.getContractFactory("MerkleDistributor")
-    OldMerkleDist = await ethers.getContractFactory("OldMerkleDistributor")
-  })
-
-  beforeEach(async function () {
-    token = await Token.deploy()
+    const token = await Token.deploy()
     await token.mint(rewardsHolder.address, 1)
-    application = await ApplicationMock.deploy(token.address)
-    oldMerkleDist = await OldMerkleDist.deploy(
+    const application = await ApplicationMock.deploy(token.address)
+    const oldMerkleDist = await OldMerkleDist.deploy(
       token.address,
       rewardsHolder.address,
       owner.address
     )
-    merkleDist = await MerkleDist.deploy(
+    const merkleDist = await MerkleDist.deploy(
       token.address,
       application.address,
       oldMerkleDist.address,
       rewardsHolder.address,
       owner.address
     )
+
+    return {
+      owner,
+      rewardsHolder,
+      Token,
+      ApplicationMock,
+      MerkleDist,
+      OldMerkleDist,
+      token,
+      application,
+      oldMerkleDist,
+      merkleDist,
+    }
+  }
+
+  before(async function () {
+    // numRuns must be less or equal to the number of accounts in `dist`
+    const numRuns = Object.keys(dist.claims).length
+    fc.configureGlobal({ numRuns: numRuns, skipEqualValues: true })
   })
 
   describe("when deploy MerkleDistributor", async function () {
     it("should be deployed", async function () {
+      const {
+        MerkleDist,
+        token,
+        application,
+        oldMerkleDist,
+        rewardsHolder,
+        owner,
+      } = await loadFixture(deployContractsFixture)
+
       const merkleDist = await MerkleDist.deploy(
         token.address,
         application.address,
@@ -68,6 +85,7 @@ describe("Merkle Distribution", function () {
         rewardsHolder.address,
         owner.address
       )
+
       expect(await merkleDist.token()).to.equal(token.address)
       expect(await merkleDist.rewardsHolder()).to.equal(rewardsHolder.address)
       expect(await merkleDist.application()).to.equal(application.address)
@@ -75,11 +93,15 @@ describe("Merkle Distribution", function () {
     })
 
     it("should not be possible to deploy with no token address", async function () {
+      const { MerkleDist, oldMerkleDist, application, rewardsHolder, owner } =
+        await loadFixture(deployContractsFixture)
+
       const tokenAddress = ethers.constants.AddressZero
       await expect(
         MerkleDist.deploy(
           tokenAddress,
           application.address,
+          oldMerkleDist.address,
           rewardsHolder.address,
           owner.address
         )
@@ -87,6 +109,15 @@ describe("Merkle Distribution", function () {
     })
 
     it("should not be possible to deploy with no minted tokens", async function () {
+      const {
+        Token,
+        MerkleDist,
+        application,
+        oldMerkleDist,
+        rewardsHolder,
+        owner,
+      } = await loadFixture(deployContractsFixture)
+
       const tokenWithNoMint = await Token.deploy()
       await expect(
         MerkleDist.deploy(
@@ -100,6 +131,9 @@ describe("Merkle Distribution", function () {
     })
 
     it("should not be possible to deploy with no rewards holder", async function () {
+      const { MerkleDist, token, application, oldMerkleDist, owner } =
+        await loadFixture(deployContractsFixture)
+
       const rewardsHolder = ethers.constants.AddressZero
       await expect(
         MerkleDist.deploy(
@@ -113,6 +147,9 @@ describe("Merkle Distribution", function () {
     })
 
     it("should not be possible to deploy with no application", async function () {
+      const { MerkleDist, token, oldMerkleDist, rewardsHolder, owner } =
+        await loadFixture(deployContractsFixture)
+
       const applicationAddress = ethers.constants.AddressZero
       await expect(
         MerkleDist.deploy(
@@ -126,6 +163,9 @@ describe("Merkle Distribution", function () {
     })
 
     it("should not be possible to deploy with no old Merkle Distributor", async function () {
+      const { MerkleDist, token, application, rewardsHolder, owner } =
+        await loadFixture(deployContractsFixture)
+
       const fakeOldMerkleDistAddr = ethers.constants.AddressZero
       await expect(
         MerkleDist.deploy(
@@ -139,6 +179,16 @@ describe("Merkle Distribution", function () {
     })
 
     it("should not be possible to deploy with incompatible old Merkle Distributor", async function () {
+      const {
+        Token,
+        rewardsHolder,
+        OldMerkleDist,
+        owner,
+        MerkleDist,
+        token,
+        application,
+      } = await loadFixture(deployContractsFixture)
+
       const fakeToken = await Token.deploy()
       await fakeToken.mint(rewardsHolder.address, 1)
       const fakeOldMerkleDist = await OldMerkleDist.deploy(
@@ -156,16 +206,17 @@ describe("Merkle Distribution", function () {
         )
       ).to.be.revertedWith("Incompatible old MerkleDistributor")
     })
-
   })
 
   describe("when set Merkle Root for first time", async function () {
     it("should be 0 before setting it up", async function () {
+      const { merkleDist } = await loadFixture(deployContractsFixture)
       const contractMerkleRoot = await merkleDist.merkleRoot()
       expect(parseInt(contractMerkleRoot, 16)).to.equal(0)
     })
 
     it("should be possible to be set a new Merkle Root", async function () {
+      const { merkleDist } = await loadFixture(deployContractsFixture)
       await fc.assert(
         fc.asyncProperty(
           fc.hexaString({ minLength: 64, maxLength: 64 }),
@@ -180,6 +231,7 @@ describe("Merkle Distribution", function () {
     })
 
     it("should be emitted an event", async function () {
+      const { merkleDist } = await loadFixture(deployContractsFixture)
       const prevMerkleRoot = await merkleDist.merkleRoot()
       const nextMerkleRoot =
         "0xb2c0cd477fff5f352df19233236e02bac0c4170a783f11cd39589413132914cc"
@@ -190,6 +242,7 @@ describe("Merkle Distribution", function () {
     })
 
     it("only contract's owner should can change Merkle Root", async function () {
+      const { merkleDist } = await loadFixture(deployContractsFixture)
       const [, addr1] = await ethers.getSigners()
       const merkleRoot =
         "0xb2c0cd477fff5f352df19233236e02bac0c4170a783f11cd39589413132914cc"
@@ -200,28 +253,26 @@ describe("Merkle Distribution", function () {
   })
 
   describe("when calling batchClaimWithoutApps", async function () {
-    let merkleRoot
-    let totalAmount
-    let proofAccounts
-
     before(function () {
       // numRuns must be less or equal to the number of accounts in `cum_dist`
       const numRuns = 2
       fc.configureGlobal({ numRuns: numRuns, skipEqualValues: true })
-      merkleRoot = dist.merkleRoot
-      totalAmount = ethers.BigNumber.from(dist.totalAmount)
-      proofAccounts = Object.keys(dist.claims)
     })
 
-    beforeEach(async function () {
+    it("should accounts get tokens", async function () {
+      const { token, rewardsHolder, merkleDist, owner } = await loadFixture(
+        deployContractsFixture
+      )
+      const merkleRoot = dist.merkleRoot
+      const totalAmount = ethers.BigNumber.from(dist.totalAmount)
+      const proofAccounts = Object.keys(dist.claims)
+
       await token.mint(rewardsHolder.address, totalAmount)
       await token
         .connect(rewardsHolder)
         .approve(merkleDist.address, totalAmount)
       await merkleDist.connect(owner).setMerkleRoot(merkleRoot)
-    })
 
-    it("should accounts get tokens", async function () {
       await fc.assert(
         fc.asyncProperty(
           fc.integer({ min: 0, max: 1 }),
@@ -281,32 +332,30 @@ describe("Merkle Distribution", function () {
     })
   })
 
-  // TODO: describe when callying batch claim (including apps)
+  // TODO: describe when calling batch claim (including apps)
 
   describe("when calling claimWithoutApp", async function () {
-    let merkleRoot
-    let totalAmount
-    let proofAccounts
-
     before(function () {
       // numRuns must be less or equal to the number of accounts in `cum_dist`
       const numRuns = Object.keys(dist.claims).length
       fc.configureGlobal({ numRuns: numRuns, skipEqualValues: true })
-
-      merkleRoot = dist.merkleRoot
-      totalAmount = ethers.BigNumber.from(dist.totalAmount)
-      proofAccounts = Object.keys(dist.claims)
     })
 
-    beforeEach(async function () {
+    it("should be emitted an event", async function () {
+      const { token, rewardsHolder, merkleDist } = await loadFixture(
+        deployContractsFixture
+      )
+
+      const merkleRoot = dist.merkleRoot
+      const totalAmount = ethers.BigNumber.from(dist.totalAmount)
+      const proofAccounts = Object.keys(dist.claims)
+
       await token.mint(rewardsHolder.address, totalAmount)
       await token
         .connect(rewardsHolder)
         .approve(merkleDist.address, totalAmount)
       await merkleDist.setMerkleRoot(merkleRoot)
-    })
 
-    it("should be emitted an event", async function () {
       await fc.assert(
         fc.asyncProperty(
           fc.integer({ min: 0, max: proofAccounts.length - 1 }),
@@ -331,7 +380,22 @@ describe("Merkle Distribution", function () {
         )
       )
     })
+
     it("should accounts get tokens", async function () {
+      const { token, rewardsHolder, merkleDist } = await loadFixture(
+        deployContractsFixture
+      )
+
+      const merkleRoot = dist.merkleRoot
+      const totalAmount = ethers.BigNumber.from(dist.totalAmount)
+      const proofAccounts = Object.keys(dist.claims)
+
+      await token.mint(rewardsHolder.address, totalAmount)
+      await token
+        .connect(rewardsHolder)
+        .approve(merkleDist.address, totalAmount)
+      await merkleDist.setMerkleRoot(merkleRoot)
+
       await fc.assert(
         fc.asyncProperty(
           fc.integer({ min: 0, max: proofAccounts.length - 1 }),
@@ -360,6 +424,20 @@ describe("Merkle Distribution", function () {
     })
 
     it("should rewards holder to reduce its balance", async function () {
+      const { rewardsHolder, merkleDist, token } = await loadFixture(
+        deployContractsFixture
+      )
+
+      const merkleRoot = dist.merkleRoot
+      const totalAmount = ethers.BigNumber.from(dist.totalAmount)
+      const proofAccounts = Object.keys(dist.claims)
+
+      await token.mint(rewardsHolder.address, totalAmount)
+      await token
+        .connect(rewardsHolder)
+        .approve(merkleDist.address, totalAmount)
+      await merkleDist.setMerkleRoot(merkleRoot)
+
       await fc.assert(
         fc.asyncProperty(
           fc.integer({ min: 0, max: proofAccounts.length - 1 }),
@@ -389,6 +467,19 @@ describe("Merkle Distribution", function () {
     })
 
     it("should not be possible to claim for fake accounts", async function () {
+      const { rewardsHolder, merkleDist, token } = await loadFixture(
+        deployContractsFixture
+      )
+
+      const merkleRoot = dist.merkleRoot
+      const totalAmount = ethers.BigNumber.from(dist.totalAmount)
+
+      await token.mint(rewardsHolder.address, totalAmount)
+      await token
+        .connect(rewardsHolder)
+        .approve(merkleDist.address, totalAmount)
+      await merkleDist.setMerkleRoot(merkleRoot)
+
       const claimAccount = ethers.Wallet.createRandom().address
       const claimAmount = 100000
       const claimProof = [
@@ -408,6 +499,20 @@ describe("Merkle Distribution", function () {
     })
 
     it("should not be possible to claim a different amount of tokens", async function () {
+      const { rewardsHolder, merkleDist, token } = await loadFixture(
+        deployContractsFixture
+      )
+
+      const merkleRoot = dist.merkleRoot
+      const totalAmount = ethers.BigNumber.from(dist.totalAmount)
+      const proofAccounts = Object.keys(dist.claims)
+
+      await token.mint(rewardsHolder.address, totalAmount)
+      await token
+        .connect(rewardsHolder)
+        .approve(merkleDist.address, totalAmount)
+      await merkleDist.setMerkleRoot(merkleRoot)
+
       await fc.assert(
         fc.asyncProperty(
           fc.integer({ min: 0, max: proofAccounts.length - 1 }),
@@ -431,6 +536,20 @@ describe("Merkle Distribution", function () {
     })
 
     it("should not be possible to claim twice", async function () {
+      const { rewardsHolder, merkleDist, token } = await loadFixture(
+        deployContractsFixture
+      )
+
+      const merkleRoot = dist.merkleRoot
+      const totalAmount = ethers.BigNumber.from(dist.totalAmount)
+      const proofAccounts = Object.keys(dist.claims)
+
+      await token.mint(rewardsHolder.address, totalAmount)
+      await token
+        .connect(rewardsHolder)
+        .approve(merkleDist.address, totalAmount)
+      await merkleDist.setMerkleRoot(merkleRoot)
+
       await fc.assert(
         fc.asyncProperty(
           fc.integer({ min: 0, max: proofAccounts.length - 1 }),
@@ -463,35 +582,36 @@ describe("Merkle Distribution", function () {
     })
   })
 
-  // TODO: describe when calling claim (including apps)
+  describe("when calling claim", async function () {
+    beforeEach(async function () {})
+
+    // For simplicity reasons, the application mock used on these tests will
+    // consider that the staking provider addr is the beneficiary of the claim
+  })
 
   describe("when set a new Merkle Distribution (cumulative)", async function () {
-    let merkleRoot, cumulativeMerkleRoot
-    let totalAmount, cumulativeTotalAmount
-    let proofAccounts, cumulativeProofAccounts
-
     before(function () {
       // numRuns must be less or equal to the number of accounts in `cum_dist`
       const numRuns = Object.keys(cumDist.claims).length
       fc.configureGlobal({ numRuns: numRuns, skipEqualValues: true })
-
-      merkleRoot = dist.merkleRoot
-      cumulativeMerkleRoot = cumDist.merkleRoot
-      totalAmount = ethers.BigNumber.from(dist.totalAmount)
-      cumulativeTotalAmount = ethers.BigNumber.from(cumDist.totalAmount)
-      proofAccounts = Object.keys(dist.claims)
-      cumulativeProofAccounts = Object.keys(cumDist.claims)
     })
 
-    beforeEach(async function () {
+    it("should be possible to set a new Merkle Root after claiming (without apps)", async function () {
+      const { token, rewardsHolder, merkleDist } = await loadFixture(
+        deployContractsFixture
+      )
+
+      const merkleRoot = dist.merkleRoot
+      const cumulativeMerkleRoot = cumDist.merkleRoot
+      const totalAmount = ethers.BigNumber.from(dist.totalAmount)
+      const proofAccounts = Object.keys(dist.claims)
+
       await token.mint(rewardsHolder.address, totalAmount)
       await token
         .connect(rewardsHolder)
         .approve(merkleDist.address, totalAmount)
       await merkleDist.setMerkleRoot(merkleRoot)
-    })
 
-    it("should be possible to set a new Merkle Root after claiming (without apps)", async function () {
       const claimAccount = proofAccounts[0]
       const claimAmount = ethers.BigNumber.from(
         dist.claims[claimAccount].amount
@@ -514,6 +634,12 @@ describe("Merkle Distribution", function () {
     // TODO: new test should be possible to set a new Merkle Root after claiming (WITH apps)
 
     it("should not be possible to claim using old Merkle Root", async function () {
+      const { merkleDist } = await loadFixture(deployContractsFixture)
+
+      const merkleRoot = dist.merkleRoot
+      const cumulativeMerkleRoot = cumDist.merkleRoot
+      const proofAccounts = Object.keys(dist.claims)
+
       const claimAccount = proofAccounts[0]
       const claimAmount = ethers.BigNumber.from(
         dist.claims[claimAccount].amount
@@ -536,7 +662,15 @@ describe("Merkle Distribution", function () {
     // TODO: new test should not be possible to claim (with apps) using old Merkle Root
 
     describe("after claiming (without apps) all tokens of the previous distribution", async function () {
-      beforeEach(async function () {
+      async function claimAllTokens(token, merkleDist, rewardsHolder) {
+        const proofAccounts = Object.keys(dist.claims)
+
+        await token.mint(rewardsHolder.address, dist.totalAmount)
+        await token
+          .connect(rewardsHolder)
+          .approve(merkleDist.address, dist.totalAmount)
+        await merkleDist.setMerkleRoot(dist.merkleRoot)
+
         for (let claimAccount of proofAccounts) {
           const claimAmount = ethers.BigNumber.from(
             dist.claims[claimAccount].amount
@@ -547,15 +681,22 @@ describe("Merkle Distribution", function () {
             claimAccount,
             claimBeneficiary,
             claimAmount,
-            merkleRoot,
+            dist.merkleRoot,
             claimProof
           )
         }
-      })
+      }
 
       it("should not be possible to claim (without apps) without enough balance in contract", async function () {
-        await merkleDist.setMerkleRoot(cumulativeMerkleRoot)
+        const { merkleDist, token, rewardsHolder } = await loadFixture(
+          deployContractsFixture
+        )
 
+        await claimAllTokens(token, merkleDist, rewardsHolder)
+
+        const cumulativeProofAccounts = Object.keys(cumDist.claims)
+
+        await merkleDist.setMerkleRoot(cumDist.merkleRoot)
         const claimAccount = cumulativeProofAccounts[0]
         const claimAmount = ethers.BigNumber.from(
           cumDist.claims[claimAccount].amount
@@ -568,15 +709,25 @@ describe("Merkle Distribution", function () {
             claimAccount,
             claimBeneficiary,
             claimAmount,
-            cumulativeMerkleRoot,
+            cumDist.merkleRoot,
             claimProof
           )
         ).to.be.revertedWith("Transfer amount exceeds allowance")
       })
 
       it("should be possible to claim (without apps) new distribution tokens", async function () {
+        const { merkleDist, token, rewardsHolder } = await loadFixture(
+          deployContractsFixture
+        )
+
+        await claimAllTokens(token, merkleDist, rewardsHolder)
+
+        const cumulativeTotalAmount = ethers.BigNumber.from(cumDist.totalAmount)
+        const proofAccounts = Object.keys(dist.claims)
+        const cumulativeProofAccounts = Object.keys(cumDist.claims)
+
         await token.mint(rewardsHolder.address, cumulativeTotalAmount)
-        await merkleDist.setMerkleRoot(cumulativeMerkleRoot)
+        await merkleDist.setMerkleRoot(cumDist.merkleRoot)
         await token
           .connect(rewardsHolder)
           .approve(merkleDist.address, cumulativeTotalAmount)
@@ -610,7 +761,7 @@ describe("Merkle Distribution", function () {
                 claimAccount,
                 claimBeneficiary,
                 claimAmount,
-                cumulativeMerkleRoot,
+                cumDist.merkleRoot,
                 claimProof
               )
               const balance = await token.balanceOf(claimBeneficiary)
@@ -623,22 +774,18 @@ describe("Merkle Distribution", function () {
   })
 
   describe("when verify Merkle Proof", async function () {
-    let merkleRoot
-    let proofAccounts
-
     before(async function () {
       // numRuns must be less or equal to the number of accounts in `cum_dist`
       const numRuns = Object.keys(dist.claims).length
       fc.configureGlobal({ numRuns: numRuns, skipEqualValues: true })
-      merkleRoot = dist.merkleRoot
-      proofAccounts = Object.keys(dist.claims)
-    })
-
-    beforeEach(async function () {
-      await merkleDist.setMerkleRoot(merkleRoot)
     })
 
     it("should not be verified if no Merkle Proof", async function () {
+      const { merkleDist } = await loadFixture(deployContractsFixture)
+      const proofAccounts = Object.keys(dist.claims)
+
+      await merkleDist.setMerkleRoot(dist.merkleRoot)
+
       await fc.assert(
         fc.asyncProperty(
           fc.integer({ min: 0, max: proofAccounts.length - 1 }),
@@ -648,7 +795,7 @@ describe("Merkle Distribution", function () {
             const beneficiary = dist.claims[account].beneficiary
             const leaf = genMerkleLeaf(account, beneficiary, amount)
             const claimProof = []
-            const verif = await merkleDist.verify(claimProof, merkleRoot, leaf)
+            const verif = await merkleDist.verify(claimProof, dist.merkleRoot, leaf)
             expect(verif).to.be.false
           }
         )
@@ -656,6 +803,9 @@ describe("Merkle Distribution", function () {
     })
 
     it("should not be verified with incorrect Merkle Proof", async function () {
+      const { merkleDist } = await loadFixture(deployContractsFixture)
+      const proofAccounts = Object.keys(dist.claims)
+
       await fc.assert(
         fc.asyncProperty(
           fc.integer({ min: 0, max: proofAccounts.length - 1 }),
@@ -668,7 +818,7 @@ describe("Merkle Distribution", function () {
               MerkleTree.bufferToHex(keccak256("proof1")),
               MerkleTree.bufferToHex(keccak256("proof2")),
             ]
-            const verif = await merkleDist.verify(claimProof, merkleRoot, leaf)
+            const verif = await merkleDist.verify(claimProof, dist.merkleRoot, leaf)
             expect(verif).to.be.false
           }
         )
@@ -676,6 +826,9 @@ describe("Merkle Distribution", function () {
     })
 
     it("should a correct MerkleProof be verified", async function () {
+      const { merkleDist } = await loadFixture(deployContractsFixture)
+      const proofAccounts = Object.keys(dist.claims)
+
       await fc.assert(
         fc.asyncProperty(
           fc.integer({ min: 0, max: proofAccounts.length - 1 }),
@@ -685,7 +838,7 @@ describe("Merkle Distribution", function () {
             const beneficiary = dist.claims[account].beneficiary
             const leaf = genMerkleLeaf(account, beneficiary, amount)
             const claimProof = dist.claims[account].proof
-            const verif = await merkleDist.verify(claimProof, merkleRoot, leaf)
+            const verif = await merkleDist.verify(claimProof, dist.merkleRoot, leaf)
             expect(verif).to.be.true
           }
         )
@@ -693,6 +846,9 @@ describe("Merkle Distribution", function () {
     })
 
     it("should not be verified a Merkle Proof with incorrect root", async function () {
+      const { merkleDist } = await loadFixture(deployContractsFixture)
+      const proofAccounts = Object.keys(dist.claims)
+
       await fc.assert(
         fc.asyncProperty(
           fc.integer({ min: 0, max: proofAccounts.length - 1 }),
@@ -712,6 +868,9 @@ describe("Merkle Distribution", function () {
     })
 
     it("should not be verified a Merkle Proof with incorrect amount", async function () {
+      const { merkleDist } = await loadFixture(deployContractsFixture)
+      const proofAccounts = Object.keys(dist.claims)
+
       await fc.assert(
         fc.asyncProperty(
           fc.integer({ min: 0, max: proofAccounts.length - 1 }),
@@ -721,7 +880,7 @@ describe("Merkle Distribution", function () {
             const beneficiary = dist.claims[account].beneficiary
             const leaf = genMerkleLeaf(account, beneficiary, amount)
             const claimProof = dist.claims[account].proof
-            const verif = await merkleDist.verify(claimProof, merkleRoot, leaf)
+            const verif = await merkleDist.verify(claimProof, dist.merkleRoot, leaf)
             expect(verif).to.be.false
           }
         )
@@ -729,6 +888,9 @@ describe("Merkle Distribution", function () {
     })
 
     it("should not be verified a Merkle Proof with incorrect account", async function () {
+      const { merkleDist } = await loadFixture(deployContractsFixture)
+      const proofAccounts = Object.keys(dist.claims)
+
       await fc.assert(
         fc.asyncProperty(
           fc.integer({ min: 0, max: proofAccounts.length - 1 }),
@@ -739,7 +901,7 @@ describe("Merkle Distribution", function () {
             const beneficiary = dist.claims[account].beneficiary
             const leaf = genMerkleLeaf(fakeAccount, beneficiary, amount)
             const claimProof = dist.claims[account].proof
-            const verif = await merkleDist.verify(claimProof, merkleRoot, leaf)
+            const verif = await merkleDist.verify(claimProof, dist.merkleRoot, leaf)
             expect(verif).to.be.false
           }
         )
