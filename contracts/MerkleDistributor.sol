@@ -123,7 +123,7 @@ contract MerkleDistributor is Ownable, IMerkleDistributor {
 
     // Claim the rewards that come from both the distributions generated
     // periodically by the Merkle distribution script and also those generated
-    // by the Threshold application
+    // by the Threshold applications
     function claim(
         address stakingProvider,
         address beneficiary,
