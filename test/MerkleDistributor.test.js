@@ -125,9 +125,38 @@ describe("Merkle Distribution", function () {
       ).to.be.revertedWith("Application must be an address")
     })
 
-    // TODO: should not be possible to deploy with no old Merkle Distributor
+    it("should not be possible to deploy with no old Merkle Distributor", async function () {
+      const fakeOldMerkleDistAddr = ethers.constants.AddressZero
+      await expect(
+        MerkleDist.deploy(
+          token.address,
+          application.address,
+          fakeOldMerkleDistAddr,
+          rewardsHolder.address,
+          owner.address
+        )
+      ).to.be.reverted
+    })
 
-    // TODO: should not be possible to deploy with incompatible old Merkle Distributor
+    it("should not be possible to deploy with incompatible old Merkle Distributor", async function () {
+      const fakeToken = await Token.deploy()
+      await fakeToken.mint(rewardsHolder.address, 1)
+      const fakeOldMerkleDist = await OldMerkleDist.deploy(
+        fakeToken.address,
+        rewardsHolder.address,
+        owner.address
+      )
+      await expect(
+        MerkleDist.deploy(
+          token.address,
+          application.address,
+          fakeOldMerkleDist.address,
+          rewardsHolder.address,
+          owner.address
+        )
+      ).to.be.revertedWith("Incompatible old MerkleDistributor")
+    })
+
   })
 
   describe("when set Merkle Root for first time", async function () {
@@ -251,6 +280,8 @@ describe("Merkle Distribution", function () {
       )
     })
   })
+
+  // TODO: describe when callying batch claim (including apps)
 
   describe("when calling claimWithoutApp", async function () {
     let merkleRoot
