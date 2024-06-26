@@ -7,16 +7,16 @@ import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@threshold-network/solidity-contracts/contracts/staking/IApplication.sol";
 
-import "./interfaces/IRewardsDistributor.sol";
+import "./interfaces/IRewardsAggregator.sol";
 
 /**
- * @title Rewards Distributor
- * @notice RewardsDistributor is the contract that is responsible for
+ * @title Rewards Aggregator
+ * @notice RewardsAggregator is the contract that is responsible for
  *         distributing the Threshold Network staking rewards. The rewards come
  *         from two different sources: the Merkle distributions and the
  *         application distributions.
  */
-contract RewardsDistributor is Ownable, IRewardsDistributor {
+contract RewardsAggregator is Ownable, IRewardsAggregator {
     using SafeERC20 for IERC20;
     using MerkleProof for bytes32[];
 
@@ -30,7 +30,7 @@ contract RewardsDistributor is Ownable, IRewardsDistributor {
     // For the moment, it will only be used for TACo app.
     IApplication public immutable application;
 
-    IRewardsDistributor public immutable oldRewardsDistributor;
+    IRewardsAggregator public immutable oldRewardsAggregator;
 
     struct Claim {
         address stakingProvider;
@@ -42,7 +42,7 @@ contract RewardsDistributor is Ownable, IRewardsDistributor {
     constructor(
         address token_,
         IApplication application_,
-        IRewardsDistributor _oldRewardsDistributor,
+        IRewardsAggregator _oldRewardsAggregator,
         address rewardsHolder_,
         address newOwner
     ) {
@@ -56,15 +56,15 @@ contract RewardsDistributor is Ownable, IRewardsDistributor {
             "Application must be an address"
         );
         require(
-            token_ == _oldRewardsDistributor.token(),
-            "Incompatible old RewardsDistributor"
+            token_ == _oldRewardsAggregator.token(),
+            "Incompatible old RewardsAggregator"
         );
 
         transferOwnership(newOwner);
         token = token_;
         application = application_;
         rewardsHolder = rewardsHolder_;
-        oldRewardsDistributor = _oldRewardsDistributor;
+        oldRewardsAggregator = _oldRewardsAggregator;
     }
 
     function setMerkleRoot(bytes32 merkleRoot_) external override onlyOwner {
@@ -93,7 +93,7 @@ contract RewardsDistributor is Ownable, IRewardsDistributor {
         if (newAmount > 0) {
             return newAmount;
         } else {
-            return oldRewardsDistributor.cumulativeClaimed(stakingProvider);
+            return oldRewardsAggregator.cumulativeClaimed(stakingProvider);
         }
     }
 

@@ -4,7 +4,7 @@ pragma solidity ^0.8.9;
 pragma abicoder v1;
 
 // Allows anyone to claim token rewards if they exist in a merkle root.
-interface IRewardsDistributor {
+interface IRewardsAggregator {
     // This event is triggered whenever a call to #setMerkleRoot succeeds.
     event MerkleRootUpdated(bytes32 oldMerkleRoot, bytes32 newMerkleRoot);
     // This event is triggered whenever a call to #claim succeeds.
