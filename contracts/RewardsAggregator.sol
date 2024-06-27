@@ -32,7 +32,7 @@ contract RewardsAggregator is Ownable, IRewardsAggregator {
 
     IRewardsAggregator public immutable oldRewardsAggregator;
 
-    struct Claim {
+    struct MerkleClaim {
         address stakingProvider;
         address beneficiary;
         uint256 amount;
@@ -177,7 +177,7 @@ contract RewardsAggregator is Ownable, IRewardsAggregator {
      */
     function batchClaimMerkle(
         bytes32 expectedMerkleRoot,
-        Claim[] calldata Claims
+        MerkleClaim[] calldata Claims
     ) external {
         for (uint i; i < Claims.length; i++) {
             claimMerkle(
@@ -205,7 +205,7 @@ contract RewardsAggregator is Ownable, IRewardsAggregator {
      */
     function batchClaim(
         bytes32 expectedMerkleRoot,
-        Claim[] calldata Claims
+        MerkleClaim[] calldata Claims
     ) external {
         for (uint i; i < Claims.length; i++) {
             claim(
