@@ -129,7 +129,7 @@ contract RewardsAggregator is Ownable, IRewardsAggregator {
         unchecked {
             uint256 amount = cumulativeAmount - preclaimed;
             IERC20(token).safeTransferFrom(rewardsHolder, beneficiary, amount);
-            emit Claimed(
+            emit MerkleClaimed(
                 stakingProvider,
                 amount,
                 beneficiary,

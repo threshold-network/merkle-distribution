@@ -8,7 +8,7 @@ interface IRewardsAggregator {
     // This event is triggered whenever a call to #setMerkleRoot succeeds.
     event MerkleRootUpdated(bytes32 oldMerkleRoot, bytes32 newMerkleRoot);
     // This event is triggered whenever a call to #claim succeeds.
-    event Claimed(address indexed stakingProvider, uint256 amount, address beneficiary, bytes32 merkleRoot);
+    event MerkleClaimed(address indexed stakingProvider, uint256 amount, address beneficiary, bytes32 merkleRoot);
     // This event is triggered whenever a call to #setRewardsHolder succeeds.
     event RewardsHolderUpdated(address oldRewardsHolder, address newRewardsHolder);
 
