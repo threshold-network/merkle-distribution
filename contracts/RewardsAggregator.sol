@@ -156,14 +156,20 @@ contract RewardsAggregator is Ownable, IRewardsAggregator {
         bytes32 expectedMerkleRoot,
         bytes32[] calldata merkleProof
     ) public {
-        claimMerkle(
-            stakingProvider,
-            beneficiary,
-            cumulativeAmount,
-            expectedMerkleRoot,
-            merkleProof
-        );
         claimApps(stakingProvider);
+        if (
+            cumulativeAmount != 0 &&
+            expectedMerkleRoot != bytes32(0) &&
+            merkleProof.length != 0
+        ) {
+            claimMerkle(
+                stakingProvider,
+                beneficiary,
+                cumulativeAmount,
+                expectedMerkleRoot,
+                merkleProof
+            );
+        }
     }
 
     /**
