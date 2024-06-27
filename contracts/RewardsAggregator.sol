@@ -86,14 +86,14 @@ contract RewardsAggregator is Ownable, IRewardsAggregator {
      *         claimed from the Merkle distribution. This does not include the
      *         claimed rewards that come from the applications.
      */
-    function cumulativeClaimed(
+    function cumulativeMerkleClaimed(
         address stakingProvider
     ) public view returns (uint256) {
         uint256 newAmount = newCumulativeClaimed[stakingProvider];
         if (newAmount > 0) {
             return newAmount;
         } else {
-            return oldRewardsAggregator.cumulativeClaimed(stakingProvider);
+            return oldRewardsAggregator.cumulativeMerkleClaimed(stakingProvider);
         }
     }
 
@@ -121,7 +121,7 @@ contract RewardsAggregator is Ownable, IRewardsAggregator {
 
         // Mark it claimed (potentially taking into consideration state in old
         // MerkleDistribution contract)
-        uint256 preclaimed = cumulativeClaimed(stakingProvider);
+        uint256 preclaimed = cumulativeMerkleClaimed(stakingProvider);
         require(preclaimed < cumulativeAmount, "Nothing to claim");
         newCumulativeClaimed[stakingProvider] = cumulativeAmount;
 
