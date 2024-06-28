@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-// TODO: update all these comments/descriptions
 // Allows to claim the staking rewards of the Threshold Network.
 interface IRewardsAggregator {
     // This event is triggered whenever a call to #setMerkleRoot succeeds.
