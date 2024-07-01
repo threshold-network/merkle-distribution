@@ -6,17 +6,21 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-import "./interfaces/ICumulativeMerkleDrop.sol";
-
-
-contract CumulativeMerkleDrop is Ownable, ICumulativeMerkleDrop {
+contract OldMerkleDistributor is Ownable {
     using SafeERC20 for IERC20;
     using MerkleProof for bytes32[];
 
-    address public immutable override token;
+    // This event is triggered whenever a call to #setMerkleRoot succeeds.
+    event MerkelRootUpdated(bytes32 oldMerkleRoot, bytes32 newMerkleRoot);
+    // This event is triggered whenever a call to #claim succeeds.
+    event Claimed(address indexed stakingProvider, uint256 amount, address beneficiary, bytes32 merkleRoot);
+    // This event is triggered whenever a call to #setRewardsHolder succeeds.
+    event RewardsHolderUpdated(address oldRewardsHolder, address newRewardsHolder);
+
+    address public immutable token;
     address public rewardsHolder;
 
-    bytes32 public override merkleRoot;
+    bytes32 public merkleRoot;
     mapping(address => uint256) public cumulativeClaimed;
     struct Claim {
         address stakingProvider;
@@ -33,7 +37,7 @@ contract CumulativeMerkleDrop is Ownable, ICumulativeMerkleDrop {
         rewardsHolder = rewardsHolder_;
     }
 
-    function setMerkleRoot(bytes32 merkleRoot_) external override onlyOwner {
+    function setMerkleRoot(bytes32 merkleRoot_) external onlyOwner {
         emit MerkelRootUpdated(merkleRoot, merkleRoot_);
         merkleRoot = merkleRoot_;
     }
@@ -50,7 +54,7 @@ contract CumulativeMerkleDrop is Ownable, ICumulativeMerkleDrop {
         uint256 cumulativeAmount,
         bytes32 expectedMerkleRoot,
         bytes32[] calldata merkleProof
-    ) public override {
+    ) public {
         require(merkleRoot == expectedMerkleRoot, "Merkle root was updated");
 
         // Verify the merkle proof
