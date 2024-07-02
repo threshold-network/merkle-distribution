@@ -156,6 +156,7 @@ contract RewardsAggregator is Ownable, IRewardsAggregator {
         bytes32 expectedMerkleRoot,
         bytes32[] calldata merkleProof
     ) public {
+        // TODO: add if to check if the staking provider has rewards by calling availableRewards()
         claimApps(stakingProvider);
         if (
             cumulativeAmount != 0 &&
