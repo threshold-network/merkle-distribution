@@ -20,6 +20,7 @@ function onlyUnique(value, index, self) {
   return self.indexOf(value) === index
 }
 
+// TODO: Change test name (and file name) to RewardsAggregator.test.js
 describe("Merkle Distribution", function () {
   async function deployContractsFixture() {
     const [owner, rewardsHolder] = await ethers.getSigners()
@@ -779,6 +780,8 @@ describe("Merkle Distribution", function () {
       const numRuns = Object.keys(dist.claims).length
       fc.configureGlobal({ numRuns: numRuns, skipEqualValues: true })
     })
+
+    // TODO: add tests that check the distributions using the past distributions
 
     it("should not be verified if no Merkle Proof", async function () {
       const { merkleDist } = await loadFixture(deployContractsFixture)
