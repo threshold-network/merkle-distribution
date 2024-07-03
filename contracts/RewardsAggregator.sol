@@ -24,7 +24,7 @@ contract RewardsAggregator is Ownable, IRewardsAggregator {
     address public rewardsHolder;
 
     bytes32 public override merkleRoot;
-    mapping(address => uint256) internal newCumulativeClaimed;
+    mapping(address => uint256) internal cumulativeClaimed;
 
     // TODO: Generalize to an array of IApplication in the future.
     // For the moment, it will only be used for TACo app.
@@ -90,7 +90,7 @@ contract RewardsAggregator is Ownable, IRewardsAggregator {
     function cumulativeMerkleClaimed(
         address stakingProvider
     ) public view returns (uint256) {
-        uint256 newAmount = newCumulativeClaimed[stakingProvider];
+        uint256 newAmount = cumulativeClaimed[stakingProvider];
         if (newAmount > 0) {
             return newAmount;
         } else {
@@ -125,7 +125,7 @@ contract RewardsAggregator is Ownable, IRewardsAggregator {
         // MerkleDistribution contract)
         uint256 preclaimed = cumulativeMerkleClaimed(stakingProvider);
         require(preclaimed < cumulativeAmount, "Nothing to claim");
-        newCumulativeClaimed[stakingProvider] = cumulativeAmount;
+        cumulativeClaimed[stakingProvider] = cumulativeAmount;
 
         // Send the tokens
         unchecked {
