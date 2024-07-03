@@ -116,7 +116,7 @@ calculating the appropriate rewards. These subgraphs are queried using
 supports auto-pagination, retry, fallback, etc.
 
 Modification or addition of new subgraphs must be done in `.graphclientrc.yml`. Also, new queries
-must be added to this file in addition to `src/script/graphql` folder.
+must be added to this file in addition to the `src/script/graphql` folder.
 
 Every time the subgraph queries are modified, these must be recompiled:
 
