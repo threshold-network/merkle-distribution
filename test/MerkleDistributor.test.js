@@ -782,6 +782,9 @@ describe("Merkle Distribution", function () {
     })
 
     // TODO: add tests that check the distributions using the past distributions
+    // (distributions folders in the root of the project). Check every merkle
+    // proof of every distribution to check that the new verify method in the
+    // contract works as expected.
 
     it("should not be verified if no Merkle Proof", async function () {
       const { merkleDist } = await loadFixture(deployContractsFixture)
