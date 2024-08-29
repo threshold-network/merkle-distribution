@@ -17,7 +17,7 @@ describe("Merkle Distribution", function () {
     fc.configureGlobal({ numRuns: numRuns, skipEqualValues: true })
   })
 
-  describe("when deploy RewardsAggregator", async function () {
+  describe("when deploying RewardsAggregator", async function () {
     it("should be deployed", async function () {
       const RewardsAggregator = await ethers.getContractFactory(
         "RewardsAggregator"

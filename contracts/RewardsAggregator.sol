@@ -75,7 +75,7 @@ contract RewardsAggregator is Ownable, IRewardsAggregator {
     function setRewardsHolder(address rewardsHolder_) external onlyOwner {
         require(
             rewardsHolder_ != address(0),
-            "Rewards holder must be an address"
+            "Rewards Holder must be an address"
         );
         emit RewardsHolderUpdated(rewardsHolder, rewardsHolder_);
         rewardsHolder = rewardsHolder_;
