@@ -256,6 +256,150 @@ describe("Merkle Distribution", function () {
     })
   })
 
+  describe("when verifying a Merkle Proof", async function () {
+    it("should be verified if Merkle proof is correct", async function () {
+      const { rewardsAggregator } = await loadFixture(deployContractsFixture)
+      const stakingProviders = Object.keys(dist.claims)
+
+      for (let stakingProvider of stakingProviders) {
+        const beneficiary = dist.claims[stakingProvider].beneficiary
+        const amount = dist.claims[stakingProvider].amount
+        const claimProof = dist.claims[stakingProvider].proof
+        const leaf = genMerkleLeaf(stakingProvider, beneficiary, amount)
+        const verif = await rewardsAggregator.verifyMerkleProof(
+          claimProof,
+          dist.merkleRoot,
+          leaf
+        )
+        expect(verif).to.be.true
+      }
+    })
+
+    it("should not be verified if no Merkle Proof", async function () {
+      const { rewardsAggregator } = await loadFixture(deployContractsFixture)
+      const stakingProviders = Object.keys(dist.claims)
+
+      for (let stakingProvider of stakingProviders) {
+        const beneficiary = dist.claims[stakingProvider].beneficiary
+        const amount = dist.claims[stakingProvider].amount
+        // No claim proof
+        const claimProof = []
+        const leaf = genMerkleLeaf(stakingProvider, beneficiary, amount)
+        const verif = await rewardsAggregator.verifyMerkleProof(
+          claimProof,
+          dist.merkleRoot,
+          leaf
+        )
+        expect(verif).to.be.false
+      }
+    })
+
+    it("should not be verified with incorrect Merkle Proof", async function () {
+      const { rewardsAggregator } = await loadFixture(deployContractsFixture)
+      const stakingProviders = Object.keys(dist.claims)
+
+      for (let stakingProvider of stakingProviders) {
+        const beneficiary = dist.claims[stakingProvider].beneficiary
+        const amount = dist.claims[stakingProvider].amount
+        // Fake claim proof
+        const claimProof = [
+          MerkleTree.bufferToHex(keccak256("proof1")),
+          MerkleTree.bufferToHex(keccak256("proof2")),
+        ]
+        const leaf = genMerkleLeaf(stakingProvider, beneficiary, amount)
+        const verif = await rewardsAggregator.verifyMerkleProof(
+          claimProof,
+          dist.merkleRoot,
+          leaf
+        )
+        expect(verif).to.be.false
+      }
+    })
+
+    it("should not be verified a Merkle Proof with incorrect root", async function () {
+      const { rewardsAggregator } = await loadFixture(deployContractsFixture)
+      const stakingProviders = Object.keys(dist.claims)
+
+      for (let stakingProvider of stakingProviders) {
+        const beneficiary = dist.claims[stakingProvider].beneficiary
+        const amount = dist.claims[stakingProvider].amount
+        const claimProof = dist.claims[stakingProvider].proof
+        const leaf = genMerkleLeaf(stakingProvider, beneficiary, amount)
+        // Fake Merkle root
+        const merkleRoot = "0x" + "f".repeat(64)
+        const verif = await rewardsAggregator.verifyMerkleProof(
+          claimProof,
+          merkleRoot,
+          leaf
+        )
+        expect(verif).to.be.false
+      }
+    })
+
+    it("should not be verified a Merkle Proof with incorrect amount", async function () {
+      const { rewardsAggregator } = await loadFixture(deployContractsFixture)
+      const stakingProviders = Object.keys(dist.claims)
+
+      for (let stakingProvider of stakingProviders) {
+        const beneficiary = dist.claims[stakingProvider].beneficiary
+        // Fake amount
+        const amount = dist.claims[stakingProvider].amount + 1
+        const claimProof = dist.claims[stakingProvider].proof
+        const leaf = genMerkleLeaf(stakingProvider, beneficiary, amount)
+        const verif = await rewardsAggregator.verifyMerkleProof(
+          claimProof,
+          dist.merkleRoot,
+          leaf
+        )
+        expect(verif).to.be.false
+      }
+    })
+
+    it("should not be verified a Merkle Proof with incorrect beneficiary", async function () {
+      const { rewardsAggregator } = await loadFixture(deployContractsFixture)
+      const stakingProviders = Object.keys(dist.claims)
+
+      for (let stakingProvider of stakingProviders) {
+        // Fake beneficiary
+        const beneficiary = "0xF8653523beEB1799516f0BBB56B72a3F236176B5"
+        const amount = dist.claims[stakingProvider].amount
+        const claimProof = dist.claims[stakingProvider].proof
+        const leaf = genMerkleLeaf(stakingProvider, beneficiary, amount)
+        const verif = await rewardsAggregator.verifyMerkleProof(
+          claimProof,
+          dist.merkleRoot,
+          leaf
+        )
+        expect(verif).to.be.false
+      }
+    })
+
+    it("should not be verified a Merkle Proof with incorrect staking provider", async function () {
+      const { rewardsAggregator } = await loadFixture(deployContractsFixture)
+      const stakingProviders = Object.keys(dist.claims)
+
+      for (let stakingProvider of stakingProviders) {
+        // Fake staking provider
+        const fakeStakingProvider = "0xF8653523beEB1799516f0BBB56B72a3F236176B5"
+        const beneficiary = dist.claims[stakingProvider].beneficiary
+        const amount = dist.claims[stakingProvider].amount + 1
+        const claimProof = dist.claims[stakingProvider].proof
+        const leaf = genMerkleLeaf(fakeStakingProvider, beneficiary, amount)
+        const verif = await rewardsAggregator.verifyMerkleProof(
+          claimProof,
+          dist.merkleRoot,
+          leaf
+        )
+        expect(verif).to.be.false
+      }
+    })
+
+    // TODO: add tests that check the distributions using the past distributions
+    // (distributions folders in the root of the project). Check every merkle
+    // proof of every distribution to check that the new verify method in the
+    // contract works as expected.
+  })
+
   describe("when calling batchClaimWithoutApps", async function () {
     before(function () {
       // numRuns must be less or equal to the number of accounts in `cum_dist`
@@ -774,167 +918,6 @@ describe("Merkle Distribution", function () {
           )
         )
       })
-    })
-  })
-
-  describe("when verify Merkle Proof", async function () {
-    before(async function () {
-      // numRuns must be less or equal to the number of accounts in `cum_dist`
-      const numRuns = Object.keys(dist.claims).length
-      fc.configureGlobal({ numRuns: numRuns, skipEqualValues: true })
-    })
-
-    // TODO: add tests that check the distributions using the past distributions
-    // (distributions folders in the root of the project). Check every merkle
-    // proof of every distribution to check that the new verify method in the
-    // contract works as expected.
-
-    it("should not be verified if no Merkle Proof", async function () {
-      const { merkleDist } = await loadFixture(deployContractsFixture)
-      const proofAccounts = Object.keys(dist.claims)
-
-      await merkleDist.setMerkleRoot(dist.merkleRoot)
-
-      await fc.assert(
-        fc.asyncProperty(
-          fc.integer({ min: 0, max: proofAccounts.length - 1 }),
-          async function (index) {
-            const account = proofAccounts[index]
-            const amount = dist.claims[account].amount
-            const beneficiary = dist.claims[account].beneficiary
-            const leaf = genMerkleLeaf(account, beneficiary, amount)
-            const claimProof = []
-            const verif = await merkleDist.verify(
-              claimProof,
-              dist.merkleRoot,
-              leaf
-            )
-            expect(verif).to.be.false
-          }
-        )
-      )
-    })
-
-    it("should not be verified with incorrect Merkle Proof", async function () {
-      const { merkleDist } = await loadFixture(deployContractsFixture)
-      const proofAccounts = Object.keys(dist.claims)
-
-      await fc.assert(
-        fc.asyncProperty(
-          fc.integer({ min: 0, max: proofAccounts.length - 1 }),
-          async function (index) {
-            const account = proofAccounts[index]
-            const amount = dist.claims[account].amount
-            const beneficiary = dist.claims[account].beneficiary
-            const leaf = genMerkleLeaf(account, beneficiary, amount)
-            const claimProof = [
-              MerkleTree.bufferToHex(keccak256("proof1")),
-              MerkleTree.bufferToHex(keccak256("proof2")),
-            ]
-            const verif = await merkleDist.verify(
-              claimProof,
-              dist.merkleRoot,
-              leaf
-            )
-            expect(verif).to.be.false
-          }
-        )
-      )
-    })
-
-    it("should a correct MerkleProof be verified", async function () {
-      const { merkleDist } = await loadFixture(deployContractsFixture)
-      const proofAccounts = Object.keys(dist.claims)
-
-      await fc.assert(
-        fc.asyncProperty(
-          fc.integer({ min: 0, max: proofAccounts.length - 1 }),
-          async function (index) {
-            const account = proofAccounts[index]
-            const amount = dist.claims[account].amount
-            const beneficiary = dist.claims[account].beneficiary
-            const leaf = genMerkleLeaf(account, beneficiary, amount)
-            const claimProof = dist.claims[account].proof
-            const verif = await merkleDist.verify(
-              claimProof,
-              dist.merkleRoot,
-              leaf
-            )
-            expect(verif).to.be.true
-          }
-        )
-      )
-    })
-
-    it("should not be verified a Merkle Proof with incorrect root", async function () {
-      const { merkleDist } = await loadFixture(deployContractsFixture)
-      const proofAccounts = Object.keys(dist.claims)
-
-      await fc.assert(
-        fc.asyncProperty(
-          fc.integer({ min: 0, max: proofAccounts.length - 1 }),
-          fc.hexaString({ minLength: 64, maxLength: 64 }),
-          async function (index, root) {
-            root = "0x" + root
-            const account = proofAccounts[index]
-            const amount = dist.claims[account].amount
-            const beneficiary = dist.claims[account].beneficiary
-            const leaf = genMerkleLeaf(account, beneficiary, amount)
-            const claimProof = dist.claims[account].proof
-            const verif = await merkleDist.verify(claimProof, root, leaf)
-            expect(verif).to.be.false
-          }
-        )
-      )
-    })
-
-    it("should not be verified a Merkle Proof with incorrect amount", async function () {
-      const { merkleDist } = await loadFixture(deployContractsFixture)
-      const proofAccounts = Object.keys(dist.claims)
-
-      await fc.assert(
-        fc.asyncProperty(
-          fc.integer({ min: 0, max: proofAccounts.length - 1 }),
-          fc.integer({ min: 1, max: 1000000000 }),
-          async function (index, amount) {
-            const account = proofAccounts[index]
-            const beneficiary = dist.claims[account].beneficiary
-            const leaf = genMerkleLeaf(account, beneficiary, amount)
-            const claimProof = dist.claims[account].proof
-            const verif = await merkleDist.verify(
-              claimProof,
-              dist.merkleRoot,
-              leaf
-            )
-            expect(verif).to.be.false
-          }
-        )
-      )
-    })
-
-    it("should not be verified a Merkle Proof with incorrect account", async function () {
-      const { merkleDist } = await loadFixture(deployContractsFixture)
-      const proofAccounts = Object.keys(dist.claims)
-
-      await fc.assert(
-        fc.asyncProperty(
-          fc.integer({ min: 0, max: proofAccounts.length - 1 }),
-          async function (index) {
-            const fakeAccount = ethers.Wallet.createRandom().address
-            const account = proofAccounts[index]
-            const amount = dist.claims[account].amount
-            const beneficiary = dist.claims[account].beneficiary
-            const leaf = genMerkleLeaf(fakeAccount, beneficiary, amount)
-            const claimProof = dist.claims[account].proof
-            const verif = await merkleDist.verify(
-              claimProof,
-              dist.merkleRoot,
-              leaf
-            )
-            expect(verif).to.be.false
-          }
-        )
-      )
     })
   })
 })
