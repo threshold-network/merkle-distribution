@@ -57,7 +57,7 @@ contract RewardsAggregator is Ownable, IRewardsAggregator {
         );
         require(
             token_ == _oldMerkleDistribution.token(),
-            "Incompatible old RewardsAggregator"
+            "Incompatible old Merkle Distribution contract"
         );
 
         transferOwnership(newOwner);
