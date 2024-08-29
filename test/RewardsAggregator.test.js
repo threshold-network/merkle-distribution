@@ -151,8 +151,12 @@ describe("Merkle Distribution", function () {
 
     it("should not be possible to deploy with incompatible old Merkle Distributor", async function () {
       const Token = await ethers.getContractFactory("TokenMock")
-      const OldMerkleDistribution = await ethers.getContractFactory("OldMerkleDistribution")
-      const RewardsAggregator = await ethers.getContractFactory("RewardsAggregator")
+      const OldMerkleDistribution = await ethers.getContractFactory(
+        "OldMerkleDistribution"
+      )
+      const RewardsAggregator = await ethers.getContractFactory(
+        "RewardsAggregator"
+      )
       const { owner, rewardsHolder, token, application } = await loadFixture(
         deployContractsFixture
       )
@@ -212,6 +216,42 @@ describe("Merkle Distribution", function () {
       const [, addr1] = await ethers.getSigners()
       await expect(
         rewardsAggregator.connect(addr1).setMerkleRoot(dist.merkleRoot)
+      ).to.be.revertedWith("Ownable: caller is not the owner")
+    })
+  })
+
+  describe("when setting Rewards Holder", async function () {
+    it("should be possible to set a new Rewards Holder address", async function () {
+      const { rewardsAggregator } = await loadFixture(deployContractsFixture)
+      const rewardsHolder = "0xF8653523beEB1799516f0BBB56B72a3F236176B5"
+      await rewardsAggregator.setRewardsHolder(rewardsHolder)
+      expect(await rewardsAggregator.rewardsHolder()).to.equal(rewardsHolder)
+    })
+
+    it("should not be possible to set an invalid address", async function () {
+      const { rewardsAggregator } = await loadFixture(deployContractsFixture)
+      const rewardsHolder = ethers.constants.AddressZero
+      await expect(
+        rewardsAggregator.setRewardsHolder(rewardsHolder)
+      ).to.be.revertedWith("Rewards Holder must be an address")
+    })
+
+    it("should be emitted an event", async function () {
+      const { rewardsAggregator } = await loadFixture(deployContractsFixture)
+      const prevRewardsHolder = await rewardsAggregator.rewardsHolder()
+      const newRewardsHolder = "0xF8653523beEB1799516f0BBB56B72a3F236176B5"
+      const tx = rewardsAggregator.setRewardsHolder(newRewardsHolder)
+      await expect(tx)
+        .to.emit(rewardsAggregator, "RewardsHolderUpdated")
+        .withArgs(prevRewardsHolder, newRewardsHolder)
+    })
+
+    it("only contract's owner should can change Rewards Holder", async function () {
+      const { rewardsAggregator } = await loadFixture(deployContractsFixture)
+      const newRewardsHolder = "0xF8653523beEB1799516f0BBB56B72a3F236176B5"
+      const [, , , , , addr1] = await ethers.getSigners()
+      await expect(
+        rewardsAggregator.connect(addr1).setRewardsHolder(newRewardsHolder)
       ).to.be.revertedWith("Ownable: caller is not the owner")
     })
   })
