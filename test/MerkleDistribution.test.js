@@ -4,11 +4,11 @@ const { before, beforeEach, describe, it } = require("mocha")
 const { MerkleTree } = require("merkletreejs")
 const fc = require("fast-check")
 const keccak256 = require("keccak256")
+const { loadFixture } = require("@nomicfoundation/hardhat-network-helpers")
 
 const { genMerkleLeaf, onlyUnique, deployContractsFixture } = require("./utils")
 const { dist } = require("./constants")
 const { cumDist } = require("./constants")
-const { loadFixture } = require("@nomicfoundation/hardhat-network-helpers")
 
 describe("Merkle Distribution", function () {
   before(async function () {
@@ -19,26 +19,27 @@ describe("Merkle Distribution", function () {
 
   describe("when deploy MerkleDistributor", async function () {
     it("should be deployed", async function () {
+      const MerkleDist = await ethers.getContractFactory("RewardsAggregator")
       const {
-        MerkleDist,
+        owner,
+        rewardsHolder,
         token,
         application,
-        oldMerkleDist,
-        rewardsHolder,
-        owner,
+        oldMerkleDistribution,
       } = await loadFixture(deployContractsFixture)
 
       const merkleDist = await MerkleDist.deploy(
         token.address,
         application.address,
-        oldMerkleDist.address,
+        oldMerkleDistribution.address,
         rewardsHolder.address,
         owner.address
       )
 
       expect(await merkleDist.token()).to.equal(token.address)
-      expect(await merkleDist.rewardsHolder()).to.equal(rewardsHolder.address)
       expect(await merkleDist.application()).to.equal(application.address)
+      expect(await merkleDist.rewardsHolder()).to.equal(rewardsHolder.address)
+      expect(await merkleDist.oldMerkleDistribution()).to.equal(oldMerkleDistribution.address)
       expect(await merkleDist.owner()).to.equal(owner.address)
     })
 
