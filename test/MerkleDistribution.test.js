@@ -5,53 +5,12 @@ const { MerkleTree } = require("merkletreejs")
 const fc = require("fast-check")
 const keccak256 = require("keccak256")
 
-const { genMerkleLeaf, onlyUnique } = require("./utils")
+const { genMerkleLeaf, onlyUnique, deployContractsFixture } = require("./utils")
 const { dist } = require("./constants")
 const { cumDist } = require("./constants")
 const { loadFixture } = require("@nomicfoundation/hardhat-network-helpers")
 
-
 describe("Merkle Distribution", function () {
-  async function deployContractsFixture() {
-    const [owner, rewardsHolder] = await ethers.getSigners()
-
-    const Token = await ethers.getContractFactory("TokenMock")
-    const ApplicationMock = await ethers.getContractFactory("ApplicationMock")
-    const MerkleDist = await ethers.getContractFactory("MerkleDistributor")
-    const OldMerkleDist = await ethers.getContractFactory(
-      "OldMerkleDistributor"
-    )
-
-    const token = await Token.deploy()
-    await token.mint(rewardsHolder.address, 1)
-    const application = await ApplicationMock.deploy(token.address)
-    const oldMerkleDist = await OldMerkleDist.deploy(
-      token.address,
-      rewardsHolder.address,
-      owner.address
-    )
-    const merkleDist = await MerkleDist.deploy(
-      token.address,
-      application.address,
-      oldMerkleDist.address,
-      rewardsHolder.address,
-      owner.address
-    )
-
-    return {
-      owner,
-      rewardsHolder,
-      Token,
-      ApplicationMock,
-      MerkleDist,
-      OldMerkleDist,
-      token,
-      application,
-      oldMerkleDist,
-      merkleDist,
-    }
-  }
-
   before(async function () {
     // numRuns must be less or equal to the number of accounts in `dist`
     const numRuns = Object.keys(dist.claims).length
@@ -791,7 +750,11 @@ describe("Merkle Distribution", function () {
             const beneficiary = dist.claims[account].beneficiary
             const leaf = genMerkleLeaf(account, beneficiary, amount)
             const claimProof = []
-            const verif = await merkleDist.verify(claimProof, dist.merkleRoot, leaf)
+            const verif = await merkleDist.verify(
+              claimProof,
+              dist.merkleRoot,
+              leaf
+            )
             expect(verif).to.be.false
           }
         )
@@ -814,7 +777,11 @@ describe("Merkle Distribution", function () {
               MerkleTree.bufferToHex(keccak256("proof1")),
               MerkleTree.bufferToHex(keccak256("proof2")),
             ]
-            const verif = await merkleDist.verify(claimProof, dist.merkleRoot, leaf)
+            const verif = await merkleDist.verify(
+              claimProof,
+              dist.merkleRoot,
+              leaf
+            )
             expect(verif).to.be.false
           }
         )
@@ -834,7 +801,11 @@ describe("Merkle Distribution", function () {
             const beneficiary = dist.claims[account].beneficiary
             const leaf = genMerkleLeaf(account, beneficiary, amount)
             const claimProof = dist.claims[account].proof
-            const verif = await merkleDist.verify(claimProof, dist.merkleRoot, leaf)
+            const verif = await merkleDist.verify(
+              claimProof,
+              dist.merkleRoot,
+              leaf
+            )
             expect(verif).to.be.true
           }
         )
@@ -876,7 +847,11 @@ describe("Merkle Distribution", function () {
             const beneficiary = dist.claims[account].beneficiary
             const leaf = genMerkleLeaf(account, beneficiary, amount)
             const claimProof = dist.claims[account].proof
-            const verif = await merkleDist.verify(claimProof, dist.merkleRoot, leaf)
+            const verif = await merkleDist.verify(
+              claimProof,
+              dist.merkleRoot,
+              leaf
+            )
             expect(verif).to.be.false
           }
         )
@@ -897,7 +872,11 @@ describe("Merkle Distribution", function () {
             const beneficiary = dist.claims[account].beneficiary
             const leaf = genMerkleLeaf(fakeAccount, beneficiary, amount)
             const claimProof = dist.claims[account].proof
-            const verif = await merkleDist.verify(claimProof, dist.merkleRoot, leaf)
+            const verif = await merkleDist.verify(
+              claimProof,
+              dist.merkleRoot,
+              leaf
+            )
             expect(verif).to.be.false
           }
         )

@@ -13,4 +13,38 @@ function onlyUnique(value, index, self) {
   return self.indexOf(value) === index
 }
 
-module.exports = { genMerkleLeaf, onlyUnique }
+async function deployContractsFixture() {
+  const [owner, rewardsHolder] = await ethers.getSigners()
+
+  const Token = await ethers.getContractFactory("TokenMock")
+  const ApplicationMock = await ethers.getContractFactory("ApplicationMock")
+  const MerkleDist = await ethers.getContractFactory("MerkleDistributor")
+  const OldMerkleDist = await ethers.getContractFactory("OldMerkleDistributor")
+
+  const token = await Token.deploy()
+  await token.mint(rewardsHolder.address, 1)
+  const application = await ApplicationMock.deploy(token.address)
+  const oldMerkleDist = await OldMerkleDist.deploy(
+    token.address,
+    rewardsHolder.address,
+    owner.address
+  )
+  const merkleDist = await MerkleDist.deploy(
+    token.address,
+    application.address,
+    oldMerkleDist.address,
+    rewardsHolder.address,
+    owner.address
+  )
+
+  return {
+    owner,
+    rewardsHolder,
+    token,
+    application,
+    oldMerkleDist,
+    merkleDist,
+  }
+}
+
+module.exports = { genMerkleLeaf, onlyUnique, deployContractsFixture }
