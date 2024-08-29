@@ -17,9 +17,11 @@ describe("Merkle Distribution", function () {
     fc.configureGlobal({ numRuns: numRuns, skipEqualValues: true })
   })
 
-  describe("when deploy MerkleDistributor", async function () {
+  describe("when deploy RewardsAggregator", async function () {
     it("should be deployed", async function () {
-      const MerkleDist = await ethers.getContractFactory("RewardsAggregator")
+      const RewardsAggregator = await ethers.getContractFactory(
+        "RewardsAggregator"
+      )
       const {
         owner,
         rewardsHolder,
@@ -28,7 +30,7 @@ describe("Merkle Distribution", function () {
         oldMerkleDistribution,
       } = await loadFixture(deployContractsFixture)
 
-      const merkleDist = await MerkleDist.deploy(
+      const rewardsAggregator = await RewardsAggregator.deploy(
         token.address,
         application.address,
         oldMerkleDistribution.address,
@@ -36,23 +38,32 @@ describe("Merkle Distribution", function () {
         owner.address
       )
 
-      expect(await merkleDist.token()).to.equal(token.address)
-      expect(await merkleDist.application()).to.equal(application.address)
-      expect(await merkleDist.rewardsHolder()).to.equal(rewardsHolder.address)
-      expect(await merkleDist.oldMerkleDistribution()).to.equal(oldMerkleDistribution.address)
-      expect(await merkleDist.owner()).to.equal(owner.address)
+      expect(await rewardsAggregator.token()).to.equal(token.address)
+      expect(await rewardsAggregator.application()).to.equal(
+        application.address
+      )
+      expect(await rewardsAggregator.rewardsHolder()).to.equal(
+        rewardsHolder.address
+      )
+      expect(await rewardsAggregator.oldMerkleDistribution()).to.equal(
+        oldMerkleDistribution.address
+      )
+      expect(await rewardsAggregator.owner()).to.equal(owner.address)
     })
 
     it("should not be possible to deploy with no token address", async function () {
-      const { MerkleDist, oldMerkleDist, application, rewardsHolder, owner } =
+      const RewardsAggregator = await ethers.getContractFactory(
+        "RewardsAggregator"
+      )
+      const { owner, rewardsHolder, application, oldMerkleDistribution } =
         await loadFixture(deployContractsFixture)
 
       const tokenAddress = ethers.constants.AddressZero
       await expect(
-        MerkleDist.deploy(
+        RewardsAggregator.deploy(
           tokenAddress,
           application.address,
-          oldMerkleDist.address,
+          oldMerkleDistribution.address,
           rewardsHolder.address,
           owner.address
         )
@@ -60,21 +71,20 @@ describe("Merkle Distribution", function () {
     })
 
     it("should not be possible to deploy with no minted tokens", async function () {
-      const {
-        Token,
-        MerkleDist,
-        application,
-        oldMerkleDist,
-        rewardsHolder,
-        owner,
-      } = await loadFixture(deployContractsFixture)
+      const Token = await ethers.getContractFactory("TokenMock")
+      const RewardsAggregator = await ethers.getContractFactory(
+        "RewardsAggregator"
+      )
+      const { owner, rewardsHolder, application, oldMerkleDistribution } =
+        await loadFixture(deployContractsFixture)
 
       const tokenWithNoMint = await Token.deploy()
+
       await expect(
-        MerkleDist.deploy(
+        RewardsAggregator.deploy(
           tokenWithNoMint.address,
           application.address,
-          oldMerkleDist.address,
+          oldMerkleDistribution.address,
           rewardsHolder.address,
           owner.address
         )
@@ -82,15 +92,18 @@ describe("Merkle Distribution", function () {
     })
 
     it("should not be possible to deploy with no rewards holder", async function () {
-      const { MerkleDist, token, application, oldMerkleDist, owner } =
+      const RewardsAggregator = await ethers.getContractFactory(
+        "RewardsAggregator"
+      )
+      const { owner, token, application, oldMerkleDistribution } =
         await loadFixture(deployContractsFixture)
 
       const rewardsHolder = ethers.constants.AddressZero
       await expect(
-        MerkleDist.deploy(
+        RewardsAggregator.deploy(
           token.address,
           application.address,
-          oldMerkleDist.address,
+          oldMerkleDistribution.address,
           rewardsHolder,
           owner.address
         )
@@ -98,28 +111,35 @@ describe("Merkle Distribution", function () {
     })
 
     it("should not be possible to deploy with no application", async function () {
-      const { MerkleDist, token, oldMerkleDist, rewardsHolder, owner } =
+      const RewardsAggregator = await ethers.getContractFactory(
+        "RewardsAggregator"
+      )
+      const { owner, rewardsHolder, token, oldMerkleDistribution } =
         await loadFixture(deployContractsFixture)
 
       const applicationAddress = ethers.constants.AddressZero
       await expect(
-        MerkleDist.deploy(
+        RewardsAggregator.deploy(
           token.address,
           applicationAddress,
-          oldMerkleDist.address,
+          oldMerkleDistribution.address,
           rewardsHolder.address,
           owner.address
         )
       ).to.be.revertedWith("Application must be an address")
     })
 
-    it("should not be possible to deploy with no old Merkle Distributor", async function () {
-      const { MerkleDist, token, application, rewardsHolder, owner } =
-        await loadFixture(deployContractsFixture)
+    it("should not be possible to deploy with no old Merkle Distribution contract", async function () {
+      const RewardsAggregator = await ethers.getContractFactory(
+        "RewardsAggregator"
+      )
+      const { owner, rewardsHolder, token, application } = await loadFixture(
+        deployContractsFixture
+      )
 
       const fakeOldMerkleDistAddr = ethers.constants.AddressZero
       await expect(
-        MerkleDist.deploy(
+        RewardsAggregator.deploy(
           token.address,
           application.address,
           fakeOldMerkleDistAddr,
@@ -130,32 +150,29 @@ describe("Merkle Distribution", function () {
     })
 
     it("should not be possible to deploy with incompatible old Merkle Distributor", async function () {
-      const {
-        Token,
-        rewardsHolder,
-        OldMerkleDist,
-        owner,
-        MerkleDist,
-        token,
-        application,
-      } = await loadFixture(deployContractsFixture)
+      const Token = await ethers.getContractFactory("TokenMock")
+      const OldMerkleDistribution = await ethers.getContractFactory("OldMerkleDistribution")
+      const RewardsAggregator = await ethers.getContractFactory("RewardsAggregator")
+      const { owner, rewardsHolder, token, application } = await loadFixture(
+        deployContractsFixture
+      )
 
       const fakeToken = await Token.deploy()
       await fakeToken.mint(rewardsHolder.address, 1)
-      const fakeOldMerkleDist = await OldMerkleDist.deploy(
+      const fakeOldMerkleDist = await OldMerkleDistribution.deploy(
         fakeToken.address,
         rewardsHolder.address,
         owner.address
       )
       await expect(
-        MerkleDist.deploy(
+        RewardsAggregator.deploy(
           token.address,
           application.address,
           fakeOldMerkleDist.address,
           rewardsHolder.address,
           owner.address
         )
-      ).to.be.revertedWith("Incompatible old MerkleDistributor")
+      ).to.be.revertedWith("Incompatible old Merkle Distribution contract")
     })
   })
 
