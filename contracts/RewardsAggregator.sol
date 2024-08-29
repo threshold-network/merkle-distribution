@@ -162,19 +162,19 @@ contract RewardsAggregator is Ownable, IRewardsAggregator {
     function claim(
         address stakingProvider,
         address beneficiary,
-        uint256 cumulativeAmount,
+        uint256 merkleCumulativeAmount,
         bytes32 expectedMerkleRoot,
         bytes32[] calldata merkleProof
     ) public {
         if (
-            cumulativeAmount != 0 &&
+            merkleCumulativeAmount != 0 &&
             expectedMerkleRoot != bytes32(0) &&
             merkleProof.length != 0
         ) {
             claimMerkle(
                 stakingProvider,
                 beneficiary,
-                cumulativeAmount,
+                merkleCumulativeAmount,
                 expectedMerkleRoot,
                 merkleProof
             );
