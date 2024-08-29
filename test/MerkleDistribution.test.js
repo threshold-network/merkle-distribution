@@ -11,7 +11,6 @@ const { cumDist } = require("./constants")
 const { loadFixture } = require("@nomicfoundation/hardhat-network-helpers")
 
 
-// TODO: Change test name (and file name) to RewardsAggregator.test.js
 describe("Merkle Distribution", function () {
   async function deployContractsFixture() {
     const [owner, rewardsHolder] = await ethers.getSigners()
