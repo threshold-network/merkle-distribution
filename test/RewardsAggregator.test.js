@@ -394,10 +394,39 @@ describe("Merkle Distribution", function () {
       }
     })
 
-    // TODO: add tests that check the distributions using the past distributions
-    // (distributions folders in the root of the project). Check every merkle
-    // proof of every distribution to check that the new verify method in the
-    // contract works as expected.
+    it("should be verified the past distributions", async function () {
+      const { rewardsAggregator } = await loadFixture(deployContractsFixture)
+
+      // Read the dists folders and take only those with YYYY/MM/DD format
+      let distDates = fs
+        .readdirSync("./distributions")
+        .filter((dist) => /^\d{4}-\d{2}-\d{2}$/.test(dist))
+
+      // Taking only the first distribution because of the time it takes to run
+      // the tests with all the distributions. Comment for a full test
+      distDates = [distDates[0]]
+
+      for (let distDate of distDates) {
+        const data = fs.readFileSync(
+          `./distributions/${distDate}/MerkleDist.json`
+        )
+        const dist = JSON.parse(data)
+        const stakingProviders = Object.keys(dist.claims)
+
+        for (let stakingProvider of stakingProviders) {
+          const beneficiary = dist.claims[stakingProvider].beneficiary
+          const amount = dist.claims[stakingProvider].amount
+          const claimProof = dist.claims[stakingProvider].proof
+          const leaf = genMerkleLeaf(stakingProvider, beneficiary, amount)
+          const verif = await rewardsAggregator.verifyMerkleProof(
+            claimProof,
+            dist.merkleRoot,
+            leaf
+          )
+          expect(verif).to.be.true
+        }
+      }
+    })
   })
 
   describe("when calling batchClaimWithoutApps", async function () {
