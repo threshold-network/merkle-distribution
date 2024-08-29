@@ -5,20 +5,11 @@ const { MerkleTree } = require("merkletreejs")
 const fc = require("fast-check")
 const keccak256 = require("keccak256")
 
+const { genMerkleLeaf, onlyUnique } = require("./utils")
 const { dist } = require("./constants")
 const { cumDist } = require("./constants")
 const { loadFixture } = require("@nomicfoundation/hardhat-network-helpers")
 
-function genMerkleLeaf(account, beneficiary, amount) {
-  const amountHex = ethers.BigNumber.from(amount).toHexString()
-  const leaf =
-    account + beneficiary.substr(2) + amountHex.slice(2).padStart(64, "0")
-  return MerkleTree.bufferToHex(keccak256(leaf))
-}
-
-function onlyUnique(value, index, self) {
-  return self.indexOf(value) === index
-}
 
 // TODO: Change test name (and file name) to RewardsAggregator.test.js
 describe("Merkle Distribution", function () {
