@@ -176,46 +176,42 @@ describe("Merkle Distribution", function () {
     })
   })
 
-  describe("when set Merkle Root for first time", async function () {
+  describe("when setting Merkle Root", async function () {
     it("should be 0 before setting it up", async function () {
-      const { merkleDist } = await loadFixture(deployContractsFixture)
-      const contractMerkleRoot = await merkleDist.merkleRoot()
+      const { rewardsAggregator } = await loadFixture(deployContractsFixture)
+      const contractMerkleRoot = await rewardsAggregator.merkleRoot()
       expect(parseInt(contractMerkleRoot, 16)).to.equal(0)
     })
 
-    it("should be possible to be set a new Merkle Root", async function () {
-      const { merkleDist } = await loadFixture(deployContractsFixture)
-      await fc.assert(
-        fc.asyncProperty(
-          fc.hexaString({ minLength: 64, maxLength: 64 }),
-          async function (merkleRoot) {
-            merkleRoot = "0x" + merkleRoot
-            await merkleDist.setMerkleRoot(merkleRoot)
-            const contractMerkleRoot = await merkleDist.merkleRoot()
-            expect(contractMerkleRoot).to.equal(merkleRoot)
-          }
-        )
-      )
+    it("should be possible to set a new Merkle Root", async function () {
+      const { rewardsAggregator } = await loadFixture(deployContractsFixture)
+      const merkleRoot = dist.merkleRoot
+      await rewardsAggregator.setMerkleRoot(merkleRoot)
+      expect(await rewardsAggregator.merkleRoot()).to.equal(merkleRoot)
+    })
+
+    it("should be possible to set a second new Merkle Root", async function () {
+      const { rewardsAggregator } = await loadFixture(deployContractsFixture)
+      await rewardsAggregator.setMerkleRoot(dist.merkleRoot)
+      await rewardsAggregator.setMerkleRoot(cumDist.merkleRoot)
+      expect(await rewardsAggregator.merkleRoot()).to.equal(cumDist.merkleRoot)
     })
 
     it("should be emitted an event", async function () {
-      const { merkleDist } = await loadFixture(deployContractsFixture)
-      const prevMerkleRoot = await merkleDist.merkleRoot()
-      const nextMerkleRoot =
-        "0xb2c0cd477fff5f352df19233236e02bac0c4170a783f11cd39589413132914cc"
-      const tx = merkleDist.setMerkleRoot(nextMerkleRoot)
+      const { rewardsAggregator } = await loadFixture(deployContractsFixture)
+      const prevMerkleRoot = await rewardsAggregator.merkleRoot()
+      const nextMerkleRoot = dist.merkleRoot
+      const tx = rewardsAggregator.setMerkleRoot(nextMerkleRoot)
       await expect(tx)
-        .to.emit(merkleDist, "MerkleRootUpdated")
+        .to.emit(rewardsAggregator, "MerkleRootUpdated")
         .withArgs(prevMerkleRoot, nextMerkleRoot)
     })
 
     it("only contract's owner should can change Merkle Root", async function () {
-      const { merkleDist } = await loadFixture(deployContractsFixture)
+      const { rewardsAggregator } = await loadFixture(deployContractsFixture)
       const [, addr1] = await ethers.getSigners()
-      const merkleRoot =
-        "0xb2c0cd477fff5f352df19233236e02bac0c4170a783f11cd39589413132914cc"
       await expect(
-        merkleDist.connect(addr1).setMerkleRoot(merkleRoot)
+        rewardsAggregator.connect(addr1).setMerkleRoot(dist.merkleRoot)
       ).to.be.revertedWith("Ownable: caller is not the owner")
     })
   })
