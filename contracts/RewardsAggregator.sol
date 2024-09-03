@@ -8,6 +8,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@threshold-network/solidity-contracts/contracts/staking/IApplication.sol";
 
 import "./interfaces/IRewardsAggregator.sol";
+import "./interfaces/ICumulativeMerkleDrop.sol";
 
 /**
  * @title Rewards Aggregator
@@ -30,7 +31,7 @@ contract RewardsAggregator is Ownable, IRewardsAggregator {
     // For the moment, it will only be used for TACo app.
     IApplication public immutable application;
 
-    IRewardsAggregator public immutable oldMerkleDistribution;
+    ICumulativeMerkleDrop public immutable oldCumulativeMerkleDrop;
 
     struct MerkleClaim {
         address stakingProvider;
@@ -42,7 +43,7 @@ contract RewardsAggregator is Ownable, IRewardsAggregator {
     constructor(
         address token_,
         IApplication application_,
-        IRewardsAggregator _oldMerkleDistribution,
+        ICumulativeMerkleDrop _oldCumulativeMerkleDrop,
         address rewardsHolder_,
         address newOwner
     ) {
@@ -56,7 +57,7 @@ contract RewardsAggregator is Ownable, IRewardsAggregator {
             "Application must be an address"
         );
         require(
-            token_ == _oldMerkleDistribution.token(),
+            token_ == _oldCumulativeMerkleDrop.token(),
             "Incompatible old Merkle Distribution contract"
         );
 
@@ -64,7 +65,7 @@ contract RewardsAggregator is Ownable, IRewardsAggregator {
         token = token_;
         application = application_;
         rewardsHolder = rewardsHolder_;
-        oldMerkleDistribution = _oldMerkleDistribution;
+        oldCumulativeMerkleDrop = _oldCumulativeMerkleDrop;
     }
 
     function setMerkleRoot(bytes32 merkleRoot_) external override onlyOwner {
@@ -95,7 +96,7 @@ contract RewardsAggregator is Ownable, IRewardsAggregator {
             return newAmount;
         } else {
             return
-                oldMerkleDistribution.cumulativeMerkleClaimed(stakingProvider);
+                oldCumulativeMerkleDrop.cumulativeClaimed(stakingProvider);
         }
     }
 
