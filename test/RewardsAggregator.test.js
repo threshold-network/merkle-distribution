@@ -1,3 +1,4 @@
+const fs = require("fs")
 const { ethers } = require("hardhat")
 const { expect } = require("chai")
 const { before, beforeEach, describe, it } = require("mocha")
@@ -11,12 +12,6 @@ const { dist } = require("./constants")
 const { cumDist } = require("./constants")
 
 describe("Merkle Distribution", function () {
-  before(async function () {
-    // numRuns must be less or equal to the number of accounts in `dist`
-    const numRuns = Object.keys(dist.claims).length
-    fc.configureGlobal({ numRuns: numRuns, skipEqualValues: true })
-  })
-
   describe("when deploying RewardsAggregator", async function () {
     it("should be deployed", async function () {
       const RewardsAggregator = await ethers.getContractFactory(
@@ -27,13 +22,13 @@ describe("Merkle Distribution", function () {
         rewardsHolder,
         token,
         application,
-        oldMerkleDistribution,
+        oldCumulativeMerkleDrop,
       } = await loadFixture(deployContractsFixture)
 
       const rewardsAggregator = await RewardsAggregator.deploy(
         token.address,
         application.address,
-        oldMerkleDistribution.address,
+        oldCumulativeMerkleDrop.address,
         rewardsHolder.address,
         owner.address
       )
@@ -45,8 +40,8 @@ describe("Merkle Distribution", function () {
       expect(await rewardsAggregator.rewardsHolder()).to.equal(
         rewardsHolder.address
       )
-      expect(await rewardsAggregator.oldMerkleDistribution()).to.equal(
-        oldMerkleDistribution.address
+      expect(await rewardsAggregator.oldCumulativeMerkleDrop()).to.equal(
+        oldCumulativeMerkleDrop.address
       )
       expect(await rewardsAggregator.owner()).to.equal(owner.address)
     })
@@ -55,7 +50,7 @@ describe("Merkle Distribution", function () {
       const RewardsAggregator = await ethers.getContractFactory(
         "RewardsAggregator"
       )
-      const { owner, rewardsHolder, application, oldMerkleDistribution } =
+      const { owner, rewardsHolder, application, oldCumulativeMerkleDrop } =
         await loadFixture(deployContractsFixture)
 
       const tokenAddress = ethers.constants.AddressZero
@@ -63,7 +58,7 @@ describe("Merkle Distribution", function () {
         RewardsAggregator.deploy(
           tokenAddress,
           application.address,
-          oldMerkleDistribution.address,
+          oldCumulativeMerkleDrop.address,
           rewardsHolder.address,
           owner.address
         )
@@ -75,7 +70,7 @@ describe("Merkle Distribution", function () {
       const RewardsAggregator = await ethers.getContractFactory(
         "RewardsAggregator"
       )
-      const { owner, rewardsHolder, application, oldMerkleDistribution } =
+      const { owner, rewardsHolder, application, oldCumulativeMerkleDrop } =
         await loadFixture(deployContractsFixture)
 
       const tokenWithNoMint = await Token.deploy()
@@ -84,7 +79,7 @@ describe("Merkle Distribution", function () {
         RewardsAggregator.deploy(
           tokenWithNoMint.address,
           application.address,
-          oldMerkleDistribution.address,
+          oldCumulativeMerkleDrop.address,
           rewardsHolder.address,
           owner.address
         )
@@ -95,7 +90,7 @@ describe("Merkle Distribution", function () {
       const RewardsAggregator = await ethers.getContractFactory(
         "RewardsAggregator"
       )
-      const { owner, token, application, oldMerkleDistribution } =
+      const { owner, token, application, oldCumulativeMerkleDrop } =
         await loadFixture(deployContractsFixture)
 
       const rewardsHolder = ethers.constants.AddressZero
@@ -103,7 +98,7 @@ describe("Merkle Distribution", function () {
         RewardsAggregator.deploy(
           token.address,
           application.address,
-          oldMerkleDistribution.address,
+          oldCumulativeMerkleDrop.address,
           rewardsHolder,
           owner.address
         )
@@ -114,7 +109,7 @@ describe("Merkle Distribution", function () {
       const RewardsAggregator = await ethers.getContractFactory(
         "RewardsAggregator"
       )
-      const { owner, rewardsHolder, token, oldMerkleDistribution } =
+      const { owner, rewardsHolder, token, oldCumulativeMerkleDrop } =
         await loadFixture(deployContractsFixture)
 
       const applicationAddress = ethers.constants.AddressZero
@@ -122,14 +117,14 @@ describe("Merkle Distribution", function () {
         RewardsAggregator.deploy(
           token.address,
           applicationAddress,
-          oldMerkleDistribution.address,
+          oldCumulativeMerkleDrop.address,
           rewardsHolder.address,
           owner.address
         )
       ).to.be.revertedWith("Application must be an address")
     })
 
-    it("should not be possible to deploy with no old Merkle Distribution contract", async function () {
+    it("should not be possible to deploy with no old Merkle contract", async function () {
       const RewardsAggregator = await ethers.getContractFactory(
         "RewardsAggregator"
       )
@@ -137,22 +132,22 @@ describe("Merkle Distribution", function () {
         deployContractsFixture
       )
 
-      const fakeOldMerkleDistAddr = ethers.constants.AddressZero
+      const fakeOldCumulativeMerkleContractAddr = ethers.constants.AddressZero
       await expect(
         RewardsAggregator.deploy(
           token.address,
           application.address,
-          fakeOldMerkleDistAddr,
+          fakeOldCumulativeMerkleContractAddr,
           rewardsHolder.address,
           owner.address
         )
       ).to.be.reverted
     })
 
-    it("should not be possible to deploy with incompatible old Merkle Distributor", async function () {
+    it("should not be possible to deploy with incompatible old Merkle contract", async function () {
       const Token = await ethers.getContractFactory("TokenMock")
-      const OldMerkleDistribution = await ethers.getContractFactory(
-        "OldMerkleDistribution"
+      const CumulativeMerkleDrop = await ethers.getContractFactory(
+        "CumulativeMerkleDrop"
       )
       const RewardsAggregator = await ethers.getContractFactory(
         "RewardsAggregator"
@@ -163,7 +158,7 @@ describe("Merkle Distribution", function () {
 
       const fakeToken = await Token.deploy()
       await fakeToken.mint(rewardsHolder.address, 1)
-      const fakeOldMerkleDist = await OldMerkleDistribution.deploy(
+      const fakeOldCumulativeMerkleDrop = await CumulativeMerkleDrop.deploy(
         fakeToken.address,
         rewardsHolder.address,
         owner.address
@@ -172,7 +167,7 @@ describe("Merkle Distribution", function () {
         RewardsAggregator.deploy(
           token.address,
           application.address,
-          fakeOldMerkleDist.address,
+          fakeOldCumulativeMerkleDrop.address,
           rewardsHolder.address,
           owner.address
         )
@@ -213,9 +208,9 @@ describe("Merkle Distribution", function () {
 
     it("only contract's owner should can change Merkle Root", async function () {
       const { rewardsAggregator } = await loadFixture(deployContractsFixture)
-      const [, addr1] = await ethers.getSigners()
+      const [, signer1] = await ethers.getSigners()
       await expect(
-        rewardsAggregator.connect(addr1).setMerkleRoot(dist.merkleRoot)
+        rewardsAggregator.connect(signer1).setMerkleRoot(dist.merkleRoot)
       ).to.be.revertedWith("Ownable: caller is not the owner")
     })
   })
@@ -249,9 +244,9 @@ describe("Merkle Distribution", function () {
     it("only contract's owner should can change Rewards Holder", async function () {
       const { rewardsAggregator } = await loadFixture(deployContractsFixture)
       const newRewardsHolder = "0xF8653523beEB1799516f0BBB56B72a3F236176B5"
-      const [, , , , , addr1] = await ethers.getSigners()
+      const [, , , , , signer1] = await ethers.getSigners()
       await expect(
-        rewardsAggregator.connect(addr1).setRewardsHolder(newRewardsHolder)
+        rewardsAggregator.connect(signer1).setRewardsHolder(newRewardsHolder)
       ).to.be.revertedWith("Ownable: caller is not the owner")
     })
   })
@@ -402,8 +397,8 @@ describe("Merkle Distribution", function () {
         .readdirSync("./distributions")
         .filter((dist) => /^\d{4}-\d{2}-\d{2}$/.test(dist))
 
-      // Taking only the first distribution because of the time it takes to run
-      // the tests with all the distributions. Comment for a full test
+      // Taking only the first distribution because it takes too much time to
+      // run the tests for all the dists. Comment out this line for full test
       distDates = [distDates[0]]
 
       for (let distDate of distDates) {

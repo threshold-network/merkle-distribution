@@ -19,12 +19,12 @@ async function deployContractsFixture() {
   const Token = await ethers.getContractFactory("TokenMock")
   const ApplicationMock = await ethers.getContractFactory("ApplicationMock")
   const RewardsAggregator = await ethers.getContractFactory("RewardsAggregator")
-  const OldMerkleDistribution = await ethers.getContractFactory("OldMerkleDistribution")
+  const CumulativeMerkleDrop = await ethers.getContractFactory("CumulativeMerkleDrop")
 
   const token = await Token.deploy()
   await token.mint(rewardsHolder.address, 1)
   const application = await ApplicationMock.deploy(token.address)
-  const oldMerkleDistribution = await OldMerkleDistribution.deploy(
+  const oldCumulativeMerkleDrop = await CumulativeMerkleDrop.deploy(
     token.address,
     rewardsHolder.address,
     owner.address
@@ -32,7 +32,7 @@ async function deployContractsFixture() {
   const rewardsAggregator = await RewardsAggregator.deploy(
     token.address,
     application.address,
-    oldMerkleDistribution.address,
+    oldCumulativeMerkleDrop.address,
     rewardsHolder.address,
     owner.address
   )
@@ -42,7 +42,7 @@ async function deployContractsFixture() {
     rewardsHolder,
     token,
     application,
-    oldMerkleDistribution,
+    oldCumulativeMerkleDrop,
     rewardsAggregator,
   }
 }
