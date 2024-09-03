@@ -11,7 +11,7 @@ const { genMerkleLeaf, onlyUnique, deployContractsFixture } = require("./utils")
 const { dist } = require("./constants")
 const { cumDist } = require("./constants")
 
-describe("Merkle Distribution", function () {
+describe("Rewards Aggregator contract", function () {
   describe("when deploying RewardsAggregator", async function () {
     it("should be deployed", async function () {
       const RewardsAggregator = await ethers.getContractFactory(
