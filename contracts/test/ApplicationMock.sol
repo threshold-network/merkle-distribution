@@ -13,7 +13,7 @@ contract ApplicationMock is IApplication {
     }
 
     // For simplicity, we are not considering beneficiaries in this mock:
-    // the staking provider address will receive the rewards
+    // the staking provider address provided will receive the rewards
     function withdrawRewards(address stakingProvider) external {
         emit RewardsWithdrawn(stakingProvider, 10000);
         token.transfer(stakingProvider, 10000);
