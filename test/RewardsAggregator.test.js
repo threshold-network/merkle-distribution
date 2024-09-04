@@ -729,6 +729,56 @@ describe("Rewards Aggregator contract", function () {
         prevBalanceRewardsHolder.sub(amount)
       )
     })
+
+    it("should be possible to claim a batch of rewards", async function () {
+      const { token, rewardsHolder, rewardsAggregator } = await loadFixture(
+        deployContractsFixture
+      )
+      await token.mint(rewardsHolder.address, dist.totalAmount)
+      await token
+        .connect(rewardsHolder)
+        .approve(rewardsAggregator.address, dist.totalAmount)
+      await rewardsAggregator.setMerkleRoot(dist.merkleRoot)
+
+      const stakingProvider0 = Object.keys(dist.claims)[0]
+      const stakingProvider1 = Object.keys(dist.claims)[1]
+      const stakingProvider2 = Object.keys(dist.claims)[2]
+      const beneficiary0 = dist.claims[stakingProvider0].beneficiary
+      const beneficiary1 = dist.claims[stakingProvider1].beneficiary
+      const beneficiary2 = dist.claims[stakingProvider2].beneficiary
+      const amount0 = dist.claims[stakingProvider0].amount
+      const amount1 = dist.claims[stakingProvider1].amount
+      const amount2 = dist.claims[stakingProvider2].amount
+      const proof0 = dist.claims[stakingProvider0].proof
+      const proof1 = dist.claims[stakingProvider1].proof
+      const proof2 = dist.claims[stakingProvider2].proof
+
+      const prevBalance0 = await token.balanceOf(beneficiary0)
+      const prevBalance1 = await token.balanceOf(beneficiary1)
+      const prevBalance2 = await token.balanceOf(beneficiary2)
+
+      const tx = await rewardsAggregator.batchClaimMerkle(dist.merkleRoot, [
+        [stakingProvider0, beneficiary0, amount0, proof0],
+        [stakingProvider1, beneficiary1, amount1, proof1],
+        [stakingProvider2, beneficiary2, amount2, proof2],
+      ])
+
+      const afterBalance0 = await token.balanceOf(beneficiary0)
+      const afterBalance1 = await token.balanceOf(beneficiary1)
+      const afterBalance2 = await token.balanceOf(beneficiary2)
+
+      expect(afterBalance0).to.equal(prevBalance0.add(amount0))
+      expect(afterBalance1).to.equal(prevBalance1.add(amount1))
+      expect(afterBalance2).to.equal(prevBalance2.add(amount2))
+
+      expect(tx)
+        .to.emit(rewardsAggregator, "MerkleClaimed")
+        .withArgs(stakingProvider0, amount0, beneficiary0, dist.merkleRoot)
+        .and.to.emit(rewardsAggregator, "MerkleClaimed")
+        .withArgs(stakingProvider1, amount1, beneficiary1, dist.merkleRoot)
+        .and.to.emit(rewardsAggregator, "MerkleClaimed")
+        .withArgs(stakingProvider2, amount2, beneficiary2, dist.merkleRoot)
+    })
   })
 
   describe("when asking for the cumulative Merkle already claimed", async function () {
@@ -946,7 +996,10 @@ describe("Rewards Aggregator contract", function () {
       const prevBalance2 = await token.balanceOf(stakingProvider2)
 
       // Using function overloading is tricky in Hardhat (ethers.js)
-      const tx = await rewardsAggregator["batchClaim(address[])"]([stakingProvider1, stakingProvider2])
+      const tx = await rewardsAggregator["batchClaim(address[])"]([
+        stakingProvider1,
+        stakingProvider2,
+      ])
 
       const afterBalance1 = await token.balanceOf(stakingProvider1)
       const afterBalance2 = await token.balanceOf(stakingProvider2)
@@ -961,9 +1014,7 @@ describe("Rewards Aggregator contract", function () {
     })
   })
 
-
-
-
+  describe("when claiming rewards from both Threshold apps and Merkle dist", async function () {})
 
   // TODO: from here down, the tests must be reviewed and refactored
 
