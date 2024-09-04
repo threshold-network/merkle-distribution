@@ -502,6 +502,32 @@ describe("Rewards Aggregator contract", function () {
       ).to.be.revertedWith("Invalid proof")
     })
 
+    it("should not be possible to claim a different amount of tokens", async function () {
+      const { token, rewardsHolder, rewardsAggregator } = await loadFixture(
+        deployContractsFixture
+      )
+      await token.mint(rewardsHolder.address, dist.totalAmount)
+      await token
+        .connect(rewardsHolder)
+        .approve(rewardsAggregator.address, dist.totalAmount)
+      await rewardsAggregator.setMerkleRoot(dist.merkleRoot)
+
+      const stakingProvider = Object.keys(dist.claims)[0]
+      const beneficiary = dist.claims[stakingProvider].beneficiary
+      const amount = dist.claims[stakingProvider].amount
+      const proof = dist.claims[stakingProvider].proof
+
+      await expect(
+        rewardsAggregator.claimMerkle(
+          stakingProvider,
+          beneficiary,
+          amount + 1, // Claiming 1 more token
+          dist.merkleRoot,
+          proof
+        )
+      ).to.be.revertedWith("Invalid proof")
+    })
+
     it("should be possible to claim", async function () {
       const { token, rewardsHolder, rewardsAggregator } = await loadFixture(
         deployContractsFixture
