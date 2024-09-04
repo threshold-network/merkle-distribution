@@ -1,13 +1,13 @@
 const fs = require("fs")
 const { ethers } = require("hardhat")
 const { expect } = require("chai")
-const { before, beforeEach, describe, it } = require("mocha")
+const { describe, it } = require("mocha")
 const { MerkleTree } = require("merkletreejs")
-const fc = require("fast-check")
 const keccak256 = require("keccak256")
 const { loadFixture } = require("@nomicfoundation/hardhat-network-helpers")
+const { anyValue } = require("@nomicfoundation/hardhat-chai-matchers/withArgs")
 
-const { genMerkleLeaf, onlyUnique, deployContractsFixture } = require("./utils")
+const { genMerkleLeaf, deployContractsFixture } = require("./utils")
 const { dist } = require("./constants")
 const { cumDist } = require("./constants")
 
@@ -865,6 +865,101 @@ describe("Rewards Aggregator contract", function () {
     })
   })
 
+  describe("when claiming rewards from Threshold apps", async function () {
+    // Note that the Threshold app used in these tests is a mock that returns
+    // a fixed value when calling `availableRewards` method
+    it("should return true when checking if a staking prov can claim app rewards", async function () {
+      const { rewardsAggregator } = await loadFixture(deployContractsFixture)
+      const stakingProvider = Object.keys(dist.claims)[0]
+
+      expect(await rewardsAggregator.canClaimApps(stakingProvider)).to.be.true
+    })
+
+    it("should be possible to claim rewards from apps using claimApps method", async function () {
+      const { token, application, rewardsAggregator } = await loadFixture(
+        deployContractsFixture
+      )
+      await token.mint(application.address, 100000)
+      const stakingProvider = Object.keys(dist.claims)[0]
+      const prevBalance = await token.balanceOf(stakingProvider)
+      const tx = await rewardsAggregator.claimApps(stakingProvider)
+      const afterBalance = await token.balanceOf(stakingProvider)
+      expect(afterBalance).to.be.greaterThan(prevBalance)
+      expect(tx)
+        .to.emit(rewardsAggregator, "RewardsWithdrawn")
+        .withArgs(stakingProvider, anyValue)
+    })
+
+    it("should be possible to claim rewards from apps using claim(stProv) method", async function () {
+      const { token, application, rewardsAggregator } = await loadFixture(
+        deployContractsFixture
+      )
+      await token.mint(application.address, 100000)
+      const stakingProvider = Object.keys(dist.claims)[0]
+      const prevBalance = await token.balanceOf(stakingProvider)
+
+      // Using function overloading is tricky in Hardhat (ethers.js)
+      const tx = await rewardsAggregator["claim(address)"](stakingProvider)
+
+      const afterBalance = await token.balanceOf(stakingProvider)
+      expect(afterBalance).to.be.greaterThan(prevBalance)
+      expect(tx)
+        .to.emit(rewardsAggregator, "RewardsWithdrawn")
+        .withArgs(stakingProvider, anyValue)
+    })
+
+    it("should be possible to claim a batch of rewards from apps using batchClaimApps() method", async function () {
+      const { token, application, rewardsAggregator } = await loadFixture(
+        deployContractsFixture
+      )
+      await token.mint(application.address, 100000)
+      const stakingProvider1 = Object.keys(dist.claims)[0]
+      const stakingProvider2 = Object.keys(dist.claims)[2]
+      const prevBalance1 = await token.balanceOf(stakingProvider1)
+      const prevBalance2 = await token.balanceOf(stakingProvider2)
+
+      const tx = await rewardsAggregator.batchClaimApps([
+        stakingProvider1,
+        stakingProvider2,
+      ])
+
+      const afterBalance1 = await token.balanceOf(stakingProvider1)
+      const afterBalance2 = await token.balanceOf(stakingProvider2)
+
+      expect(afterBalance1).to.be.greaterThan(prevBalance1)
+      expect(afterBalance2).to.be.greaterThan(prevBalance2)
+      expect(tx)
+        .to.emit(rewardsAggregator, "RewardsWithdrawn")
+        .withArgs(stakingProvider1, anyValue)
+        .and.to.emit(rewardsAggregator, "RewardsWithdrawn")
+        .withArgs(stakingProvider2, anyValue)
+    })
+
+    it("should be possible to claim a batch of rewards from apps using batchClaim() method", async function () {
+      const { token, application, rewardsAggregator } = await loadFixture(
+        deployContractsFixture
+      )
+      await token.mint(application.address, 100000)
+      const stakingProvider1 = Object.keys(dist.claims)[0]
+      const stakingProvider2 = Object.keys(dist.claims)[2]
+      const prevBalance1 = await token.balanceOf(stakingProvider1)
+      const prevBalance2 = await token.balanceOf(stakingProvider2)
+
+      // Using function overloading is tricky in Hardhat (ethers.js)
+      const tx = await rewardsAggregator["batchClaim(address[])"]([stakingProvider1, stakingProvider2])
+
+      const afterBalance1 = await token.balanceOf(stakingProvider1)
+      const afterBalance2 = await token.balanceOf(stakingProvider2)
+
+      expect(afterBalance1).to.be.greaterThan(prevBalance1)
+      expect(afterBalance2).to.be.greaterThan(prevBalance2)
+      expect(tx)
+        .to.emit(rewardsAggregator, "RewardsWithdrawn")
+        .withArgs(stakingProvider1, anyValue)
+        .and.to.emit(rewardsAggregator, "RewardsWithdrawn")
+        .withArgs(stakingProvider2, anyValue)
+    })
+  })
 
 
 
