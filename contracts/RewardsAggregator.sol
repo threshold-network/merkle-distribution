@@ -95,8 +95,7 @@ contract RewardsAggregator is Ownable, IRewardsAggregator {
         if (newAmount > 0) {
             return newAmount;
         } else {
-            return
-                oldCumulativeMerkleDrop.cumulativeClaimed(stakingProvider);
+            return oldCumulativeMerkleDrop.cumulativeClaimed(stakingProvider);
         }
     }
 

@@ -19,7 +19,9 @@ async function deployContractsFixture() {
   const Token = await ethers.getContractFactory("TokenMock")
   const ApplicationMock = await ethers.getContractFactory("ApplicationMock")
   const RewardsAggregator = await ethers.getContractFactory("RewardsAggregator")
-  const CumulativeMerkleDrop = await ethers.getContractFactory("CumulativeMerkleDrop")
+  const CumulativeMerkleDrop = await ethers.getContractFactory(
+    "CumulativeMerkleDrop"
+  )
 
   const token = await Token.deploy()
   await token.mint(rewardsHolder.address, 1)

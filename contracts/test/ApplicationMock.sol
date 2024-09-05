@@ -38,12 +38,11 @@ contract ApplicationMock is IApplication {
     ) external {}
 
     // solc-ignore-next-line unused-param func-mutability
-    function availableRewards(address stakingProvider)
-        external
-        view
-        returns (uint96) {
-            return 100000;
-        }
+    function availableRewards(
+        address stakingProvider
+    ) external view returns (uint96) {
+        return 100000;
+    }
 
     // solc-ignore-next-line func-mutability
     function minimumAuthorization() external view returns (uint96) {
