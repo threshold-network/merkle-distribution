@@ -123,3 +123,19 @@ Every time the subgraph queries are modified, these must be recompiled:
 ```bash
 yarn graphclient build --fileType json
 ```
+
+## Contracts development
+
+### Testing
+
+To compile the contracts, just run:
+
+```bash
+npx hardhat compile
+```
+
+To run the tests just run:
+
+```bash
+npx hardhat test
+```
