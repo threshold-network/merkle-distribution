@@ -37,8 +37,9 @@ contract ApplicationMock is IApplication {
         uint96 toAmount
     ) external {}
 
-    // solc-ignore-next-line unused-param func-mutability
+    // solc-ignore-next-line func-mutability
     function availableRewards(
+        // solc-ignore-next-line unused-param
         address stakingProvider
     ) external view returns (uint96) {
         return 100000;
