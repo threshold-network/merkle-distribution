@@ -1014,7 +1014,94 @@ describe("Rewards Aggregator contract", function () {
     })
   })
 
-  describe("when claiming rewards from both Threshold apps and Merkle dist", async function () {})
+  describe("when claiming rewards from both Threshold apps and Merkle dist", async function () {
+    it("should be possible to claim both apps and Merkle rewards", async function () {
+      // Let's set the Merkle distribution
+      const { token, application, rewardsHolder, rewardsAggregator } =
+        await loadFixture(deployContractsFixture)
+      await token.mint(rewardsHolder.address, dist.totalAmount)
+      await token
+        .connect(rewardsHolder)
+        .approve(rewardsAggregator.address, dist.totalAmount)
+      await rewardsAggregator.setMerkleRoot(dist.merkleRoot)
+
+      // Threshold app mock will send tokens to staking provider
+      await token.mint(application.address, 100000000)
+
+      const stakingProvider = Object.keys(dist.claims)[0]
+      const beneficiary = dist.claims[stakingProvider].beneficiary
+      const amount = dist.claims[stakingProvider].amount
+      const proof = dist.claims[stakingProvider].proof
+
+      const prevBalance = await token.balanceOf(beneficiary)
+
+      const tx = await rewardsAggregator[
+        "claim(address,address,uint256,bytes32,bytes32[])"
+      ](stakingProvider, beneficiary, amount, dist.merkleRoot, proof)
+
+      const afterBalance = await token.balanceOf(beneficiary)
+
+      // The beneficiary should be received the tokens from the distribution
+      // plus the tokens from the mocked app
+      expect(afterBalance.sub(amount).sub(prevBalance)).to.be.greaterThan(0)
+      expect(tx)
+        .to.emit(rewardsAggregator, "RewardsWithdrawn")
+        .withArgs(stakingProvider, anyValue)
+        .and.to.emit(rewardsAggregator, "MerkleClaimed")
+        .withArgs(stakingProvider, amount, beneficiary, dist.merkleRoot)
+    })
+
+    it("should be possible to batch-claim both apps and Merkle rewards", async function () {
+      // Let's set the Merkle distribution
+      const { token, application, rewardsHolder, rewardsAggregator } =
+        await loadFixture(deployContractsFixture)
+      await token.mint(rewardsHolder.address, dist.totalAmount)
+      await token
+        .connect(rewardsHolder)
+        .approve(rewardsAggregator.address, dist.totalAmount)
+      await rewardsAggregator.setMerkleRoot(dist.merkleRoot)
+
+      // Threshold app mock will send tokens to staking provider
+      await token.mint(application.address, 100000000)
+
+      const stakingProvider0 = Object.keys(dist.claims)[0]
+      const stakingProvider1 = Object.keys(dist.claims)[1]
+      const beneficiary0 = dist.claims[stakingProvider0].beneficiary
+      const beneficiary1 = dist.claims[stakingProvider1].beneficiary
+      const amount0 = dist.claims[stakingProvider0].amount
+      const amount1 = dist.claims[stakingProvider1].amount
+      const proof0 = dist.claims[stakingProvider0].proof
+      const proof1 = dist.claims[stakingProvider1].proof
+
+      const prevBalance0 = await token.balanceOf(beneficiary0)
+      const prevBalance1 = await token.balanceOf(beneficiary1)
+
+      const tx = await rewardsAggregator[
+        "batchClaim(bytes32,(address,address,uint256,bytes32[])[])"
+      ](dist.merkleRoot, [
+        [stakingProvider0, beneficiary0, amount0, proof0],
+        [stakingProvider1, beneficiary1, amount1, proof1],
+      ])
+
+      const afterBalance0 = await token.balanceOf(beneficiary0)
+      const afterBalance1 = await token.balanceOf(beneficiary1)
+
+      // The beneficiary should be received the tokens from the distribution
+      // plus the tokens from the mocked app
+      expect(afterBalance0.sub(amount0).sub(prevBalance0)).to.be.greaterThan(0)
+      expect(afterBalance1.sub(amount1).sub(prevBalance1)).to.be.greaterThan(0)
+
+      expect(tx)
+        .to.emit(rewardsAggregator, "RewardsWithdrawn")
+        .withArgs(stakingProvider0, anyValue)
+        .and.to.emit(rewardsAggregator, "MerkleClaimed")
+        .withArgs(stakingProvider0, amount0, beneficiary0, dist.merkleRoot)
+        .and.to.emit(rewardsAggregator, "RewardsWithdrawn")
+        .withArgs(stakingProvider1, anyValue)
+        .and.to.emit(rewardsAggregator, "MerkleClaimed")
+        .withArgs(stakingProvider1, amount1, beneficiary1, dist.merkleRoot)
+    })
+  })
 
   // TODO: from here down, the tests must be reviewed and refactored
 
