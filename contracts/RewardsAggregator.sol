@@ -41,30 +41,30 @@ contract RewardsAggregator is Ownable, IRewardsAggregator {
     }
 
     constructor(
-        address token_,
-        IApplication application_,
+        address _token,
+        IApplication _application,
         ICumulativeMerkleDrop _oldCumulativeMerkleDrop,
-        address rewardsHolder_,
+        address _rewardsHolder,
         address newOwner
     ) {
-        require(IERC20(token_).totalSupply() > 0, "Token contract must be set");
+        require(IERC20(_token).totalSupply() > 0, "Token contract must be set");
         require(
-            rewardsHolder_ != address(0),
+            _rewardsHolder != address(0),
             "Rewards Holder must be an address"
         );
         require(
-            address(application_) != address(0),
+            address(_application) != address(0),
             "Application must be an address"
         );
         require(
-            token_ == _oldCumulativeMerkleDrop.token(),
+            _token == _oldCumulativeMerkleDrop.token(),
             "Incompatible old Merkle Distribution contract"
         );
 
         transferOwnership(newOwner);
-        token = token_;
-        application = application_;
-        rewardsHolder = rewardsHolder_;
+        token = _token;
+        application = _application;
+        rewardsHolder = _rewardsHolder;
         oldCumulativeMerkleDrop = _oldCumulativeMerkleDrop;
     }
 
