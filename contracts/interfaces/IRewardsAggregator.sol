@@ -33,7 +33,7 @@ interface IRewardsAggregator {
     function setMerkleRoot(bytes32 merkleRoot_) external;
 
     // Sets the address from where Merkle rewards are being pulled.
-    function setRewardsHolder(address rewardsHolder_) external;
+    function setMerkleRewardsHolder(address rewardsHolder_) external;
 
     // Claim the given amount of the token to the given address. Reverts if the inputs are invalid.
     function claim(

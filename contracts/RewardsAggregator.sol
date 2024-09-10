@@ -73,7 +73,7 @@ contract RewardsAggregator is Ownable, IRewardsAggregator {
         merkleRoot = merkleRoot_;
     }
 
-    function setRewardsHolder(address rewardsHolder_) external onlyOwner {
+    function setMerkleRewardsHolder(address rewardsHolder_) external onlyOwner {
         require(
             rewardsHolder_ != address(0),
             "Rewards Holder must be an address"
@@ -106,7 +106,7 @@ contract RewardsAggregator is Ownable, IRewardsAggregator {
     function claimMerkle(
         address stakingProvider,
         address beneficiary,
-        uint256 cumulativeAmount,
+        uint256 merkleCumulativeAmount,
         bytes32 expectedMerkleRoot,
         bytes32[] calldata merkleProof
     ) public {
@@ -114,7 +114,7 @@ contract RewardsAggregator is Ownable, IRewardsAggregator {
 
         // Verify the merkle proof
         bytes32 leaf = keccak256(
-            abi.encodePacked(stakingProvider, beneficiary, cumulativeAmount)
+            abi.encodePacked(stakingProvider, beneficiary, merkleCumulativeAmount)
         );
         require(
             verifyMerkleProof(merkleProof, expectedMerkleRoot, leaf),
@@ -124,12 +124,12 @@ contract RewardsAggregator is Ownable, IRewardsAggregator {
         // Mark it claimed (potentially taking into consideration state in old
         // MerkleDistribution contract)
         uint256 preclaimed = cumulativeMerkleClaimed(stakingProvider);
-        require(preclaimed < cumulativeAmount, "Nothing to claim");
-        cumulativeClaimed[stakingProvider] = cumulativeAmount;
+        require(preclaimed < merkleCumulativeAmount, "Nothing to claim");
+        cumulativeClaimed[stakingProvider] = merkleCumulativeAmount;
 
         // Send the tokens
         unchecked {
-            uint256 amount = cumulativeAmount - preclaimed;
+            uint256 amount = merkleCumulativeAmount - preclaimed;
             IERC20(token).safeTransferFrom(rewardsHolder, beneficiary, amount);
             emit MerkleClaimed(
                 stakingProvider,
