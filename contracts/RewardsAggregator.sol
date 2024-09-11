@@ -68,21 +68,21 @@ contract RewardsAggregator is Ownable, IRewardsAggregator {
         oldCumulativeMerkleDrop = _oldCumulativeMerkleDrop;
     }
 
-    function setMerkleRoot(bytes32 merkleRoot_) external override onlyOwner {
-        emit MerkleRootUpdated(merkleRoot, merkleRoot_);
-        merkleRoot = merkleRoot_;
+    function setMerkleRoot(bytes32 _merkleRoot) external override onlyOwner {
+        emit MerkleRootUpdated(merkleRoot, _merkleRoot);
+        merkleRoot = _merkleRoot;
     }
 
     /**
      * @notice Sets the address from where Merkle rewards are being pulled.
      */
-    function setMerkleRewardsHolder(address rewardsHolder_) external onlyOwner {
+    function setMerkleRewardsHolder(address _rewardsHolder) external onlyOwner {
         require(
-            rewardsHolder_ != address(0),
+            _rewardsHolder != address(0),
             "Rewards Holder must be an address"
         );
-        emit RewardsHolderUpdated(rewardsHolder, rewardsHolder_);
-        rewardsHolder = rewardsHolder_;
+        emit RewardsHolderUpdated(rewardsHolder, _rewardsHolder);
+        rewardsHolder = _rewardsHolder;
     }
 
     /**
