@@ -3,7 +3,7 @@
 pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@threshold-network/solidity-contracts/contracts/staking/IApplication.sol";
+import "../interfaces/IApplication.sol";
 
 contract ApplicationMock is IApplication {
     IERC20 public immutable token;
