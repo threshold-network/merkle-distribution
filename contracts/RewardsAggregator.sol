@@ -73,6 +73,9 @@ contract RewardsAggregator is Ownable, IRewardsAggregator {
         merkleRoot = merkleRoot_;
     }
 
+    /**
+     * @notice Sets the address from where Merkle rewards are being pulled.
+     */
     function setMerkleRewardsHolder(address rewardsHolder_) external onlyOwner {
         require(
             rewardsHolder_ != address(0),
