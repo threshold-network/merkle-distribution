@@ -1,9 +1,7 @@
-require("@nomiclabs/hardhat-ethers")
-require("@nomiclabs/hardhat-waffle")
+require("@nomicfoundation/hardhat-toolbox")
 require("@nomiclabs/hardhat-etherscan")
 require("hardhat-deploy")
-require("solidity-coverage")
-require("hardhat-gas-reporter")
+require("hardhat-ignore-warnings")
 require("dotenv").config()
 require("./src/tasks/claim_rewards")
 
@@ -39,6 +37,10 @@ module.exports = {
       sepolia: 0,
       mainnet: "0x9F6e831c8F8939DC0C830C6e492e7cEf4f9C2F5f",
       mainnet_test: 0,
+    },
+    tacoApp: {
+      sepolia: "0x329bc9Df0e45f360583374726ccaFF003264a136",
+      mainnet: "0x347CC7ede7e5517bD47D20620B2CF1b406edcF07",
     },
   },
   networks,

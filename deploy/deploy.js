@@ -6,8 +6,8 @@ module.exports = async ({ deployments, getNamedAccounts }) => {
     console.log('network id ', await getChainId());
 
     const {deploy} = deployments;
-    const {deployer, tokenContract, rewardsHolder, owner} = await getNamedAccounts();
-    const args = [tokenContract, rewardsHolder, owner];
+    const {deployer, tokenContract, rewardsHolder, tacoApp, owner} = await getNamedAccounts();
+    const args = [tokenContract, tacoApp, rewardsHolder, owner];
     const merkleDrop = await deploy('CumulativeMerkleDrop', {
         from: deployer,
         args,

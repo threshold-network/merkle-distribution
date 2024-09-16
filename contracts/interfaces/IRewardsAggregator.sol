@@ -1,14 +1,12 @@
 // SPDX-License-Identifier: MIT
-
 pragma solidity ^0.8.9;
-pragma abicoder v1;
 
-// Allows anyone to claim a token if they exist in a merkle root.
-interface ICumulativeMerkleDrop {
+// Allows to claim the staking rewards of the Threshold Network.
+interface IRewardsAggregator {
     // This event is triggered whenever a call to #setMerkleRoot succeeds.
-    event MerkelRootUpdated(bytes32 oldMerkleRoot, bytes32 newMerkleRoot);
-    // This event is triggered whenever a call to #claim succeeds.
-    event Claimed(
+    event MerkleRootUpdated(bytes32 oldMerkleRoot, bytes32 newMerkleRoot);
+    // This event is triggered whenever a call to #claimMerkle succeeds.
+    event MerkleClaimed(
         address indexed stakingProvider,
         uint256 amount,
         address beneficiary,
@@ -26,15 +24,16 @@ interface ICumulativeMerkleDrop {
     // Returns the merkle root of the merkle tree containing cumulative account balances available to claim.
     function merkleRoot() external view returns (bytes32);
 
-    // Sets the merkle root of the merkle tree containing cumulative account balances available to claim.
-    function setMerkleRoot(bytes32 merkleRoot_) external;
-
-    // Returns the cumulative balance of claimed rewards.
-    function cumulativeClaimed(
+    // Returns the Merkle cumulative claimed rewards balance.
+    function cumulativeMerkleClaimed(
         address stakingProvider
     ) external view returns (uint256);
 
-    function setRewardsHolder(address rewardsHolder_) external;
+    // Sets the merkle root of the merkle tree containing cumulative account balances available to claim.
+    function setMerkleRoot(bytes32 merkleRoot_) external;
+
+    // Sets the address from where Merkle rewards are being pulled.
+    function setMerkleRewardsHolder(address rewardsHolder_) external;
 
     // Claim the given amount of the token to the given address. Reverts if the inputs are invalid.
     function claim(
