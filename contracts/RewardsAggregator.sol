@@ -44,12 +44,12 @@ contract RewardsAggregator is Ownable, IRewardsAggregator {
         address _token,
         IApplication _application,
         ICumulativeMerkleDrop _oldCumulativeMerkleDrop,
-        address _rewardsHolder,
+        address _merkleRewardsHolder,
         address newOwner
     ) {
         require(IERC20(_token).totalSupply() > 0, "Token contract must be set");
         require(
-            _rewardsHolder != address(0),
+            _merkleRewardsHolder != address(0),
             "Rewards Holder must be an address"
         );
         require(
@@ -64,7 +64,7 @@ contract RewardsAggregator is Ownable, IRewardsAggregator {
         transferOwnership(newOwner);
         token = _token;
         application = _application;
-        merkleRewardsHolder = _rewardsHolder;
+        merkleRewardsHolder = _merkleRewardsHolder;
         oldCumulativeMerkleDrop = _oldCumulativeMerkleDrop;
     }
 
