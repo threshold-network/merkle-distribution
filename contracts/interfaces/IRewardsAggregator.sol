@@ -30,7 +30,7 @@ interface IRewardsAggregator {
     ) external view returns (uint256);
 
     // Sets the merkle root of the merkle tree containing cumulative account balances available to claim.
-    function setMerkleRoot(bytes32 merkleRoot_) external;
+    function setMerkleRoot(bytes32 _merkleRoot) external;
 
     // Sets the address from where Merkle rewards are being pulled.
     function setMerkleRewardsHolder(address newRewardsHolder) external;
@@ -39,7 +39,7 @@ interface IRewardsAggregator {
     function claim(
         address stakingProvider,
         address beneficiary,
-        uint256 cumulativeAmount,
+        uint256 merkleCumulativeAmount,
         bytes32 expectedMerkleRoot,
         bytes32[] calldata merkleProof
     ) external;
