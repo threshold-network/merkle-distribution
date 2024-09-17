@@ -22,7 +22,7 @@ contract RewardsAggregator is Ownable, IRewardsAggregator {
     using MerkleProof for bytes32[];
 
     address public immutable override token;
-    address public rewardsHolder;
+    address public merkleRewardsHolder;
 
     bytes32 public override merkleRoot;
     mapping(address => uint256) internal cumulativeClaimed;
@@ -44,12 +44,12 @@ contract RewardsAggregator is Ownable, IRewardsAggregator {
         address _token,
         IApplication _application,
         ICumulativeMerkleDrop _oldCumulativeMerkleDrop,
-        address _rewardsHolder,
+        address _merkleRewardsHolder,
         address newOwner
     ) {
         require(IERC20(_token).totalSupply() > 0, "Token contract must be set");
         require(
-            _rewardsHolder != address(0),
+            _merkleRewardsHolder != address(0),
             "Rewards Holder must be an address"
         );
         require(
@@ -64,7 +64,7 @@ contract RewardsAggregator is Ownable, IRewardsAggregator {
         transferOwnership(newOwner);
         token = _token;
         application = _application;
-        rewardsHolder = _rewardsHolder;
+        merkleRewardsHolder = _merkleRewardsHolder;
         oldCumulativeMerkleDrop = _oldCumulativeMerkleDrop;
     }
 
@@ -76,13 +76,15 @@ contract RewardsAggregator is Ownable, IRewardsAggregator {
     /**
      * @notice Sets the address from where Merkle rewards are being pulled.
      */
-    function setMerkleRewardsHolder(address _rewardsHolder) external onlyOwner {
+    function setMerkleRewardsHolder(
+        address newRewardsHolder
+    ) external onlyOwner {
         require(
-            _rewardsHolder != address(0),
+            newRewardsHolder != address(0),
             "Rewards Holder must be an address"
         );
-        emit RewardsHolderUpdated(rewardsHolder, _rewardsHolder);
-        rewardsHolder = _rewardsHolder;
+        emit RewardsHolderUpdated(merkleRewardsHolder, newRewardsHolder);
+        merkleRewardsHolder = newRewardsHolder;
     }
 
     /**
@@ -117,7 +119,11 @@ contract RewardsAggregator is Ownable, IRewardsAggregator {
 
         // Verify the merkle proof
         bytes32 leaf = keccak256(
-            abi.encodePacked(stakingProvider, beneficiary, merkleCumulativeAmount)
+            abi.encodePacked(
+                stakingProvider,
+                beneficiary,
+                merkleCumulativeAmount
+            )
         );
         require(
             verifyMerkleProof(merkleProof, expectedMerkleRoot, leaf),
@@ -133,7 +139,11 @@ contract RewardsAggregator is Ownable, IRewardsAggregator {
         // Send the tokens
         unchecked {
             uint256 amount = merkleCumulativeAmount - preclaimed;
-            IERC20(token).safeTransferFrom(rewardsHolder, beneficiary, amount);
+            IERC20(token).safeTransferFrom(
+                merkleRewardsHolder,
+                beneficiary,
+                amount
+            );
             emit MerkleClaimed(
                 stakingProvider,
                 amount,

@@ -19,7 +19,7 @@ describe("Rewards Aggregator contract", function () {
       )
       const {
         owner,
-        rewardsHolder,
+        merkleRewardsHolder,
         token,
         application,
         oldCumulativeMerkleDrop,
@@ -29,7 +29,7 @@ describe("Rewards Aggregator contract", function () {
         token.address,
         application.address,
         oldCumulativeMerkleDrop.address,
-        rewardsHolder.address,
+        merkleRewardsHolder.address,
         owner.address
       )
 
@@ -37,8 +37,8 @@ describe("Rewards Aggregator contract", function () {
       expect(await rewardsAggregator.application()).to.equal(
         application.address
       )
-      expect(await rewardsAggregator.rewardsHolder()).to.equal(
-        rewardsHolder.address
+      expect(await rewardsAggregator.merkleRewardsHolder()).to.equal(
+        merkleRewardsHolder.address
       )
       expect(await rewardsAggregator.oldCumulativeMerkleDrop()).to.equal(
         oldCumulativeMerkleDrop.address
@@ -50,7 +50,7 @@ describe("Rewards Aggregator contract", function () {
       const RewardsAggregator = await ethers.getContractFactory(
         "RewardsAggregator"
       )
-      const { owner, rewardsHolder, application, oldCumulativeMerkleDrop } =
+      const { owner, merkleRewardsHolder, application, oldCumulativeMerkleDrop } =
         await loadFixture(deployContractsFixture)
 
       const tokenAddress = ethers.constants.AddressZero
@@ -59,7 +59,7 @@ describe("Rewards Aggregator contract", function () {
           tokenAddress,
           application.address,
           oldCumulativeMerkleDrop.address,
-          rewardsHolder.address,
+          merkleRewardsHolder.address,
           owner.address
         )
       ).to.be.reverted
@@ -70,7 +70,7 @@ describe("Rewards Aggregator contract", function () {
       const RewardsAggregator = await ethers.getContractFactory(
         "RewardsAggregator"
       )
-      const { owner, rewardsHolder, application, oldCumulativeMerkleDrop } =
+      const { owner, merkleRewardsHolder, application, oldCumulativeMerkleDrop } =
         await loadFixture(deployContractsFixture)
 
       const tokenWithNoMint = await Token.deploy()
@@ -80,7 +80,7 @@ describe("Rewards Aggregator contract", function () {
           tokenWithNoMint.address,
           application.address,
           oldCumulativeMerkleDrop.address,
-          rewardsHolder.address,
+          merkleRewardsHolder.address,
           owner.address
         )
       ).to.be.revertedWith("Token contract must be set")
@@ -93,13 +93,13 @@ describe("Rewards Aggregator contract", function () {
       const { owner, token, application, oldCumulativeMerkleDrop } =
         await loadFixture(deployContractsFixture)
 
-      const rewardsHolder = ethers.constants.AddressZero
+      const merkleRewardsHolder = ethers.constants.AddressZero
       await expect(
         RewardsAggregator.deploy(
           token.address,
           application.address,
           oldCumulativeMerkleDrop.address,
-          rewardsHolder,
+          merkleRewardsHolder,
           owner.address
         )
       ).to.be.revertedWith("Rewards Holder must be an address")
@@ -109,7 +109,7 @@ describe("Rewards Aggregator contract", function () {
       const RewardsAggregator = await ethers.getContractFactory(
         "RewardsAggregator"
       )
-      const { owner, rewardsHolder, token, oldCumulativeMerkleDrop } =
+      const { owner, merkleRewardsHolder, token, oldCumulativeMerkleDrop } =
         await loadFixture(deployContractsFixture)
 
       const applicationAddress = ethers.constants.AddressZero
@@ -118,7 +118,7 @@ describe("Rewards Aggregator contract", function () {
           token.address,
           applicationAddress,
           oldCumulativeMerkleDrop.address,
-          rewardsHolder.address,
+          merkleRewardsHolder.address,
           owner.address
         )
       ).to.be.revertedWith("Application must be an address")
@@ -128,7 +128,7 @@ describe("Rewards Aggregator contract", function () {
       const RewardsAggregator = await ethers.getContractFactory(
         "RewardsAggregator"
       )
-      const { owner, rewardsHolder, token, application } = await loadFixture(
+      const { owner, merkleRewardsHolder, token, application } = await loadFixture(
         deployContractsFixture
       )
 
@@ -138,7 +138,7 @@ describe("Rewards Aggregator contract", function () {
           token.address,
           application.address,
           fakeOldCumulativeMerkleContractAddr,
-          rewardsHolder.address,
+          merkleRewardsHolder.address,
           owner.address
         )
       ).to.be.reverted
@@ -152,15 +152,15 @@ describe("Rewards Aggregator contract", function () {
       const RewardsAggregator = await ethers.getContractFactory(
         "RewardsAggregator"
       )
-      const { owner, rewardsHolder, token, application } = await loadFixture(
+      const { owner, merkleRewardsHolder, token, application } = await loadFixture(
         deployContractsFixture
       )
 
       const fakeToken = await Token.deploy()
-      await fakeToken.mint(rewardsHolder.address, 1)
+      await fakeToken.mint(merkleRewardsHolder.address, 1)
       const fakeOldCumulativeMerkleDrop = await CumulativeMerkleDrop.deploy(
         fakeToken.address,
-        rewardsHolder.address,
+        merkleRewardsHolder.address,
         owner.address
       )
       await expect(
@@ -168,7 +168,7 @@ describe("Rewards Aggregator contract", function () {
           token.address,
           application.address,
           fakeOldCumulativeMerkleDrop.address,
-          rewardsHolder.address,
+          merkleRewardsHolder.address,
           owner.address
         )
       ).to.be.revertedWith("Incompatible old Merkle Distribution contract")
@@ -218,22 +218,22 @@ describe("Rewards Aggregator contract", function () {
   describe("when setting Rewards Holder", async function () {
     it("should be possible to set a new Rewards Holder address", async function () {
       const { rewardsAggregator } = await loadFixture(deployContractsFixture)
-      const rewardsHolder = "0xF8653523beEB1799516f0BBB56B72a3F236176B5"
-      await rewardsAggregator.setMerkleRewardsHolder(rewardsHolder)
-      expect(await rewardsAggregator.rewardsHolder()).to.equal(rewardsHolder)
+      const merkleRewardsHolder = "0xF8653523beEB1799516f0BBB56B72a3F236176B5"
+      await rewardsAggregator.setMerkleRewardsHolder(merkleRewardsHolder)
+      expect(await rewardsAggregator.merkleRewardsHolder()).to.equal(merkleRewardsHolder)
     })
 
     it("should not be possible to set an invalid address", async function () {
       const { rewardsAggregator } = await loadFixture(deployContractsFixture)
-      const rewardsHolder = ethers.constants.AddressZero
+      const merkleRewardsHolder = ethers.constants.AddressZero
       await expect(
-        rewardsAggregator.setMerkleRewardsHolder(rewardsHolder)
+        rewardsAggregator.setMerkleRewardsHolder(merkleRewardsHolder)
       ).to.be.revertedWith("Rewards Holder must be an address")
     })
 
     it("should be emitted an event", async function () {
       const { rewardsAggregator } = await loadFixture(deployContractsFixture)
-      const prevRewardsHolder = await rewardsAggregator.rewardsHolder()
+      const prevRewardsHolder = await rewardsAggregator.merkleRewardsHolder()
       const newRewardsHolder = "0xF8653523beEB1799516f0BBB56B72a3F236176B5"
       const tx = rewardsAggregator.setMerkleRewardsHolder(newRewardsHolder)
       await expect(tx)
@@ -426,12 +426,12 @@ describe("Rewards Aggregator contract", function () {
 
   describe("when claiming rewards generated by Merkle distribution", async function () {
     it("should not be possible to claim if no Merkle Root is set", async function () {
-      const { token, rewardsHolder, rewardsAggregator } = await loadFixture(
+      const { token, merkleRewardsHolder, rewardsAggregator } = await loadFixture(
         deployContractsFixture
       )
-      await token.mint(rewardsHolder.address, dist.totalAmount)
+      await token.mint(merkleRewardsHolder.address, dist.totalAmount)
       await token
-        .connect(rewardsHolder)
+        .connect(merkleRewardsHolder)
         .approve(rewardsAggregator.address, dist.totalAmount)
 
       const stakingProvider = Object.keys(dist.claims)[0]
@@ -450,12 +450,12 @@ describe("Rewards Aggregator contract", function () {
       ).to.be.revertedWith("Merkle root was updated")
     })
     it("should not be possible to claim if Merkle Root is not correct", async function () {
-      const { token, rewardsHolder, rewardsAggregator } = await loadFixture(
+      const { token, merkleRewardsHolder, rewardsAggregator } = await loadFixture(
         deployContractsFixture
       )
-      await token.mint(rewardsHolder.address, dist.totalAmount)
+      await token.mint(merkleRewardsHolder.address, dist.totalAmount)
       await token
-        .connect(rewardsHolder)
+        .connect(merkleRewardsHolder)
         .approve(rewardsAggregator.address, dist.totalAmount)
 
       const fakeMerkleRoot = "0x" + "f".repeat(64)
@@ -477,12 +477,12 @@ describe("Rewards Aggregator contract", function () {
       ).to.be.revertedWith("Merkle root was updated")
     })
     it("should not be possible to claim if Merkle Proof is not correct", async function () {
-      const { token, rewardsHolder, rewardsAggregator } = await loadFixture(
+      const { token, merkleRewardsHolder, rewardsAggregator } = await loadFixture(
         deployContractsFixture
       )
-      await token.mint(rewardsHolder.address, dist.totalAmount)
+      await token.mint(merkleRewardsHolder.address, dist.totalAmount)
       await token
-        .connect(rewardsHolder)
+        .connect(merkleRewardsHolder)
         .approve(rewardsAggregator.address, dist.totalAmount)
       await rewardsAggregator.setMerkleRoot(dist.merkleRoot)
 
@@ -503,12 +503,12 @@ describe("Rewards Aggregator contract", function () {
     })
 
     it("should not be possible to claim a different amount of tokens", async function () {
-      const { token, rewardsHolder, rewardsAggregator } = await loadFixture(
+      const { token, merkleRewardsHolder, rewardsAggregator } = await loadFixture(
         deployContractsFixture
       )
-      await token.mint(rewardsHolder.address, dist.totalAmount)
+      await token.mint(merkleRewardsHolder.address, dist.totalAmount)
       await token
-        .connect(rewardsHolder)
+        .connect(merkleRewardsHolder)
         .approve(rewardsAggregator.address, dist.totalAmount)
       await rewardsAggregator.setMerkleRoot(dist.merkleRoot)
 
@@ -529,12 +529,12 @@ describe("Rewards Aggregator contract", function () {
     })
 
     it("should be possible to claim", async function () {
-      const { token, rewardsHolder, rewardsAggregator } = await loadFixture(
+      const { token, merkleRewardsHolder, rewardsAggregator } = await loadFixture(
         deployContractsFixture
       )
-      await token.mint(rewardsHolder.address, dist.totalAmount)
+      await token.mint(merkleRewardsHolder.address, dist.totalAmount)
       await token
-        .connect(rewardsHolder)
+        .connect(merkleRewardsHolder)
         .approve(rewardsAggregator.address, dist.totalAmount)
       await rewardsAggregator.setMerkleRoot(dist.merkleRoot)
 
@@ -558,19 +558,19 @@ describe("Rewards Aggregator contract", function () {
     it("should be taken into account the rewards already claimed in old Merkle contract", async function () {
       const {
         token,
-        rewardsHolder,
+        merkleRewardsHolder,
         oldCumulativeMerkleDrop,
         rewardsAggregator,
       } = await loadFixture(deployContractsFixture)
-      await token.mint(rewardsHolder.address, cumDist.totalAmount)
+      await token.mint(merkleRewardsHolder.address, cumDist.totalAmount)
 
       // There are two example distributions: dist & cumDist. The second one
       // increases the rewards of some of the first one's beneficiaries
       await token
-        .connect(rewardsHolder)
+        .connect(merkleRewardsHolder)
         .approve(oldCumulativeMerkleDrop.address, cumDist.totalAmount)
       await token
-        .connect(rewardsHolder)
+        .connect(merkleRewardsHolder)
         .approve(rewardsAggregator.address, cumDist.totalAmount)
 
       const stakingProvider = Object.keys(dist.claims)[0]
@@ -634,12 +634,12 @@ describe("Rewards Aggregator contract", function () {
     })
 
     it("should not be possible to claim twice or if no rewards available", async function () {
-      const { token, rewardsHolder, rewardsAggregator } = await loadFixture(
+      const { token, merkleRewardsHolder, rewardsAggregator } = await loadFixture(
         deployContractsFixture
       )
-      await token.mint(rewardsHolder.address, dist.totalAmount)
+      await token.mint(merkleRewardsHolder.address, dist.totalAmount)
       await token
-        .connect(rewardsHolder)
+        .connect(merkleRewardsHolder)
         .approve(rewardsAggregator.address, dist.totalAmount)
       await rewardsAggregator.setMerkleRoot(dist.merkleRoot)
 
@@ -667,12 +667,12 @@ describe("Rewards Aggregator contract", function () {
       ).to.be.revertedWith("Nothing to claim")
     })
     it("should be emitted an event when claiming", async function () {
-      const { token, rewardsHolder, rewardsAggregator } = await loadFixture(
+      const { token, merkleRewardsHolder, rewardsAggregator } = await loadFixture(
         deployContractsFixture
       )
-      await token.mint(rewardsHolder.address, dist.totalAmount)
+      await token.mint(merkleRewardsHolder.address, dist.totalAmount)
       await token
-        .connect(rewardsHolder)
+        .connect(merkleRewardsHolder)
         .approve(rewardsAggregator.address, dist.totalAmount)
       await rewardsAggregator.setMerkleRoot(dist.merkleRoot)
 
@@ -694,12 +694,12 @@ describe("Rewards Aggregator contract", function () {
         .withArgs(stakingProvider, amount, beneficiary, dist.merkleRoot)
     })
     it("should be transferred the tokens when claiming", async function () {
-      const { token, rewardsHolder, rewardsAggregator } = await loadFixture(
+      const { token, merkleRewardsHolder, rewardsAggregator } = await loadFixture(
         deployContractsFixture
       )
-      await token.mint(rewardsHolder.address, dist.totalAmount)
+      await token.mint(merkleRewardsHolder.address, dist.totalAmount)
       await token
-        .connect(rewardsHolder)
+        .connect(merkleRewardsHolder)
         .approve(rewardsAggregator.address, dist.totalAmount)
       await rewardsAggregator.setMerkleRoot(dist.merkleRoot)
 
@@ -710,7 +710,7 @@ describe("Rewards Aggregator contract", function () {
 
       const prevBalanceBenef = await token.balanceOf(beneficiary)
       const prevBalanceRewardsHolder = await token.balanceOf(
-        rewardsHolder.address
+        merkleRewardsHolder.address
       )
       await rewardsAggregator.claimMerkle(
         stakingProvider,
@@ -721,7 +721,7 @@ describe("Rewards Aggregator contract", function () {
       )
       const afterBalanceBenef = await token.balanceOf(beneficiary)
       const afterBalanceRewardsHolder = await token.balanceOf(
-        rewardsHolder.address
+        merkleRewardsHolder.address
       )
 
       expect(afterBalanceBenef).to.equal(prevBalanceBenef.add(amount))
@@ -731,12 +731,12 @@ describe("Rewards Aggregator contract", function () {
     })
 
     it("should be possible to claim a batch of rewards", async function () {
-      const { token, rewardsHolder, rewardsAggregator } = await loadFixture(
+      const { token, merkleRewardsHolder, rewardsAggregator } = await loadFixture(
         deployContractsFixture
       )
-      await token.mint(rewardsHolder.address, dist.totalAmount)
+      await token.mint(merkleRewardsHolder.address, dist.totalAmount)
       await token
-        .connect(rewardsHolder)
+        .connect(merkleRewardsHolder)
         .approve(rewardsAggregator.address, dist.totalAmount)
       await rewardsAggregator.setMerkleRoot(dist.merkleRoot)
 
@@ -791,12 +791,12 @@ describe("Rewards Aggregator contract", function () {
     })
 
     it("should return correct amount when been claimed only through the RewardsAggregator contract", async function () {
-      const { token, rewardsHolder, rewardsAggregator } = await loadFixture(
+      const { token, merkleRewardsHolder, rewardsAggregator } = await loadFixture(
         deployContractsFixture
       )
-      await token.mint(rewardsHolder.address, dist.totalAmount)
+      await token.mint(merkleRewardsHolder.address, dist.totalAmount)
       await token
-        .connect(rewardsHolder)
+        .connect(merkleRewardsHolder)
         .approve(rewardsAggregator.address, dist.totalAmount)
       await rewardsAggregator.setMerkleRoot(dist.merkleRoot)
 
@@ -824,15 +824,15 @@ describe("Rewards Aggregator contract", function () {
     it("should return correct amount of rewards when been claimed only through the old Merkle contract", async function () {
       const {
         token,
-        rewardsHolder,
+        merkleRewardsHolder,
         oldCumulativeMerkleDrop,
         rewardsAggregator,
       } = await loadFixture(deployContractsFixture)
 
-      await token.mint(rewardsHolder.address, dist.totalAmount)
+      await token.mint(merkleRewardsHolder.address, dist.totalAmount)
 
       await token
-        .connect(rewardsHolder)
+        .connect(merkleRewardsHolder)
         .approve(oldCumulativeMerkleDrop.address, dist.totalAmount)
 
       await oldCumulativeMerkleDrop.setMerkleRoot(dist.merkleRoot)
@@ -861,18 +861,18 @@ describe("Rewards Aggregator contract", function () {
     it("should return correct amount of rewards when been claimed through both RewardsAggregator and old Merkle contract", async function () {
       const {
         token,
-        rewardsHolder,
+        merkleRewardsHolder,
         oldCumulativeMerkleDrop,
         rewardsAggregator,
       } = await loadFixture(deployContractsFixture)
 
-      await token.mint(rewardsHolder.address, dist.totalAmount)
+      await token.mint(merkleRewardsHolder.address, dist.totalAmount)
 
       await token
-        .connect(rewardsHolder)
+        .connect(merkleRewardsHolder)
         .approve(oldCumulativeMerkleDrop.address, dist.totalAmount)
       await token
-        .connect(rewardsHolder)
+        .connect(merkleRewardsHolder)
         .approve(rewardsAggregator.address, dist.totalAmount)
 
       // There are two example distributions: dist & cumDist. The second one
@@ -1017,11 +1017,11 @@ describe("Rewards Aggregator contract", function () {
   describe("when claiming rewards from both Threshold apps and Merkle dist", async function () {
     it("should be possible to claim both apps and Merkle rewards", async function () {
       // Let's set the Merkle distribution
-      const { token, application, rewardsHolder, rewardsAggregator } =
+      const { token, application, merkleRewardsHolder, rewardsAggregator } =
         await loadFixture(deployContractsFixture)
-      await token.mint(rewardsHolder.address, dist.totalAmount)
+      await token.mint(merkleRewardsHolder.address, dist.totalAmount)
       await token
-        .connect(rewardsHolder)
+        .connect(merkleRewardsHolder)
         .approve(rewardsAggregator.address, dist.totalAmount)
       await rewardsAggregator.setMerkleRoot(dist.merkleRoot)
 
@@ -1053,11 +1053,11 @@ describe("Rewards Aggregator contract", function () {
 
     it("should be possible to batch-claim both apps and Merkle rewards", async function () {
       // Let's set the Merkle distribution
-      const { token, application, rewardsHolder, rewardsAggregator } =
+      const { token, application, merkleRewardsHolder, rewardsAggregator } =
         await loadFixture(deployContractsFixture)
-      await token.mint(rewardsHolder.address, dist.totalAmount)
+      await token.mint(merkleRewardsHolder.address, dist.totalAmount)
       await token
-        .connect(rewardsHolder)
+        .connect(merkleRewardsHolder)
         .approve(rewardsAggregator.address, dist.totalAmount)
       await rewardsAggregator.setMerkleRoot(dist.merkleRoot)
 
