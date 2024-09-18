@@ -1,3 +1,4 @@
+const fs = require("fs")
 const { ethers } = require("hardhat")
 const { MerkleTree } = require("merkletreejs")
 const keccak256 = require("keccak256")
@@ -49,4 +50,26 @@ async function deployContractsFixture() {
   }
 }
 
-module.exports = { genMerkleLeaf, onlyUnique, deployContractsFixture }
+function getLastMerkleClaim(stakingProvider) {
+  // Read the dists folders and take only those with YYYY/MM/DD format
+  let distDates = fs
+    .readdirSync("./distributions")
+    .filter((dist) => /^\d{4}-\d{2}-\d{2}$/.test(dist))
+
+  distDates = distDates.sort().reverse()
+  const distFile = fs.readFileSync(
+    `./distributions/${distDates[0]}/MerkleDist.json`
+  )
+  const dist = JSON.parse(distFile)
+  const claim = dist.claims[stakingProvider]
+  claim["merkleRoot"] = dist.merkleRoot
+
+  return claim
+}
+
+module.exports = {
+  genMerkleLeaf,
+  onlyUnique,
+  deployContractsFixture,
+  getLastMerkleClaim,
+}
