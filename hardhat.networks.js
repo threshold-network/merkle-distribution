@@ -47,6 +47,7 @@ networks["hardhat"] = {
   forking: {
     enabled: !!process.env.FORKING_URL,
     url: process.env.FORKING_URL || "",
+    blockNumber: 20775560,
   },
 }
 
