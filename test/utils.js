@@ -15,7 +15,7 @@ function onlyUnique(value, index, self) {
 }
 
 async function deployContractsFixture() {
-  const [owner, rewardsHolder] = await ethers.getSigners()
+  const [owner, merkleRewardsHolder] = await ethers.getSigners()
 
   const Token = await ethers.getContractFactory("TokenMock")
   const ApplicationMock = await ethers.getContractFactory("ApplicationMock")
@@ -25,24 +25,24 @@ async function deployContractsFixture() {
   )
 
   const token = await Token.deploy()
-  await token.mint(rewardsHolder.address, 1)
+  await token.mint(merkleRewardsHolder.address, 1)
   const application = await ApplicationMock.deploy(token.address)
   const oldCumulativeMerkleDrop = await CumulativeMerkleDrop.deploy(
     token.address,
-    rewardsHolder.address,
+    merkleRewardsHolder.address,
     owner.address
   )
   const rewardsAggregator = await RewardsAggregator.deploy(
     token.address,
     application.address,
     oldCumulativeMerkleDrop.address,
-    rewardsHolder.address,
+    merkleRewardsHolder.address,
     owner.address
   )
 
   return {
     owner,
-    rewardsHolder,
+    merkleRewardsHolder,
     token,
     application,
     oldCumulativeMerkleDrop,
