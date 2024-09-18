@@ -1,4 +1,5 @@
 const { getNamedAccounts, network, ethers } = require("hardhat")
+const helpers = require("@nomicfoundation/hardhat-network-helpers")
 const { before, describe, it } = require("mocha")
 const { expect } = require("chai")
 
@@ -41,10 +42,16 @@ describe("Deployment of RewardsAggregator using mainnet network fork", function 
       owner
     )
 
+    const ownerSigner = await ethers.getSigner(owner)
+
+    await helpers.setBalance(owner, 10n ** 18n)
+    await rewardsAggregator.connect(ownerSigner).setMerkleRoot(claim.merkleRoot)
+
     // Check if the contract was successfully deployed
     expect(await rewardsAggregator.owner()).to.equal(owner)
     expect(await rewardsAggregator.token()).to.equal(tokenContract)
     expect(await rewardsAggregator.application()).to.equal(tacoApp)
+    expect(await rewardsAggregator.merkleRoot()).to.equal(claim.merkleRoot)
     expect(await rewardsAggregator.merkleRewardsHolder()).to.equal(
       merkleRewardsHolder
     )
@@ -68,6 +75,5 @@ describe("Deployment of RewardsAggregator using mainnet network fork", function 
     // TODO: test a TACoApp claim
 
     // TODO: test a total claim (Merkle + TACoApp)
-
   })
 })
