@@ -1,7 +1,7 @@
 const fs = require("fs")
-const { ethers } = require("hardhat")
+const { ethers, network } = require("hardhat")
 const { expect } = require("chai")
-const { describe, it } = require("mocha")
+const { after, before, describe, it } = require("mocha")
 const { MerkleTree } = require("merkletreejs")
 const keccak256 = require("keccak256")
 const { loadFixture } = require("@nomicfoundation/hardhat-network-helpers")
@@ -12,6 +12,18 @@ const { dist } = require("./constants")
 const { cumDist } = require("./constants")
 
 describe("Rewards Aggregator contract", function () {
+  const forking = network.config.forking
+
+  before(function () {
+    // Disabling mainnet fork in case it is enabled to make tests faster
+    network.config.forking = undefined
+  })
+
+  after(function() {
+    // Restoring mainnet fork configuration for subsequent tests
+    network.config.forking = forking
+  })
+
   describe("when deploying RewardsAggregator", async function () {
     it("should be deployed", async function () {
       const RewardsAggregator = await ethers.getContractFactory(
@@ -246,7 +258,9 @@ describe("Rewards Aggregator contract", function () {
       const newRewardsHolder = "0xF8653523beEB1799516f0BBB56B72a3F236176B5"
       const [, , , , , signer1] = await ethers.getSigners()
       await expect(
-        rewardsAggregator.connect(signer1).setMerkleRewardsHolder(newRewardsHolder)
+        rewardsAggregator
+          .connect(signer1)
+          .setMerkleRewardsHolder(newRewardsHolder)
       ).to.be.revertedWith("Ownable: caller is not the owner")
     })
   })

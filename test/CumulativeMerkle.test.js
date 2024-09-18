@@ -1,6 +1,6 @@
-const { ethers } = require("hardhat")
+const { ethers, network } = require("hardhat")
 const { expect } = require("chai")
-const { describe, it, before, beforeEach } = require("mocha")
+const { after, describe, it, before, beforeEach } = require("mocha")
 const { MerkleTree } = require("merkletreejs")
 const fc = require("fast-check")
 const keccak256 = require("keccak256")
@@ -10,12 +10,22 @@ const { dist } = require("./constants")
 const { cumDist } = require("./constants")
 
 describe("Cumulative Merkle Distribution", function () {
+  const forking = network.config.forking
+
   let token
 
   before(function () {
+    // Disabling mainnet fork in case it is enabled to make tests faster
+    network.config.forking = undefined
+
     // numRuns must be less or equal to the number of accounts in `dist`
     const numRuns = Object.keys(dist.claims).length
     fc.configureGlobal({ numRuns: numRuns, skipEqualValues: true })
+  })
+
+  after(function() {
+    // Restoring mainnet fork configuration for subsequent tests
+    network.config.forking = forking
   })
 
   beforeEach(async function () {
