@@ -1,4 +1,4 @@
-const { deployments, getNamedAccounts, network } = require("hardhat")
+const { getNamedAccounts, network, ethers } = require("hardhat")
 const { before, describe, it } = require("mocha")
 const { expect } = require("chai")
 
@@ -13,11 +13,8 @@ describe("Deployment of RewardsAggregator using mainnet network fork", function 
     }
   })
 
-  it("test", async function () {
-    const { deploy } = deployments
-
+  it("should be deployed RewardsAggregator", async function () {
     const {
-      deployer,
       tokenContract,
       tacoApp,
       oldCumulativeMerkleDrop,
@@ -25,19 +22,35 @@ describe("Deployment of RewardsAggregator using mainnet network fork", function 
       owner,
     } = await getNamedAccounts()
 
-    const args = [
+    const RewardsAggregator = await ethers.getContractFactory(
+      "RewardsAggregator"
+    )
+
+    const rewardsAggregator = await RewardsAggregator.deploy(
       tokenContract,
       tacoApp,
       oldCumulativeMerkleDrop,
       merkleRewardsHolder,
-      owner,
-    ]
+      owner
+    )
 
-    const rewardsAggregator = await deploy("RewardsAggregator", {
-      from: deployer,
-      args,
-    })
+    // Check if the contract was successfully deployed
+    expect(await rewardsAggregator.owner()).to.equal(owner)
+    expect(await rewardsAggregator.token()).to.equal(tokenContract)
+    expect(await rewardsAggregator.application()).to.equal(tacoApp)
+    expect(await rewardsAggregator.merkleRewardsHolder()).to.equal(
+      merkleRewardsHolder
+    )
+    expect(await rewardsAggregator.oldCumulativeMerkleDrop()).to.equal(
+      oldCumulativeMerkleDrop
+    )
 
-    console.log(rewardsAggregator.address)
+    // Check if it is possible to claim Merkle rewards
+    // TODO: It is needed to allow RewardsAggregator to pull tokens from ClaimableRewards
+
+    // TODO: test a TACoApp claim
+
+    // TODO: test a total claim (Merkle + TACoApp)
+
   })
 })
