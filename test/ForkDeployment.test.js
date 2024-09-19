@@ -78,6 +78,9 @@ describe("Deployment of RewardsAggregator using mainnet network fork", function 
     const claimed = await rewardsAggregator.cumulativeMerkleClaimed(stakingProv)
     expect(claimed).to.be.greaterThan(ethers.BigNumber.from(0))
 
+    // Let's take a snapshot of the current state of the blockchain
+    const snapshot = await helpers.takeSnapshot()
+
     // Check if it is possible to claim Merkle rewards
     const prevBalance = await tokenContract.balanceOf(claim.beneficiary)
     const toBeClaimed = ethers.BigNumber.from(claim.amount).sub(claimed)
@@ -106,7 +109,7 @@ describe("Deployment of RewardsAggregator using mainnet network fork", function 
       )
     ).to.be.revertedWith("Nothing to claim")
 
-    // TODO: It is needed to allow RewardsAggregator to pull tokens from ClaimableRewards
+    await snapshot.restore()
 
     // TODO: test a TACoApp claim
 
