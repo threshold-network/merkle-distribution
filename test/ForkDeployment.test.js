@@ -111,7 +111,10 @@ describe("Deployment of RewardsAggregator using mainnet network fork", function 
 
     await snapshot.restore()
 
-    // TODO: test a TACoApp claim
+    // TODO: test a TACoApp claim. It is necessary to create a mock for
+    // TACoRewardsDispenser. This mock only has to send tokens to
+    // TACoApplication (it is supossed to be the computed amount of rewards
+    // earned by the stakes)
 
     // TODO: test a total claim (Merkle + TACoApp)
   })
