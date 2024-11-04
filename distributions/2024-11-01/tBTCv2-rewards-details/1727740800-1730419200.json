@@ -2006,7 +2006,7 @@
             },
             "instances": {
                 "138.201.251.149:9601": {
-                    "upTimePercent": 99.97677059673757,
+                    "upTimePercent": 87.09677419,
                     "avgPreParams": 999,
                     "version": {
                         "v2.1.0": 1730419500
@@ -2016,7 +2016,7 @@
             "requirements": {
                 "isBeaconAuthorized": true,
                 "isTbtcAuthorized": true,
-                "isUptimeSatisfied": true,
+                "isUptimeSatisfied": false,
                 "isPreParamsSatisfied": true,
                 "isVersionSatisfied": true
             }
