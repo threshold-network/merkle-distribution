@@ -1,3 +1,4 @@
+const fs = require("fs")
 const { ethers } = require("hardhat")
 const { MerkleTree } = require("merkletreejs")
 const keccak256 = require("keccak256")
@@ -14,7 +15,7 @@ function onlyUnique(value, index, self) {
 }
 
 async function deployContractsFixture() {
-  const [owner, rewardsHolder] = await ethers.getSigners()
+  const [owner, merkleRewardsHolder] = await ethers.getSigners()
 
   const Token = await ethers.getContractFactory("TokenMock")
   const ApplicationMock = await ethers.getContractFactory("ApplicationMock")
@@ -24,24 +25,24 @@ async function deployContractsFixture() {
   )
 
   const token = await Token.deploy()
-  await token.mint(rewardsHolder.address, 1)
+  await token.mint(merkleRewardsHolder.address, 1)
   const application = await ApplicationMock.deploy(token.address)
   const oldCumulativeMerkleDrop = await CumulativeMerkleDrop.deploy(
     token.address,
-    rewardsHolder.address,
+    merkleRewardsHolder.address,
     owner.address
   )
   const rewardsAggregator = await RewardsAggregator.deploy(
     token.address,
     application.address,
     oldCumulativeMerkleDrop.address,
-    rewardsHolder.address,
+    merkleRewardsHolder.address,
     owner.address
   )
 
   return {
     owner,
-    rewardsHolder,
+    merkleRewardsHolder,
     token,
     application,
     oldCumulativeMerkleDrop,
@@ -49,4 +50,26 @@ async function deployContractsFixture() {
   }
 }
 
-module.exports = { genMerkleLeaf, onlyUnique, deployContractsFixture }
+function getLastMerkleClaim(stakingProvider) {
+  // Read the dists folders and take only those with YYYY/MM/DD format
+  let distDates = fs
+    .readdirSync("./distributions")
+    .filter((dist) => /^\d{4}-\d{2}-\d{2}$/.test(dist))
+
+  distDates = distDates.sort().reverse()
+  const distFile = fs.readFileSync(
+    `./distributions/${distDates[0]}/MerkleDist.json`
+  )
+  const dist = JSON.parse(distFile)
+  const claim = dist.claims[stakingProvider]
+  claim["merkleRoot"] = dist.merkleRoot
+
+  return claim
+}
+
+module.exports = {
+  genMerkleLeaf,
+  onlyUnique,
+  deployContractsFixture,
+  getLastMerkleClaim,
+}
