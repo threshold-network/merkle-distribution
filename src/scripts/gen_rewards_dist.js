@@ -12,9 +12,9 @@ const { getTACoRewards } = require("./utils/taco-rewards.js")
 // The following parameters must be modified for each distribution
 const tacoWeight = 0.25
 const tbtcv2Weight = 0.75
-const startTime = new Date("2024-11-01T00:00:00+00:00").getTime() / 1000
-const endTime = new Date("2024-12-01T00:00:00+00:00").getTime() / 1000
-const lastDistribution = "2024-11-01"
+const startTime = new Date("2024-12-01T00:00:00+00:00").getTime() / 1000
+const endTime = new Date("2025-01-01T00:00:00+00:00").getTime() / 1000
+const lastDistribution = "2024-12-01"
 // tBTC valid versions and deadlines (if any) sorted from latests to oldest.
 // Example: v2.1.x is the current version, v2.0.x is valid until 2024-06-01:
 // v2.1.0|v2.0.0_1717200000
