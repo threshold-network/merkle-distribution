@@ -34,15 +34,6 @@ register(
   process.env.ETHERSCAN_TOKEN
 )
 register(
-  "mainnet_test",
-  ["deploy_test"],
-  1,
-  process.env.MAINNET_RPC_URL,
-  process.env.MAINNET_PRIVATE_KEY,
-  "mainnet",
-  process.env.ETHERSCAN_TOKEN
-)
-register(
   "sepolia",
   ["deploy"],
   11155111,
@@ -56,6 +47,7 @@ networks["hardhat"] = {
   forking: {
     enabled: !!process.env.FORKING_URL,
     url: process.env.FORKING_URL || "",
+    blockNumber: 20775560,
   },
 }
 
