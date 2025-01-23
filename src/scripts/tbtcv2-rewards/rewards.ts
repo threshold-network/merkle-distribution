@@ -1,8 +1,6 @@
 import { BigNumber } from "@ethersproject/bignumber"
 import { Contract } from "ethers"
 import { program } from "commander"
-import dayjs from "dayjs"
-import utc from "dayjs/plugin/utc"
 import * as fs from "fs"
 import { ethers } from "ethers"
 import {
@@ -33,8 +31,6 @@ import {
   APR,
   SECONDS_IN_YEAR,
 } from "./rewards-constants"
-
-dayjs.extend(utc)
 
 program
   .version("0.0.1")
@@ -89,27 +85,6 @@ const prometheusAPIQuery = `${prometheusAPI}/query`
 // Go back in time relevant to the current date to get data for the exact
 // rewards interval dates.
 const offset = Math.floor(Date.now() / 1000) - endRewardsTimestamp
-
-// Convert epoch timestamp to YYYY-MM-DD for your distributions folder.
-const startDate = dayjs.unix(startRewardsTimestamp).utc().format("YYYY-MM-DD")
-// e.g. "2025-01-01"
-const lastDistributionPath = `distributions/${startDate}`
-
-const merkleDistFile = `${lastDistributionPath}/MerkleDist.json`
-let oldOperatorsSet = new Set<string>()
-
-// Load the old distribution's MerkleDist if it exists
-if (fs.existsSync(merkleDistFile)) {
-  const merkleDistData = JSON.parse(fs.readFileSync(merkleDistFile, "utf-8"))
-  // merkleDistData.claims = { "0xOperator1": {...}, "0xOperator2": {...}, ... }
-  const oldOperators = Object.keys(merkleDistData.claims) // array of addresses
-  oldOperatorsSet = new Set(oldOperators.map((addr) => addr.toLowerCase()))
-  console.log(
-    `Loaded ${oldOperatorsSet.size} old operators from ${merkleDistFile}.`
-  )
-} else {
-  console.log(`WARNING: No MerkleDist.json found at ${merkleDistFile}`)
-}
 
 type InstanceParams = {
   upTimePercent: number
@@ -658,22 +633,13 @@ async function checkUptime(
 
   // First registered 'up' metric in a given interval <start:end> for a given
   // operator. Start evaluating uptime from this point.
-  let firstRegisteredUptime = instances.reduce(
+  const firstRegisteredUptime = instances.reduce(
     (currentMin: number, instance: any) =>
       Math.min(instance.values[0][0], currentMin),
     Number.MAX_VALUE
   )
 
-  // If the operator is in last distribution, we treat them as continuing
-  // => They must be measured from the *start* of the period, not from their first heartbeat.
-  if (oldOperatorsSet.has(operatorAddress.toLowerCase())) {
-    firstRegisteredUptime = startRewardsTimestamp
-  }
-
   let uptimeSearchRange = endRewardsTimestamp - firstRegisteredUptime
-  if (uptimeSearchRange < 0) {
-    uptimeSearchRange = 0 // means they came online after period end, effectively 0
-  }
 
   const paramsSumUptimes = {
     query: `sum_over_time(up{chain_address="${operatorAddress}", job="${prometheusJob}"}
