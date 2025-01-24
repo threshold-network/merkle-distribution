@@ -11,3 +11,4 @@ export const HUNDRED = 100
 export const IS_VERSION_SATISFIED = "isVersionSatisfied"
 export const APR = 15 // percent
 export const SECONDS_IN_YEAR = 31536000
+export const INITIAL_REWARDS_TIMESTAMP = 1657843200 // e.g. 2022-07-15 00:00:00 UTC

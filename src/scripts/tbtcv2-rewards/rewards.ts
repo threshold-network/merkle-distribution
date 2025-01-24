@@ -30,6 +30,7 @@ import {
   HUNDRED,
   APR,
   SECONDS_IN_YEAR,
+  INITIAL_REWARDS_TIMESTAMP, // Make sure you have this exported in rewards-constants.ts
 } from "./rewards-constants"
 
 program
@@ -209,6 +210,10 @@ export async function calculateRewards() {
 
   for (let i = 0; i < bootstrapData.length; i++) {
     const operatorAddress = bootstrapData[i].metric.chain_address
+
+    // Step 1) Check if operator is truly new (never had an "up" metric before this period).
+    const isOperatorNew = await checkIfOperatorIsNew(operatorAddress)
+
     let authorizations = new Map<string, BigNumber>() // application: value
     let requirements = new Map<string, boolean>() // factor: true | false
     let instancesData = new Map<string, InstanceParams>()
@@ -324,7 +329,8 @@ export async function calculateRewards() {
     let { uptimeCoefficient, isUptimeSatisfied } = await checkUptime(
       operatorAddress,
       rewardsInterval,
-      instancesData
+      instancesData,
+      isOperatorNew
     )
     // BigNumbers cannot operate on floats. Coefficient needs to be multiplied
     // by PRECISION
@@ -480,6 +486,40 @@ export async function calculateRewards() {
   )
 }
 
+/**
+ * Checks if this operator is truly "new" by querying Prometheus
+ * from [INITIAL_REWARDS_TIMESTAMP .. (startRewardsTimestamp - 1)].
+ * If we find any "up" metric > 0 in that time range, the operator
+ * is considered "old" (continuing). If none, it's new.
+ */
+async function checkIfOperatorIsNew(operatorAddress: string): Promise<boolean> {
+  // total lookback in seconds
+  const intervalSeconds = startRewardsTimestamp - 1 - INITIAL_REWARDS_TIMESTAMP
+
+  // We'll check up to (startRewardsTimestamp - 1).
+  const offsetSeconds =
+    Math.floor(Date.now() / 1000) - (startRewardsTimestamp - 1)
+  const safeOffset = offsetSeconds < 0 ? 0 : offsetSeconds
+
+  const queryStr = `max(max_over_time(up{chain_address="${operatorAddress}",job="${prometheusJob}"}[${intervalSeconds}s] offset ${safeOffset}s)) by (chain_address)`
+  const params = { query: queryStr }
+
+  try {
+    const res = await queryPrometheus(prometheusAPIQuery, params)
+    if (!res.data.result || res.data.result.length === 0) {
+      // No data => operator never seen => new
+      return true
+    }
+    const val = parseFloat(res.data.result[0].value[1])
+    // If val > 0 => they had "up" in the past => not new
+    return !(val > 0)
+  } catch (err) {
+    console.error("Error checking if operator is new:", err)
+    // Fallback: assume new if there's an error
+    return true
+  }
+}
+
 async function getAuthorization(
   application: Contract,
   intervalEvents: any[],
@@ -620,7 +660,8 @@ async function instancesForOperator(
 async function checkUptime(
   operatorAddress: string,
   rewardsInterval: number,
-  instancesData: Map<string, InstanceParams>
+  instancesData: Map<string, InstanceParams>,
+  isOperatorNew: boolean
 ) {
   const paramsOperatorUptime = {
     query: `up{chain_address="${operatorAddress}", job="${prometheusJob}"}
@@ -632,19 +673,38 @@ async function checkUptime(
   ).data.result
 
   // First registered 'up' metric in a given interval <start:end> for a given
-  // operator. Start evaluating uptime from this point.
-  const firstRegisteredUptime = instances.reduce(
+  // operator. Start evaluating uptime from this point, by default.
+  if (instances.length === 0) {
+    // If absolutely no data in the interval, then sumUptime=0 => not satisfied
+    return { uptimeCoefficient: 0, isUptimeSatisfied: false }
+  }
+
+  let firstRegisteredUptime = instances.reduce(
     (currentMin: number, instance: any) =>
       Math.min(instance.values[0][0], currentMin),
     Number.MAX_VALUE
   )
 
+  // If the operator is NOT new, they should've been online since the beginning
+  // of this rewards period => set firstRegisteredUptime = startRewardsTimestamp
+  if (!isOperatorNew) {
+    firstRegisteredUptime = startRewardsTimestamp
+  }
+
   let uptimeSearchRange = endRewardsTimestamp - firstRegisteredUptime
+  if (uptimeSearchRange < 0) {
+    uptimeSearchRange = 0
+  }
 
   const paramsSumUptimes = {
     query: `sum_over_time(up{chain_address="${operatorAddress}", job="${prometheusJob}"}
             [${uptimeSearchRange}s:${QUERY_RESOLUTION}s] offset ${offset}s)
             * ${QUERY_RESOLUTION} / ${uptimeSearchRange}`,
+  }
+
+  if (uptimeSearchRange === 0) {
+    // Means they came online after endRewardsTimestamp or not at all
+    return { uptimeCoefficient: 0, isUptimeSatisfied: false }
   }
 
   const uptimesByInstance = (
@@ -705,7 +765,10 @@ async function checkPreParams(
     sumPreParams += preParams
   }
 
-  const preParamsAvg = sumPreParams / preParamsAvgByInstance.length
+  const preParamsAvg = preParamsAvgByInstance.length
+    ? sumPreParams / preParamsAvgByInstance.length
+    : 0
+
   return preParamsAvg >= requiredPreParams
 }
 
