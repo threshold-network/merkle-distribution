@@ -30,7 +30,7 @@ import {
   HUNDRED,
   APR,
   SECONDS_IN_YEAR,
-  INITIAL_REWARDS_TIMESTAMP, // Make sure you have this exported in rewards-constants.ts
+  INITIAL_REWARDS_TIMESTAMP,
 } from "./rewards-constants"
 
 program
