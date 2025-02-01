@@ -679,32 +679,32 @@ async function checkUptime(
     return { uptimeCoefficient: 0, isUptimeSatisfied: false }
   }
 
-  let firstRegisteredUptime = instances.reduce(
+  const firstRegisteredUptime = instances.reduce(
     (currentMin: number, instance: any) =>
       Math.min(instance.values[0][0], currentMin),
     Number.MAX_VALUE
   )
 
+  const effectiveUptimeRange = endRewardsTimestamp - firstRegisteredUptime
+  let effectiveStartingUptime = firstRegisteredUptime
+
   // If the operator is NOT new, they should've been online since the beginning
-  // of this rewards period => set firstRegisteredUptime = startRewardsTimestamp
+  // of this rewards period => set effectiveStartingUptime = startRewardsTimestamp
   if (!isOperatorNew) {
-    firstRegisteredUptime = startRewardsTimestamp
+    effectiveStartingUptime = startRewardsTimestamp
   }
 
-  let uptimeSearchRange = endRewardsTimestamp - firstRegisteredUptime
+  const uptimeSearchRange = endRewardsTimestamp - effectiveStartingUptime
+
   if (uptimeSearchRange < 0) {
-    uptimeSearchRange = 0
+    // Means they came online after endRewardsTimestamp
+    return { uptimeCoefficient: 0, isUptimeSatisfied: false }
   }
 
   const paramsSumUptimes = {
     query: `sum_over_time(up{chain_address="${operatorAddress}", job="${prometheusJob}"}
             [${uptimeSearchRange}s:${QUERY_RESOLUTION}s] offset ${offset}s)
             * ${QUERY_RESOLUTION} / ${uptimeSearchRange}`,
-  }
-
-  if (uptimeSearchRange === 0) {
-    // Means they came online after endRewardsTimestamp or not at all
-    return { uptimeCoefficient: 0, isUptimeSatisfied: false }
   }
 
   const uptimesByInstance = (
@@ -729,7 +729,7 @@ async function checkUptime(
   const isUptimeSatisfied = sumUptime >= requiredUptime
 
   const uptimeCoefficient = isUptimeSatisfied
-    ? uptimeSearchRange / rewardsInterval
+    ? effectiveUptimeRange / rewardsInterval
     : 0
   return { uptimeCoefficient, isUptimeSatisfied }
 }
