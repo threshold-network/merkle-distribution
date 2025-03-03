@@ -156,7 +156,10 @@ async function getTACoRewards(
 
     // Calculating the rewards for each epoch
     const reward = epochs.reduce((total, cur) => {
-      const epochReward = BigNumber(cur.amount)
+      const capAmount = BigNumber(cur.amount).gt(15000000 * 10 ** 18)
+        ? BigNumber(15_000_000 * 10 ** 18)
+        : BigNumber(cur.amount)
+      const epochReward = capAmount
         .times(rewardsAPR)
         .times(tacoAllocation)
         .times(cur.duration)
