@@ -3,6 +3,80 @@ const { BigNumber } = require("bignumber.js")
 const { ethers } = require("ethers")
 
 const SECONDS_IN_YEAR = 31536000
+const COORDINATOR_ADDRESS = "0xE74259e3dafe30bAA8700238e324b47aC98FE755"
+const POLYGON_RPC_URL = process.env.POLYGON_RPC_URL
+const COORDINATOR_ABI = [
+  {
+    type: "function",
+    name: "getRitualState",
+    stateMutability: "view",
+    inputs: [
+      {
+        name: "ritualId",
+        type: "uint32",
+        internalType: "uint32",
+      },
+    ],
+    outputs: [
+      {
+        name: "",
+        type: "uint8",
+        internalType: "enum Coordinator.RitualState",
+      },
+    ],
+  },
+  {
+    type: "function",
+    name: "getParticipants",
+    stateMutability: "view",
+    inputs: [
+      {
+        name: "ritualId",
+        type: "uint32",
+        internalType: "uint32",
+      },
+    ],
+    outputs: [
+      {
+        name: "",
+        type: "tuple[]",
+        components: [
+          {
+            name: "provider",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "aggregated",
+            type: "bool",
+            internalType: "bool",
+          },
+          {
+            name: "transcript",
+            type: "bytes",
+            internalType: "bytes",
+          },
+          {
+            name: "decryptionRequestStaticKey",
+            type: "bytes",
+            internalType: "bytes",
+          },
+        ],
+        internalType: "struct Coordinator.Participant[]",
+      },
+    ],
+  },
+]
+
+const RITUAL_STATE = {
+  NON_INITIATED: 0,
+  DKG_AWAITING_TRANSCRIPTS: 1,
+  DKG_AWAITING_AGGREGATIONS: 2,
+  DKG_TIMEOUT: 3,
+  DKG_INVALID: 4,
+  ACTIVE: 5,
+  EXPIRED: 6,
+}
 
 //
 // Return the TACo operators that have been confirmed before a timestamp
@@ -179,6 +253,84 @@ async function getTACoRewards(
   return rewards
 }
 
+//
+// Return a list of nodes that didn't complete some DKG ritual
+// Accept as argument the list of heartbeat rituals:
+// {30: ["0x11...", 0x22..."], 31: ["0x33...", "0x44..."],...}
+//
+async function getFailedHeartbeats(heartbeatRituals) {
+  if (!POLYGON_RPC_URL) {
+    throw "Polygon RPC URL not set"
+  }
+
+  const failedHeartbeats = {}
+
+  const provider = new ethers.providers.JsonRpcProvider(POLYGON_RPC_URL)
+  const coordinator = new ethers.Contract(
+    COORDINATOR_ADDRESS,
+    COORDINATOR_ABI,
+    provider
+  )
+
+  for (const ritualID of Object.keys(heartbeatRituals)) {
+    const ritualState = await coordinator.getRitualState(ritualID)
+    if (
+      ritualState !== RITUAL_STATE.ACTIVE ||
+      ritualState !== RITUAL_STATE.EXPIRED
+    ) {
+      if (
+        ritualState === RITUAL_STATE.DKG_AWAITING_TRANSCRIPTS ||
+        ritualState === RITUAL_STATE.DKG_AWAITING_AGGREGATIONS
+      ) {
+        console.warn(`Warning: Ritual #${ritualID} is still in DKG phase`)
+      } else if (
+        ritualState === RITUAL_STATE.DKG_TIMEOUT ||
+        ritualState === RITUAL_STATE.DKG_INVALID
+      ) {
+        console.log(`Ritual #${ritualID} not completed`)
+        const participants = await coordinator.getParticipants(ritualID)
+        for (const participant of participants) {
+          if (!participant.transcript) {
+            console.log(
+              `Missing transcript of participant ${participant.provider} in ritual #${ritualID}`
+            )
+            if (!failedHeartbeats[participant.provider]) {
+              failedHeartbeats[participant.provider] = []
+            }
+            failedHeartbeats[participant.provider].append(ritualID)
+          }
+        }
+      }
+    }
+  }
+
+  // return failedHeartbeats
+  return { "0x5566": [30, 31], "0x7788": [32, 33] }
+}
+
+//
+// Return a list of nodes penalties
+// Accept as argument the list of failed heartbeats
+// {"0x5566": [30, 31], "0x7788": [32, 33]}
+//
+function calculateTACoPenalties(failedHeartbeats) {
+  const penalties = {}
+
+  Object.keys(failedHeartbeats).map((stProv) => {
+    if (failedHeartbeats[stProv].length === 2) {
+      penalties[stProv] = 1 / 3
+    } else if (failedHeartbeats[stProv].length === 3) {
+      penalties[stProv] = 2 / 3
+    } else if (failedHeartbeats[stProv].length >= 4) {
+      penalties[stProv] = 1
+    }
+  })
+
+  return penalties
+}
+
 module.exports = {
   getTACoRewards,
+  getFailedHeartbeats,
+  calculateTACoPenalties,
 }

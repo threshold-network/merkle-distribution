@@ -96,6 +96,7 @@ A `.env` file must be set with the following parameters:
 
 ```
 ETHERSCAN_TOKEN=<your Etherscan API token>
+POLYGON_RPC_URL=https://polygon-mainnet.g.alchemy.com/v2/<API_KEY>
 ```
 
 This script calculates the Threshold Network rewards earned during a specific period, adds them to

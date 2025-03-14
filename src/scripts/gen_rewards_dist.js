@@ -5,7 +5,11 @@
 require("dotenv").config()
 const fs = require("fs")
 const MerkleDist = require("./utils/merkle_dist.js")
-const { getTACoRewards } = require("./utils/taco-rewards.js")
+const {
+  getTACoRewards,
+  getFailedHeartbeats,
+  calculateTACoPenalties,
+} = require("./utils/taco-rewards.js")
 
 // The following parameters must be modified for each distribution
 const tacoWeight = 0.25
@@ -14,7 +18,9 @@ const endTime = new Date("2025-03-14T00:00:00+00:00").getTime() / 1000
 const lastDistribution = "2025-03-01"
 
 async function main() {
-  let earnedTACoRewards = {}
+  let potentialTACoRewards = {}
+  let failedHeartbeats = {}
+  let heartbeatRituals = {}
   let bonusRewards = {}
   let tacoRewards = {}
   let tbtcv2Rewards = {}
@@ -23,8 +29,12 @@ async function main() {
   const distributionsFilePath = "distributions/distributions.json"
   const lastDistPath = `distributions/${lastDistribution}`
 
+  // rituals.json contains the list of heartbeat rituals that have been
+  // performed during the distribution period
+  const heartbeatRitualsPath = "./rituals.json"
+
   try {
-    fs.mkdirSync(distPath)
+    fs.mkdirSync(`${distPath}/TACoRewardsDetails/`, { recursive: true })
   } catch (err) {
     console.error(err)
     return
@@ -32,8 +42,37 @@ async function main() {
 
   // TACo rewards calculation
   if (tacoWeight > 0) {
-    earnedTACoRewards = await getTACoRewards(startTime, endTime, tacoWeight)
-    console.log("TACo rewards earned:", earnedTACoRewards)
+    potentialTACoRewards = await getTACoRewards(startTime, endTime, tacoWeight)
+
+    // Read the list of heartbeat rituals
+    try {
+      // TODO: how can we get this list automatically instead of copy-pasting it?
+      heartbeatRituals = JSON.parse(fs.readFileSync(heartbeatRitualsPath))
+      fs.writeFileSync(
+        `${distPath}/TACoRewardsDetails/HeartbeatRituals.json`,
+        JSON.stringify(heartbeatRituals, null, 4)
+      )
+    } catch (err) {
+      console.error(err)
+      return
+    }
+
+    // Get the list of nodes that didn't complete some DKG ritual
+    try {
+      failedHeartbeats = await getFailedHeartbeats(heartbeatRituals)
+      fs.writeFileSync(
+        `${distPath}/TACoRewardsDetails/FailedHeartbeatRituals.json`,
+        JSON.stringify(failedHeartbeats, null, 4)
+      )
+    } catch (err) {
+      console.error("Error with TACo penalties:", err)
+    }
+
+    // Calculate penalties
+    const penalties = calculateTACoPenalties(failedHeartbeats)
+    console.log(penalties)
+
+    // TODO: calculate rewards based on penalties
   }
 
   // Add rewards earned to cumulative totals
@@ -48,7 +87,10 @@ async function main() {
     tacoRewards = JSON.parse(
       fs.readFileSync(`${lastDistPath}/MerkleInputTACoRewards.json`)
     )
-    tacoRewards = MerkleDist.combineMerkleInputs(tacoRewards, earnedTACoRewards)
+    tacoRewards = MerkleDist.combineMerkleInputs(
+      tacoRewards,
+      potentialTACoRewards
+    )
     fs.writeFileSync(
       distPath + "/MerkleInputTACoRewards.json",
       JSON.stringify(tacoRewards, null, 4)

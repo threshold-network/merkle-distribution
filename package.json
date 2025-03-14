@@ -43,6 +43,7 @@
     "@openzeppelin/contracts": "^4.9.0",
     "@thesis-co/solidity-contracts": "^0.0.1-dev.0",
     "bignumber.js": "^9.0.2",
+    "ethers": "^5.8.0",
     "ora": "5.4.1",
     "simple-git": "^3.19.1"
   },
