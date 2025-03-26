@@ -275,62 +275,76 @@ async function getFailedHeartbeats(heartbeatRituals) {
   for (const ritualID of Object.keys(heartbeatRituals)) {
     const ritualState = await coordinator.getRitualState(ritualID)
     if (
-      ritualState !== RITUAL_STATE.ACTIVE ||
-      ritualState !== RITUAL_STATE.EXPIRED
+      ritualState === RITUAL_STATE.DKG_AWAITING_TRANSCRIPTS ||
+      ritualState === RITUAL_STATE.DKG_AWAITING_AGGREGATIONS
     ) {
-      if (
-        ritualState === RITUAL_STATE.DKG_AWAITING_TRANSCRIPTS ||
-        ritualState === RITUAL_STATE.DKG_AWAITING_AGGREGATIONS
-      ) {
-        console.warn(`Warning: Ritual #${ritualID} is still in DKG phase`)
-      } else if (
-        ritualState === RITUAL_STATE.DKG_TIMEOUT ||
-        ritualState === RITUAL_STATE.DKG_INVALID
-      ) {
-        console.log(`Ritual #${ritualID} not completed`)
-        const participants = await coordinator.getParticipants(ritualID)
-        for (const participant of participants) {
-          if (!participant.transcript) {
-            console.log(
-              `Missing transcript of participant ${participant.provider} in ritual #${ritualID}`
-            )
-            if (!failedHeartbeats[participant.provider]) {
-              failedHeartbeats[participant.provider] = []
-            }
-            failedHeartbeats[participant.provider].append(ritualID)
+      console.error(`Error: Ritual #${ritualID} is still in DKG phase`)
+      console.error("Penalizations must be calculated after DKG timeout")
+      throw "Ritual not finalized"
+    } else if (
+      ritualState === RITUAL_STATE.DKG_TIMEOUT ||
+      ritualState === RITUAL_STATE.DKG_INVALID ||
+      ritualState === RITUAL_STATE.NON_INITIATED
+    ) {
+      console.log(`Ritual #${ritualID} failed. State: ${ritualState}`)
+      const ritualParticipants = await coordinator.getParticipants(ritualID)
+      for (const participant of ritualParticipants) {
+        if (!participant.transcript || participant.transcript === "0x") {
+          console.log(
+            `Missing transcript of participant ${participant.provider}`
+          )
+          if (!failedHeartbeats[participant.provider]) {
+            failedHeartbeats[participant.provider] = []
           }
+          failedHeartbeats[participant.provider].push(ritualID)
         }
       }
     }
   }
 
-  // return failedHeartbeats
-  return { "0x5566": [30, 31], "0x7788": [32, 33] }
+  return failedHeartbeats
 }
 
 //
-// Return a list of nodes penalties
-// Accept as argument the list of failed heartbeats
-// {"0x5566": [30, 31], "0x7788": [32, 33]}
+// Calculate the penalizations for the TACo rewards
 //
-function calculateTACoPenalties(failedHeartbeats) {
-  const penalties = {}
+function calculateTACoPenalizations(
+  tacoRewardsWithNoPenalizations,
+  failedHeartbeats
+) {
+  // Copy the object to avoid modifying the original
+  const tacoRewards = JSON.parse(JSON.stringify(tacoRewardsWithNoPenalizations))
 
   Object.keys(failedHeartbeats).map((stProv) => {
+    // If the node failed 2 heartbeats, penalize 1/3 of the reward
     if (failedHeartbeats[stProv].length === 2) {
-      penalties[stProv] = 1 / 3
+      tacoRewards[stProv].amount = BigNumber(
+        tacoRewardsWithNoPenalizations[stProv].amount
+      )
+        .minus(
+          BigNumber(tacoRewardsWithNoPenalizations[stProv].amount).times(1 / 3)
+        )
+        .toFixed(0)
+      // If the node failed 3 heartbeats, penalize 2/3 of the reward
     } else if (failedHeartbeats[stProv].length === 3) {
-      penalties[stProv] = 2 / 3
+      tacoRewards[stProv].amount = BigNumber(
+        tacoRewardsWithNoPenalizations[stProv].amount
+      )
+        .minus(
+          BigNumber(tacoRewardsWithNoPenalizations[stProv].amount).times(2 / 3)
+        )
+        .toFixed(0)
+      // If the node failed 4 or more heartbeats, penalize all the reward
     } else if (failedHeartbeats[stProv].length >= 4) {
-      penalties[stProv] = 1
+      tacoRewards[stProv].amount = BigNumber(0).toFixed(0)
     }
   })
 
-  return penalties
+  return tacoRewards
 }
 
 module.exports = {
   getTACoRewards,
   getFailedHeartbeats,
-  calculateTACoPenalties,
+  calculateTACoPenalizations,
 }
