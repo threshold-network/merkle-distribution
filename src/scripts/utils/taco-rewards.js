@@ -258,12 +258,12 @@ async function getPotentialRewards(
 // Accept as argument the list of heartbeat rituals:
 // {30: ["0x11...", 0x22..."], 31: ["0x33...", "0x44..."],...}
 //
-async function getFailedHeartbeats(heartbeatRituals) {
+async function getHeartbeatNodesFailures(heartbeatRituals) {
   if (!POLYGON_RPC_URL) {
     throw "Polygon RPC URL not set"
   }
 
-  const failedHeartbeats = {}
+  const failedNodes = {}
 
   const provider = new ethers.providers.JsonRpcProvider(POLYGON_RPC_URL)
   const coordinator = new ethers.Contract(
@@ -293,16 +293,16 @@ async function getFailedHeartbeats(heartbeatRituals) {
           console.log(
             `Missing transcript of participant ${participant.provider}`
           )
-          if (!failedHeartbeats[participant.provider]) {
-            failedHeartbeats[participant.provider] = []
+          if (!failedNodes[participant.provider]) {
+            failedNodes[participant.provider] = []
           }
-          failedHeartbeats[participant.provider].push(ritualID)
+          failedNodes[participant.provider].push(ritualID)
         }
       }
     }
   }
 
-  return failedHeartbeats
+  return failedNodes
 }
 
 //
@@ -334,6 +334,6 @@ function applyPenalizations(potentialRewards, failedHeartbeats) {
 
 module.exports = {
   getPotentialRewards,
-  getFailedHeartbeats,
+  getHeartbeatNodesFailures,
   applyPenalizations,
 }

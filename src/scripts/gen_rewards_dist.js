@@ -7,7 +7,7 @@ const fs = require("fs")
 const MerkleDist = require("./utils/merkle_dist.js")
 const {
   getPotentialRewards,
-  getFailedHeartbeats,
+  getHeartbeatNodesFailures,
   applyPenalizations,
 } = require("./utils/taco-rewards.js")
 
@@ -59,7 +59,7 @@ async function main() {
     // Get the list of nodes that didn't complete some DKG ritual
     let failedHeartbeats
     try {
-      failedHeartbeats = await getFailedHeartbeats(heartbeatRituals)
+      failedHeartbeats = await getHeartbeatNodesFailures(heartbeatRituals)
     } catch (err) {
       console.error("Error in TACo penalization calculation:", err)
       return
