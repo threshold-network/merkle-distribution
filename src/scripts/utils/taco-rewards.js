@@ -308,7 +308,7 @@ async function getFailedHeartbeats(heartbeatRituals) {
 //
 // Calculate the penalizations for the TACo rewards
 //
-function calculateTACoPenalizations(
+function calculateTACoRewardsWithPenalizations(
   tacoRewardsWithNoPenalizations,
   failedHeartbeats
 ) {
@@ -346,5 +346,5 @@ function calculateTACoPenalizations(
 module.exports = {
   getTACoRewards,
   getFailedHeartbeats,
-  calculateTACoPenalizations,
+  calculateTACoRewardsWithPenalizations,
 }
