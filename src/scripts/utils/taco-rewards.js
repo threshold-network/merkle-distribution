@@ -279,7 +279,7 @@ async function getHeartbeatNodesFailures(heartbeatRituals) {
       ritualState === RITUAL_STATE.DKG_AWAITING_AGGREGATIONS
     ) {
       console.error(`Error: Ritual #${ritualID} is still in DKG phase`)
-      console.error("Penalizations must be calculated after DKG timeout")
+      console.error("Penalties must be calculated after DKG timeout")
       throw "Ritual not finalized"
     } else if (
       ritualState === RITUAL_STATE.DKG_TIMEOUT ||
@@ -306,9 +306,9 @@ async function getHeartbeatNodesFailures(heartbeatRituals) {
 }
 
 //
-// Calculate the penalizations for the TACo rewards
+// Calculate the penalties for the TACo rewards
 //
-function applyPenalizations(potentialRewards, failedHeartbeats) {
+function applyPenalties(potentialRewards, failedHeartbeats) {
   // Copy the object to avoid modifying the original
   const tacoRewards = JSON.parse(JSON.stringify(potentialRewards))
 
@@ -335,5 +335,5 @@ function applyPenalizations(potentialRewards, failedHeartbeats) {
 module.exports = {
   getPotentialRewards,
   getHeartbeatNodesFailures,
-  applyPenalizations,
+  applyPenalties,
 }

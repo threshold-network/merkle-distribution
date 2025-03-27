@@ -8,7 +8,7 @@ const MerkleDist = require("./utils/merkle_dist.js")
 const {
   getPotentialRewards,
   getHeartbeatNodesFailures,
-  applyPenalizations,
+  applyPenalties,
 } = require("./utils/taco-rewards.js")
 
 // The following parameters must be modified for each distribution
@@ -37,7 +37,7 @@ async function main() {
       return
     }
 
-    // Potential TACo rewards before applying penalizations
+    // Potential TACo rewards before applying penalties
     const potentialTACoRewards = await getPotentialRewards(
       startTime,
       endTime,
@@ -61,7 +61,7 @@ async function main() {
     try {
       failedHeartbeats = await getHeartbeatNodesFailures(heartbeatRituals)
     } catch (err) {
-      console.error("Error in TACo penalization calculation:", err)
+      console.error("Error in TACo penalty calculation:", err)
       return
     }
     writeDataToFile(
@@ -69,11 +69,8 @@ async function main() {
       failedHeartbeats
     )
 
-    // Apply penalizations to TACo rewards
-    earnedTACoRewards = applyPenalizations(
-      potentialTACoRewards,
-      failedHeartbeats
-    )
+    // Apply penalties to TACo rewards
+    earnedTACoRewards = applyPenalties(potentialTACoRewards, failedHeartbeats)
     writeDataToFile(
       `${tacoRewardsDetailsPath}/EarnedRewards.json`,
       earnedTACoRewards
