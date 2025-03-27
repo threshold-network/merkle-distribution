@@ -316,12 +316,13 @@ function applyPenalties(potentialRewards, failedHeartbeats) {
     // If the node failed 2 heartbeats, penalize 1/3 of the reward
     if (failedHeartbeats[stProv].length === 2) {
       tacoRewards[stProv].amount = BigNumber(potentialRewards[stProv].amount)
-        .minus(BigNumber(potentialRewards[stProv].amount).times(1 / 3))
+        .times(2)
+        .div(3)
         .toFixed(0)
       // If the node failed 3 heartbeats, penalize 2/3 of the reward
     } else if (failedHeartbeats[stProv].length === 3) {
       tacoRewards[stProv].amount = BigNumber(potentialRewards[stProv].amount)
-        .minus(BigNumber(potentialRewards[stProv].amount).times(2 / 3))
+        .div(3)
         .toFixed(0)
       // If the node failed 4 or more heartbeats, penalize all the reward
     } else if (failedHeartbeats[stProv].length >= 4) {
