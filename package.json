@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "prepare": "husky install",
-    "build-client": "graphclient build --fileType json"
+    "build-client": "graphclient build --fileType json",
+    "test-taco-rewards": "mocha ./src/scripts/utils/taco-rewards.test.js"
   },
   "lint-staged": {
     "src/**/*.{js,jsx,ts,tsx}": [
