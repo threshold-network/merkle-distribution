@@ -122,7 +122,7 @@ must be added to this file in addition to the `src/script/graphql` folder.
 Every time the subgraph queries are modified, these must be recompiled:
 
 ```bash
-yarn graphclient build --fileType json
+npm run build-client
 ```
 
 ## Contracts development

@@ -700,6 +700,11 @@ enum Account_orderBy {
   delegatee__liquidWeight
 }
 
+enum Aggregation_interval {
+  hour
+  day
+}
+
 """AppAuthHistory stores each change in the stake's authorization of apps"""
 type AppAuthHistory {
   """ID is <staking provider address>-<application address>-<block number>"""
@@ -1437,6 +1442,8 @@ type TACoOperator {
   Timestamp in which the first operator of this staking provider was bonded
   """
   bondedTimestampFirstOperator: BigInt
+  """The operator won't be confirmed during the operator address update"""
+  confirmed: Boolean
   """
   Timestamp in which the current operator was confirmed to the staking provider
   """
@@ -1445,8 +1452,6 @@ type TACoOperator {
   Timestamp in which the first operator of this staking provider was confirmed
   """
   confirmedTimestampFirstOperator: BigInt
-  """The operator won't be confirmed during the operator address update"""
-  confirmed: Boolean
 }
 
 input TACoOperator_filter {
@@ -1484,6 +1489,10 @@ input TACoOperator_filter {
   bondedTimestampFirstOperator_lte: BigInt
   bondedTimestampFirstOperator_in: [BigInt!]
   bondedTimestampFirstOperator_not_in: [BigInt!]
+  confirmed: Boolean
+  confirmed_not: Boolean
+  confirmed_in: [Boolean!]
+  confirmed_not_in: [Boolean!]
   """Filter for the block changed event."""
   _change_block: BlockChangedFilter
   and: [TACoOperator_filter]
@@ -1504,10 +1513,6 @@ input TACoOperator_filter {
   confirmedTimestampFirstOperator_lte: BigInt
   confirmedTimestampFirstOperator_in: [BigInt!]
   confirmedTimestampFirstOperator_not_in: [BigInt!]
-  confirmed: Boolean
-  confirmed_not: Boolean
-  confirmed_in: [Boolean!]
-  confirmed_not_in: [Boolean!]
 }
 
 enum TACoOperator_orderBy {
@@ -1515,10 +1520,16 @@ enum TACoOperator_orderBy {
   operator
   bondedTimestamp
   bondedTimestampFirstOperator
+  confirmed
   confirmedTimestamp
   confirmedTimestampFirstOperator
-  confirmed
 }
+
+"""
+A string representation of microseconds UNIX timestamp (16 digits)
+
+"""
+scalar Timestamp
 
 """
 TokenholderDelegation represents the delegatee to whom the TokenHolder DAO voting power has been delegated
@@ -1608,9 +1619,4 @@ enum _SubgraphErrorPolicy_ {
   If the subgraph has indexing errors, data will be omitted. The default.
   """
   deny
-}
-
-enum Aggregation_interval {
-  hour
-  day
 }
