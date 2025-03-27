@@ -4,8 +4,8 @@ import type { GetMeshOptions } from '@graphql-mesh/runtime';
 import type { YamlConfig } from '@graphql-mesh/types';
 import { MeshHTTPHandler } from '@graphql-mesh/http';
 import { ExecuteMeshFn, SubscribeMeshFn, MeshContext as BaseMeshContext, MeshInstance } from '@graphql-mesh/runtime';
-import type { DevelopmentThresholdSubgraphTypes } from './sources/development-threshold-subgraph/types';
 import type { ThresholdStakingPolygonTypes } from './sources/threshold-staking-polygon/types';
+import type { DevelopmentThresholdSubgraphTypes } from './sources/development-threshold-subgraph/types';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends {
@@ -33,6 +33,7 @@ export type Scalars = {
     BigInt: any;
     Bytes: any;
     Int8: any;
+    Timestamp: any;
 };
 export type Query = {
     account?: Maybe<Account>;
@@ -484,6 +485,7 @@ export type Account_filter = {
     or?: InputMaybe<Array<InputMaybe<Account_filter>>>;
 };
 export type Account_orderBy = 'id' | 'stakes' | 'delegatee' | 'delegatee__id' | 'delegatee__totalWeight' | 'delegatee__liquidWeight';
+export type Aggregation_interval = 'hour' | 'day';
 /** AppAuthHistory stores each change in the stake's authorization of apps */
 export type AppAuthHistory = {
     /** ID is <staking provider address>-<application address>-<block number> */
@@ -1120,12 +1122,12 @@ export type TACoOperator = {
     bondedTimestamp: Scalars['BigInt'];
     /** Timestamp in which the first operator of this staking provider was bonded */
     bondedTimestampFirstOperator?: Maybe<Scalars['BigInt']>;
+    /** The operator won't be confirmed during the operator address update */
+    confirmed?: Maybe<Scalars['Boolean']>;
     /** Timestamp in which the current operator was confirmed to the staking provider */
     confirmedTimestamp: Scalars['BigInt'];
     /** Timestamp in which the first operator of this staking provider was confirmed */
     confirmedTimestampFirstOperator?: Maybe<Scalars['BigInt']>;
-    /** The operator won't be confirmed during the operator address update */
-    confirmed?: Maybe<Scalars['Boolean']>;
 };
 export type TACoOperator_filter = {
     id?: InputMaybe<Scalars['ID']>;
@@ -1162,6 +1164,10 @@ export type TACoOperator_filter = {
     bondedTimestampFirstOperator_lte?: InputMaybe<Scalars['BigInt']>;
     bondedTimestampFirstOperator_in?: InputMaybe<Array<Scalars['BigInt']>>;
     bondedTimestampFirstOperator_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+    confirmed?: InputMaybe<Scalars['Boolean']>;
+    confirmed_not?: InputMaybe<Scalars['Boolean']>;
+    confirmed_in?: InputMaybe<Array<Scalars['Boolean']>>;
+    confirmed_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
     /** Filter for the block changed event. */
     _change_block?: InputMaybe<BlockChangedFilter>;
     and?: InputMaybe<Array<InputMaybe<TACoOperator_filter>>>;
@@ -1182,12 +1188,8 @@ export type TACoOperator_filter = {
     confirmedTimestampFirstOperator_lte?: InputMaybe<Scalars['BigInt']>;
     confirmedTimestampFirstOperator_in?: InputMaybe<Array<Scalars['BigInt']>>;
     confirmedTimestampFirstOperator_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-    confirmed?: InputMaybe<Scalars['Boolean']>;
-    confirmed_not?: InputMaybe<Scalars['Boolean']>;
-    confirmed_in?: InputMaybe<Array<Scalars['Boolean']>>;
-    confirmed_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
 };
-export type TACoOperator_orderBy = 'id' | 'operator' | 'bondedTimestamp' | 'bondedTimestampFirstOperator' | 'confirmedTimestamp' | 'confirmedTimestampFirstOperator' | 'confirmed';
+export type TACoOperator_orderBy = 'id' | 'operator' | 'bondedTimestamp' | 'bondedTimestampFirstOperator' | 'confirmed' | 'confirmedTimestamp' | 'confirmedTimestampFirstOperator';
 /** TokenholderDelegation represents the delegatee to whom the TokenHolder DAO voting power has been delegated */
 export type TokenholderDelegation = Delegation & {
     /** ID is delegatee ETH address */
@@ -1268,7 +1270,6 @@ export type _SubgraphErrorPolicy_ =
 'allow'
 /** If the subgraph has indexing errors, data will be omitted. The default. */
  | 'deny';
-export type Aggregation_interval = 'hour' | 'day';
 export type WithIndex<TObject> = TObject & Record<string, any>;
 export type ResolversObject<TObject> = WithIndex<TObject>;
 export type ResolverTypeWrapper<T> = Promise<T> | T;
@@ -1313,6 +1314,7 @@ export type ResolversTypes = ResolversObject<{
     Account: ResolverTypeWrapper<Account>;
     Account_filter: Account_filter;
     Account_orderBy: Account_orderBy;
+    Aggregation_interval: Aggregation_interval;
     AppAuthHistory: ResolverTypeWrapper<AppAuthHistory>;
     AppAuthHistory_filter: AppAuthHistory_filter;
     AppAuthHistory_orderBy: AppAuthHistory_orderBy;
@@ -1355,13 +1357,13 @@ export type ResolversTypes = ResolversObject<{
     TACoOperator: ResolverTypeWrapper<TACoOperator>;
     TACoOperator_filter: TACoOperator_filter;
     TACoOperator_orderBy: TACoOperator_orderBy;
+    Timestamp: ResolverTypeWrapper<Scalars['Timestamp']>;
     TokenholderDelegation: ResolverTypeWrapper<TokenholderDelegation>;
     TokenholderDelegation_filter: TokenholderDelegation_filter;
     TokenholderDelegation_orderBy: TokenholderDelegation_orderBy;
     _Block_: ResolverTypeWrapper<_Block_>;
     _Meta_: ResolverTypeWrapper<_Meta_>;
     _SubgraphErrorPolicy_: _SubgraphErrorPolicy_;
-    Aggregation_interval: Aggregation_interval;
 }>;
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = ResolversObject<{
@@ -1400,6 +1402,7 @@ export type ResolversParentTypes = ResolversObject<{
     TACoCommitment_filter: TACoCommitment_filter;
     TACoOperator: TACoOperator;
     TACoOperator_filter: TACoOperator_filter;
+    Timestamp: Scalars['Timestamp'];
     TokenholderDelegation: TokenholderDelegation;
     TokenholderDelegation_filter: TokenholderDelegation_filter;
     _Block_: _Block_;
@@ -1562,11 +1565,14 @@ export type TACoOperatorResolvers<ContextType = MeshContext, ParentType extends 
     operator?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
     bondedTimestamp?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
     bondedTimestampFirstOperator?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+    confirmed?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
     confirmedTimestamp?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
     confirmedTimestampFirstOperator?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-    confirmed?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
     __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
+export interface TimestampScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['Timestamp'], any> {
+    name: 'Timestamp';
+}
 export type TokenholderDelegationResolvers<ContextType = MeshContext, ParentType extends ResolversParentTypes['TokenholderDelegation'] = ResolversParentTypes['TokenholderDelegation']> = ResolversObject<{
     id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
     totalWeight?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
@@ -1605,6 +1611,7 @@ export type Resolvers<ContextType = MeshContext> = ResolversObject<{
     StakeHistory?: StakeHistoryResolvers<ContextType>;
     TACoCommitment?: TACoCommitmentResolvers<ContextType>;
     TACoOperator?: TACoOperatorResolvers<ContextType>;
+    Timestamp?: GraphQLScalarType;
     TokenholderDelegation?: TokenholderDelegationResolvers<ContextType>;
     _Block_?: _Block_Resolvers<ContextType>;
     _Meta_?: _Meta_Resolvers<ContextType>;
