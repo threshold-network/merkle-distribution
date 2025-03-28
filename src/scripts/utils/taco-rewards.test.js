@@ -108,7 +108,7 @@ describe("TACo rewards calculation", () => {
         ],
       }
       const rewards = applyPenalties(potentialTACoRewards, nodesFailures)
-      // should be subtracted 2/3 of the reward
+      // should be subtracted all the rewards
       const expected = "0"
       expect(
         rewards["0x6c2e7e031324E68CC767B2f8781f9Fd7D2e75741"].amount
