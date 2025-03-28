@@ -54,7 +54,7 @@ export async function getMeshOptions() {
     const additionalTypeDefs = [];
     const developmentThresholdSubgraphHandler = new GraphqlHandler({
         name: "development-threshold-subgraph",
-        config: { "endpoint": "https://subgraph.satsuma-prod.com/276a55924ce0/nucypher--102994/mainnet/api" },
+        config: { "endpoint": "https://subgraph.satsuma-prod.com/735cd3ac7b23/nucypher-ops/staking-subgraph-mainnet/api" },
         baseDir,
         cache,
         pubsub,
