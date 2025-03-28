@@ -38,6 +38,7 @@ async function main() {
     }
 
     // Potential TACo rewards before applying penalties
+    console.log("Calculating potential TACo rewards...")
     const potentialTACoRewards = await getPotentialRewards(
       startTime,
       endTime,
@@ -57,6 +58,7 @@ async function main() {
     )
 
     // Get the list of nodes that didn't complete some DKG ritual
+    console.log("Retrieving node failures on DKG heartbeats...")
     let failedHeartbeats
     try {
       failedHeartbeats = await getHeartbeatNodesFailures(heartbeatRituals)
@@ -70,6 +72,7 @@ async function main() {
     )
 
     // Apply penalties to TACo rewards
+    console.log("Applying penalties to TACo rewards...")
     earnedTACoRewards = applyPenalties(potentialTACoRewards, failedHeartbeats)
     writeDataToFile(
       `${tacoRewardsDetailsPath}/EarnedRewards.json`,

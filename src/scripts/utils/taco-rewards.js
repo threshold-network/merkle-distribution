@@ -286,12 +286,12 @@ async function getHeartbeatNodesFailures(heartbeatRituals) {
       ritualState === RITUAL_STATE.DKG_INVALID ||
       ritualState === RITUAL_STATE.NON_INITIATED
     ) {
-      console.log(`Ritual #${ritualID} failed. State: ${ritualState}`)
+      console.log(`▶ Ritual #${ritualID} failed. State: ${ritualState}`)
       const ritualParticipants = await coordinator.getParticipants(ritualID)
       for (const participant of ritualParticipants) {
         if (!participant.transcript || participant.transcript === "0x") {
           console.log(
-            `Missing transcript of participant ${participant.provider}`
+            `  ! Missing transcript of participant ${participant.provider}`
           )
           if (!failedNodes[participant.provider]) {
             failedNodes[participant.provider] = []
