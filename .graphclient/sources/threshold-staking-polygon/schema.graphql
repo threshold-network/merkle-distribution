@@ -178,6 +178,12 @@ enum TACoOperator_orderBy {
   confirmed
 }
 
+"""
+A string representation of microseconds UNIX timestamp (16 digits)
+
+"""
+scalar Timestamp
+
 type _Block_ {
   """The hash of the block"""
   hash: Bytes

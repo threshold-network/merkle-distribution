@@ -2,7 +2,7 @@ sources:
   - name: development-threshold-subgraph
     handler:
       graphql:
-        endpoint: https://subgraph.satsuma-prod.com/276a55924ce0/nucypher--102994/mainnet/api
+        endpoint: https://subgraph.satsuma-prod.com/735cd3ac7b23/nucypher-ops/staking-subgraph-mainnet/api
     transforms:
       - autoPagination:
           validateSchema: true

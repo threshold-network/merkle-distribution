@@ -20,6 +20,7 @@ export type Scalars = {
   BigInt: any;
   Bytes: any;
   Int8: any;
+  Timestamp: any;
 };
 
 /** Account represents the base user data: user's stakes and delegations */
@@ -84,6 +85,10 @@ export type Account_orderBy =
   | 'delegatee__id'
   | 'delegatee__totalWeight'
   | 'delegatee__liquidWeight';
+
+export type Aggregation_interval =
+  | 'hour'
+  | 'day';
 
 /** AppAuthHistory stores each change in the stake's authorization of apps */
 export type AppAuthHistory = {
@@ -1318,6 +1323,8 @@ export type TACoOperator = {
   bondedTimestamp: Scalars['BigInt'];
   /** Timestamp in which the first operator of this staking provider was bonded */
   bondedTimestampFirstOperator?: Maybe<Scalars['BigInt']>;
+  /** The operator has been confirmed. This info depends on polygon->ethereum bridge/bot */
+  confirmed?: Maybe<Scalars['Boolean']>;
 };
 
 export type TACoOperator_filter = {
@@ -1355,6 +1362,10 @@ export type TACoOperator_filter = {
   bondedTimestampFirstOperator_lte?: InputMaybe<Scalars['BigInt']>;
   bondedTimestampFirstOperator_in?: InputMaybe<Array<Scalars['BigInt']>>;
   bondedTimestampFirstOperator_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  confirmed?: InputMaybe<Scalars['Boolean']>;
+  confirmed_not?: InputMaybe<Scalars['Boolean']>;
+  confirmed_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  confirmed_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
   and?: InputMaybe<Array<InputMaybe<TACoOperator_filter>>>;
@@ -1365,7 +1376,8 @@ export type TACoOperator_orderBy =
   | 'id'
   | 'operator'
   | 'bondedTimestamp'
-  | 'bondedTimestampFirstOperator';
+  | 'bondedTimestampFirstOperator'
+  | 'confirmed';
 
 /** TokenholderDelegation represents the delegatee to whom the TokenHolder DAO voting power has been delegated */
 export type TokenholderDelegation = Delegation & {
@@ -1433,6 +1445,8 @@ export type _Block_ = {
   number: Scalars['Int'];
   /** Integer representation of the timestamp stored in blocks for the chain */
   timestamp?: Maybe<Scalars['Int']>;
+  /** The hash of the parent block */
+  parentHash?: Maybe<Scalars['Bytes']>;
 };
 
 /** The type for the top-level _meta field */
