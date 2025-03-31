@@ -8,13 +8,14 @@ const MerkleDist = require("./utils/merkle_dist.js")
 const {
   getPotentialRewards,
   getHeartbeatNodesFailures,
+  setBetaStakerRewardsToZero,
   applyPenalties,
 } = require("./utils/taco-rewards.js")
 
 // The following parameters must be modified for each distribution
 const tacoWeight = 0.25
 const startTime = new Date("2025-03-01T00:00:00+00:00").getTime() / 1000
-const endTime = new Date("2025-03-25T00:00:00+00:00").getTime() / 1000
+const endTime = new Date("2025-04-01T00:00:00+00:00").getTime() / 1000
 const lastDistribution = "2025-03-01"
 
 async function main() {
@@ -39,11 +40,14 @@ async function main() {
 
     // Potential TACo rewards before applying penalties
     console.log("Calculating potential TACo rewards...")
-    const potentialTACoRewards = await getPotentialRewards(
+    let potentialTACoRewards = await getPotentialRewards(
       startTime,
       endTime,
       tacoWeight
     )
+
+    // Make sure that TACo rewards for Beta Stakers are set to zero
+    potentialTACoRewards = setBetaStakerRewardsToZero(potentialTACoRewards)
 
     writeDataToFile(
       `${tacoRewardsDetailsPath}/PotentialRewards.json`,
