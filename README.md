@@ -43,7 +43,6 @@ FORKING_URL=https://eth-mainnet.g.alchemy.com/v2/<API_KEY>
 - `FORKING_URL` is optional since it is used only for testing the claiming in the HardHat local
   network. It is necessary to use an archive node, so Alchemy is recommended.
 
-
 #### Usage:
 
 To get help:
@@ -82,8 +81,8 @@ npx hardhat --network mainnet claim-rewards \
 ```
 
 - If no network is specified, the transaction will be executed in test mode: HardHat local network
-that forks with the mainnet current stake will be used. This can be useful to know if the
-transaction execution will be correct without actually sending the transaction.
+  that forks with the mainnet current stake will be used. This can be useful to know if the
+  transaction execution will be correct without actually sending the transaction.
 
 ```bash
 npx hardhat claim-rewards \
@@ -92,15 +91,16 @@ npx hardhat claim-rewards \
 
 ## Rewards distribution generation script
 
-A `.env` file must be set with the following parameters:
+A `.env` file must be set with the following parameter:
 
 ```
-ETHERSCAN_TOKEN=<your Etherscan API token>
 POLYGON_RPC_URL=https://polygon-mainnet.g.alchemy.com/v2/<API_KEY>
 ```
 
 This script calculates the Threshold Network rewards earned during a specific period, adds them to
 the previous distributions, and generates a new distribution that contains the cumulative rewards.
+
+### Running the script
 
 ```bash
 node src/scripts/gen_rewards_dist.js
@@ -109,6 +109,28 @@ node src/scripts/gen_rewards_dist.js
 Note that some script's parameters (rewards weights, start time, end time, last distribution path)
 must be replaced in the script before running it.
 
+### Checking the calculated distribution
+
+This script will perform some tests to check if the amounts on the last distribution are correct.
+
+```bash
+npm run check-last-dist
+```
+
+> Note that this script takes some representative stakes (randomly selected) to perform some checks,
+> assuming that the value of these didn't change in the last distribution period. Since we do not
+> control these stakes, the expected value may not be true at some point. If these tests start
+> failing, check the authorized amount for TACo of the failing staking provider address in the
+> [Token Staking](https://etherscan.io/address/0x01b67b1194c75264d06f808a921228a95c765dd7#readProxyContract)
+> contract and update the tests accordingly.
+
+### Developing the generation script
+
+Some unit tests can be used when developing `gen_rewards_dist.js` script:
+
+```bash
+npm run test-taco-rewards
+```
 
 ### Contributions
 
