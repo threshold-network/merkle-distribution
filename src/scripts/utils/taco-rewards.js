@@ -268,6 +268,7 @@ async function getPotentialRewards(
 
     // Calculating the rewards for each epoch
     const reward = epochs.reduce((total, cur) => {
+      // Since TIP-092 and TIP-100, the max eligible amount for rewards is 15MT
       const capAmount = BigNumber(cur.amount).gt(15000000 * 10 ** 18)
         ? BigNumber(15_000_000 * 10 ** 18)
         : BigNumber(cur.amount)

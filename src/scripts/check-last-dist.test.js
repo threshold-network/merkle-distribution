@@ -311,4 +311,32 @@ describe("Checking last TACo rewards distribution", () => {
       })
     })
   })
+
+  describe("Checking 15M T cap for eligible stake", () => {
+    it("should rewards for any stake not exceed the corresponding to 15M", () => {
+      const earnedRewards = JSON.parse(
+        fs.readFileSync(
+          `./distributions/${lastDistFolder}/TACoRewardsDetails/EarnedRewards.json`
+        )
+      )
+
+      const startDate = new Date(prevDistFolder)
+      const endDate = new Date(lastDistFolder)
+      const periodDuration = (endDate.getTime() - startDate.getTime()) / 1000
+
+      const maxAmount = BigNumber(15000000 * 10 ** 18)
+        .times(0.15)
+        .times(0.25)
+        .times(periodDuration)
+        .div(31536000)
+
+      Object.keys(earnedRewards).map((stProv) => {
+        const earnedAmount = BigNumber(earnedRewards[stProv].amount)
+        expect(
+          maxAmount.gte(earnedAmount),
+          `${stProv} earned more rewards than allowed by 15M T cap`
+        ).to.be.true
+      })
+    })
+  })
 })
