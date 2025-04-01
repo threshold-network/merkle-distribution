@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "prepare": "husky install",
-    "build-client": "graphclient build --fileType json"
+    "build-client": "graphclient build --fileType json",
+    "test-taco-rewards": "mocha ./src/scripts/utils/taco-rewards.test.js",
+    "check-last-dist": "mocha ./src/scripts/check-last-dist.test.js"
   },
   "lint-staged": {
     "src/**/*.{js,jsx,ts,tsx}": [
@@ -43,6 +45,7 @@
     "@openzeppelin/contracts": "^4.9.0",
     "@thesis-co/solidity-contracts": "^0.0.1-dev.0",
     "bignumber.js": "^9.0.2",
+    "ethers": "^5.8.0",
     "ora": "5.4.1",
     "simple-git": "^3.19.1"
   },
