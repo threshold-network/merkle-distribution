@@ -4,6 +4,8 @@
 const { expect } = require("chai")
 const fs = require("fs")
 const { BigNumber } = require("bignumber.js")
+const { MerkleTree } = require("merkletreejs")
+const keccak256 = require("keccak256")
 
 // This is a list of real stakes and their TACo authorization, chosen for their
 // minimal history of authorization change events.
@@ -210,6 +212,39 @@ describe("Checking last TACo rewards distribution", () => {
       expect(
         totalInPrevMerkleDist.plus(totalEarnedRewards).eq(totalInLastMerkleDist)
       ).to.be.true
+    })
+
+    it("should the Merkle proof verification pass for all the stakes", () => {
+      function verifyProof(wallet, beneficiary, amount, proof, root) {
+        amount = BigNumber(amount)
+        const tree = new MerkleTree([], keccak256, { sortPairs: true })
+        const element =
+          wallet + beneficiary.substr(2) + amount.toString(16).padStart(64, "0")
+        const node = MerkleTree.bufferToHex(keccak256(element))
+        return tree.verify(proof, node, root)
+      }
+
+      const lastMerkleDist = JSON.parse(
+        fs.readFileSync(`./distributions/${lastDistFolder}/MerkleDist.json`)
+      )
+
+      const merkleRoot = lastMerkleDist.merkleRoot
+      const claims = lastMerkleDist.claims
+
+      Object.keys(claims).map((stProv) => {
+        const beneficiary = claims[stProv].beneficiary
+        const amount = claims[stProv].amount
+        const proof = claims[stProv].proof
+        const proofResult = verifyProof(
+          stProv,
+          beneficiary,
+          amount,
+          proof,
+          merkleRoot
+        )
+        const error = `Error verifying proof for ${stProv}.`
+        expect(proofResult, error).to.be.true
+      })
     })
   })
 
