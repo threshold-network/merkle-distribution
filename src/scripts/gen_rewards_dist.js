@@ -14,9 +14,9 @@ const {
 
 // The following parameters must be modified for each distribution
 const tacoWeight = 0.25
-const startTime = new Date("2025-03-01T00:00:00+00:00").getTime() / 1000
-const endTime = new Date("2025-04-01T00:00:00+00:00").getTime() / 1000
-const lastDistribution = "2025-03-01"
+const startTime = new Date("2025-04-01T00:00:00+00:00").getTime() / 1000
+const endTime = new Date("2025-05-01T00:00:00+00:00").getTime() / 1000
+const lastDistribution = "2025-04-01"
 
 async function main() {
   const endDate = new Date(endTime * 1000).toISOString().slice(0, 10)
