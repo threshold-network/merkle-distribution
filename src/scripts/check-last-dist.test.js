@@ -364,6 +364,7 @@ describe("Checking last TACo rewards distribution", () => {
         .times(0.25)
         .times(periodDuration)
         .div(31536000)
+        .decimalPlaces(0)
 
       Object.keys(earnedRewards).map((stProv) => {
         const earnedAmount = BigNumber(earnedRewards[stProv].amount)
