@@ -1,0 +1,29 @@
+name: Check New Rewards Distribution Calculation
+
+run-name: Check New Rewards Distribution Calculation
+
+on:
+    pull_request:
+        paths:
+            - 'distributions/**'
+
+jobs:
+    check_distribution:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Setup Node
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 18.x
+                  cache: 'npm'
+
+            - name: Install dependencies
+              run: npm install
+
+            - name: Run distribution check
+              run: npm run check-last-dist
+
+
