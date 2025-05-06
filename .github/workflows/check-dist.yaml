@@ -5,7 +5,7 @@ run-name: Check New Rewards Distribution Calculation
 on:
     pull_request:
         paths:
-            - 'distributions/**'
+            - 'distributions/distributions.json'
 
 jobs:
     check_distribution:
