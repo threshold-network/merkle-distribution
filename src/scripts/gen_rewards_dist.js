@@ -22,7 +22,7 @@ async function main() {
   const endDate = new Date(endTime * 1000).toISOString().slice(0, 10)
   const distPath = `distributions/${endDate}`
   const tacoRewardsDetailsPath = `${distPath}/TACoRewardsDetails`
-  const heartbeatRitualsPath = "DKGHeartbeatRituals.json"
+  const heartbeatRitualsPath = "heartbeat-rituals.json"
   const lastDistPath = `distributions/${lastDistribution}`
   const distributionsFilePath = "distributions/distributions.json"
 
