@@ -10,7 +10,7 @@ require("dotenv").config()
 
 // MODIFY THIS WITH THE LAST DISTRIBUTION IN WHICH FUNDS WERE TRANSFERRED FROM
 // FUTURE REWARDS TO CLAIMABE REWARDS
-const distribution = "./distributions/2025-08-01/MerkleDist.json"
+const distribution = "./distributions/2025-09-01/MerkleDist.json"
 
 const MERKLE_DIST_ADDRESS = "0xeA7CA290c7811d1cC2e79f8d706bD05d8280BD37"
 const ETHEREUM_RPC_URL = process.env.ETHEREUM_RPC_URL
