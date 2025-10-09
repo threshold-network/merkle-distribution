@@ -4,6 +4,7 @@ require("hardhat-deploy")
 require("hardhat-ignore-warnings")
 require("dotenv").config()
 require("./src/tasks/claim_rewards")
+require("./src/tasks/force_claim_all")
 
 const { networks, etherscan } = require("./hardhat.networks")
 

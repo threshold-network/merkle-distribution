@@ -1,0 +1,61 @@
+{
+    "version": "1.0",
+    "chainId": "1",
+    "createdAt": 1759848238247,
+    "meta": {
+        "name": "Transactions Batch",
+        "description": "",
+        "txBuilderVersion": "1.18.2",
+        "createdFromSafeAddress": "0xf642Bd6A9F76294d86E99c2071cFE2Aa3B61fBDa",
+        "createdFromOwnerAddress": ""
+    },
+    "transactions": [
+        {
+            "to": "0xeA7CA290c7811d1cC2e79f8d706bD05d8280BD37",
+            "value": "0",
+            "data": null,
+            "contractMethod": {
+                "inputs": [
+                    {
+                        "internalType": "bytes32",
+                        "name": "expectedMerkleRoot",
+                        "type": "bytes32"
+                    },
+                    {
+                        "components": [
+                            {
+                                "internalType": "address",
+                                "name": "stakingProvider",
+                                "type": "address"
+                            },
+                            {
+                                "internalType": "address",
+                                "name": "beneficiary",
+                                "type": "address"
+                            },
+                            {
+                                "internalType": "uint256",
+                                "name": "amount",
+                                "type": "uint256"
+                            },
+                            {
+                                "internalType": "bytes32[]",
+                                "name": "proof",
+                                "type": "bytes32[]"
+                            }
+                        ],
+                        "internalType": "struct CumulativeMerkleDrop.Claim[]",
+                        "name": "Claims",
+                        "type": "tuple[]"
+                    }
+                ],
+                "name": "batchClaim",
+                "payable": false
+            },
+            "contractInputsValues": {
+                "expectedMerkleRoot": "0xb507ee578ed74eec70b511a841445ee19305f77bc2114ac878ced88c947fc616",
+                "Claims": ""
+            }
+        }
+    ]
+}
